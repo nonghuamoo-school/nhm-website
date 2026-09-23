@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { MapPin, Phone, Mail, Clock, Send, CheckCircle2 } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, ExternalLink } from "lucide-react";
 import SectionTitle from "@/components/ui/SectionTitle";
-import { schoolInfo } from "@/data/schoolInfo";
+import { useSchoolSettings } from "@/hooks/useSchoolSettings";
+import { getGoogleMapsEmbedUrl, getGoogleMapsNavigationUrl } from "@/lib/maps";
 
 export default function ContactSection() {
+  const { settings } = useSchoolSettings();
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -20,14 +22,18 @@ export default function ContactSection() {
   };
 
   const formattedAddress = [
-    schoolInfo.villageNo !== "[รอข้อมูลจริง]" ? schoolInfo.villageNo : null,
-    schoolInfo.subDistrict !== "[รอข้อมูลจริง]" ? `ต.${schoolInfo.subDistrict}` : null,
-    schoolInfo.district !== "[รอข้อมูลจริง]" ? `อ.${schoolInfo.district}` : null,
-    `จ.${schoolInfo.province}`,
-    schoolInfo.postalCode !== "[รอข้อมูลจริง]" ? schoolInfo.postalCode : null,
+    settings.villageNo ? settings.villageNo : null,
+    settings.subDistrict ? `ต.${settings.subDistrict}` : null,
+    settings.district ? `อ.${settings.district}` : null,
+    `จ.${settings.province}`,
+    settings.postalCode ? settings.postalCode : null,
   ]
     .filter(Boolean)
-    .join(" ") || `จังหวัด${schoolInfo.province} [รอข้อมูลจริง]`;
+    .join(" ") || `144 หมู่ที่ 7 บ้านโคกสะอาด ต.ทุ่งกระเต็น อ.หนองกี่ จ.บุรีรัมย์ 31210`;
+
+  const fallbackQuery = `โรงเรียนบ้านหนองหัวหมู ${formattedAddress}`;
+  const embedUrl = getGoogleMapsEmbedUrl(settings.mapsUrl, fallbackQuery);
+  const navigationUrl = getGoogleMapsNavigationUrl(settings.mapsUrl, fallbackQuery);
 
   return (
     <section>
@@ -41,10 +47,10 @@ export default function ContactSection() {
         <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6 flex flex-col justify-between">
           <div>
             <h3 className="text-base font-bold text-slate-900 mb-1">
-              {schoolInfo.name}
+              {settings.name}
             </h3>
             <p className="text-xs text-blue-700 font-medium mb-3">
-              {schoolInfo.subAffiliation}
+              {settings.subAffiliation}
             </p>
 
             {/* Quick contact rows */}
@@ -61,7 +67,7 @@ export default function ContactSection() {
                 <Phone className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
                   <span className="font-semibold text-slate-800 block mb-0.5">เบอร์โทรศัพท์</span>
-                  <span>{schoolInfo.phone}</span>
+                  <span>{settings.phone || "081-743-2407"}</span>
                 </div>
               </div>
 
@@ -69,7 +75,7 @@ export default function ContactSection() {
                 <Mail className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
                 <div>
                   <span className="font-semibold text-slate-800 block mb-0.5">อีเมลติดต่อ</span>
-                  <span>{schoolInfo.email}</span>
+                  <span>{settings.email || "31030078@brm3.go.th"}</span>
                 </div>
               </div>
 
@@ -82,11 +88,11 @@ export default function ContactSection() {
               </div>
             </div>
 
-            {/* Map Preview Embed with Buriram Location */}
-            <div className="w-full h-52 rounded-xl overflow-hidden border border-slate-200 relative bg-slate-100 shadow-inner">
+            {/* Map Preview Embed */}
+            <div className="w-full h-56 rounded-xl overflow-hidden border border-slate-200 relative bg-slate-100 shadow-inner">
               <iframe
                 title="แผนที่โรงเรียนบ้านหนองหัวหมู จังหวัดบุรีรัมย์"
-                src="https://maps.google.com/maps?q=Buriram%20Thailand&t=&z=10&ie=UTF8&iwloc=&output=embed"
+                src={embedUrl}
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -94,9 +100,19 @@ export default function ContactSection() {
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
               />
-              <div className="absolute bottom-2 left-2 bg-slate-900/80 text-white text-[10px] px-2 py-1 rounded backdrop-blur-xs">
-                แผนที่พื้นที่จังหวัดบุรีรัมย์ [รอตำแหน่งพิกัด GPS จริงของสถานศึกษา]
+              <div className="absolute bottom-2 left-2 bg-[#091A2B]/85 text-white text-[10px] px-2.5 py-1 rounded backdrop-blur-xs font-medium shadow-xs">
+                📍 {settings.name} (ต.{settings.subDistrict || "ทุ่งกระเต็น"} อ.{settings.district || "หนองกี่"})
               </div>
+
+              <a
+                href={navigationUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute top-2 right-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/95 hover:bg-white text-[#0F2942] font-bold text-[11px] shadow-sm transition-all border border-slate-200"
+              >
+                <ExternalLink className="w-3 h-3 text-blue-600" />
+                <span>เปิดใน Google Maps</span>
+              </a>
             </div>
           </div>
         </div>

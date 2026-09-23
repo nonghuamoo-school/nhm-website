@@ -1,17 +1,26 @@
+"use client";
+
 import React from "react";
 import { MapPin, Phone, Mail, ExternalLink } from "lucide-react";
-import { schoolInfo } from "@/data/schoolInfo";
+import { useSchoolSettings } from "@/hooks/useSchoolSettings";
+import { getGoogleMapsEmbedUrl, getGoogleMapsNavigationUrl } from "@/lib/maps";
 
 export default function Contact() {
+  const { settings } = useSchoolSettings();
+
   const formattedAddress = [
-    schoolInfo.villageNo !== "[รอข้อมูลจริง]" ? schoolInfo.villageNo : null,
-    schoolInfo.subDistrict !== "[รอข้อมูลจริง]" ? `ต.${schoolInfo.subDistrict}` : null,
-    schoolInfo.district !== "[รอข้อมูลจริง]" ? `อ.${schoolInfo.district}` : null,
-    `จ.${schoolInfo.province}`,
-    schoolInfo.postalCode !== "[รอข้อมูลจริง]" ? schoolInfo.postalCode : null,
+    settings.villageNo ? settings.villageNo : null,
+    settings.subDistrict ? `ต.${settings.subDistrict}` : null,
+    settings.district ? `อ.${settings.district}` : null,
+    `จ.${settings.province}`,
+    settings.postalCode ? settings.postalCode : null,
   ]
     .filter(Boolean)
-    .join(" ") || `จังหวัด${schoolInfo.province} [รอข้อมูลที่อยู่จริง]`;
+    .join(" ") || `144 หมู่ที่ 7 บ้านโคกสะอาด ต.ทุ่งกระเต็น อ.หนองกี่ จ.บุรีรัมย์ 31210`;
+
+  const fallbackQuery = `โรงเรียนบ้านหนองหัวหมู ${formattedAddress}`;
+  const embedUrl = getGoogleMapsEmbedUrl(settings.mapsUrl, fallbackQuery);
+  const navigationUrl = getGoogleMapsNavigationUrl(settings.mapsUrl, fallbackQuery);
 
   return (
     <section>
@@ -20,7 +29,7 @@ export default function Contact() {
           ติดต่อและที่ตั้งโรงเรียน
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          {schoolInfo.name} {schoolInfo.subAffiliation}
+          {settings.name} {settings.subAffiliation}
         </p>
       </div>
 
@@ -52,7 +61,7 @@ export default function Contact() {
                 <Phone className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <div className="text-xs leading-relaxed">
                   <span className="font-bold text-slate-800 block mb-0.5">เบอร์โทรศัพท์</span>
-                  <span className="text-slate-600">{schoolInfo.phone}</span>
+                  <span className="text-slate-600">{settings.phone || "081-743-2407"}</span>
                 </div>
               </div>
 
@@ -61,23 +70,25 @@ export default function Contact() {
                 <Mail className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
                 <div className="text-xs leading-relaxed">
                   <span className="font-bold text-slate-800 block mb-0.5">อีเมล</span>
-                  <span className="text-slate-600">{schoolInfo.email}</span>
+                  <span className="text-slate-600">{settings.email || "31030078@brm3.go.th"}</span>
                 </div>
               </div>
 
               {/* Facebook */}
-              <div className="flex items-start gap-3 p-3 rounded-xl bg-[#F8FAFC] border border-[#E5E7EB]">
-                <svg
-                  className="w-4 h-4 text-blue-600 shrink-0 mt-0.5 fill-current"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                </svg>
-                <div className="text-xs leading-relaxed">
-                  <span className="font-bold text-slate-800 block mb-0.5">เฟซบุ๊กแฟนเพจ</span>
-                  <span className="text-slate-600">{schoolInfo.facebook}</span>
+              {settings.facebook && (
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-[#F8FAFC] border border-[#E5E7EB]">
+                  <svg
+                    className="w-4 h-4 text-blue-600 shrink-0 mt-0.5 fill-current"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                  </svg>
+                  <div className="text-xs leading-relaxed">
+                    <span className="font-bold text-slate-800 block mb-0.5">เฟซบุ๊กแฟนเพจ</span>
+                    <span className="text-slate-600">{settings.facebook}</span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
@@ -93,15 +104,15 @@ export default function Contact() {
               <span className="text-xs font-bold text-[#0F2942]">
                 แผนที่แสดงที่ตั้งสถานศึกษา
               </span>
-              <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                จังหวัดบุรีรัมย์
+              <span className="text-[10px] text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded font-medium">
+                ต.{settings.subDistrict || "ทุ่งกระเต็น"} อ.{settings.district || "หนองกี่"}
               </span>
             </div>
 
             <div className="w-full h-64 sm:h-72 rounded-xl overflow-hidden border border-[#E5E7EB] relative bg-slate-100">
               <iframe
                 title="แผนที่โรงเรียนบ้านหนองหัวหมู จังหวัดบุรีรัมย์"
-                src="https://maps.google.com/maps?q=Buriram%20Thailand&t=&z=10&ie=UTF8&iwloc=&output=embed"
+                src={embedUrl}
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -109,19 +120,19 @@ export default function Contact() {
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
               />
-              <div className="absolute bottom-2 left-2 bg-[#091A2B]/80 text-white text-[10px] px-2 py-1 rounded backdrop-blur-xs">
-                แผนที่พื้นที่จังหวัดบุรีรัมย์ [รอตำแหน่งพิกัด GPS จริงของสถานศึกษา]
+              <div className="absolute bottom-2 left-2 bg-[#091A2B]/85 text-white text-[10px] px-2.5 py-1 rounded backdrop-blur-xs font-medium shadow-xs">
+                📍 {settings.name} (ต.{settings.subDistrict || "ทุ่งกระเต็น"} อ.{settings.district || "หนองกี่"})
               </div>
             </div>
           </div>
 
           <div className="pt-4 mt-4 border-t border-[#E5E7EB] flex items-center justify-between">
             <span className="text-xs text-slate-500">
-              สังกัด {schoolInfo.subAffiliation}
+              สังกัด {settings.subAffiliation}
             </span>
 
             <a
-              href="https://maps.google.com/?q=Buriram+Thailand"
+              href={navigationUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white font-bold text-xs transition-colors shadow-xs min-h-[44px]"

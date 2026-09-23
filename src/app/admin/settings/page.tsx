@@ -32,6 +32,7 @@ import {
 import SchoolLogo from "@/components/common/SchoolLogo";
 import { schoolInfo } from "@/data/schoolInfo";
 import { defaultSchoolSettings } from "@/hooks/useSchoolSettings";
+import { getGoogleMapsEmbedUrl, getGoogleMapsNavigationUrl } from "@/lib/maps";
 
 type SettingsTab = "hero" | "branding" | "general" | "vision" | "director" | "contact" | "operations";
 
@@ -1558,16 +1559,93 @@ export default function AdminSettingsPage() {
                 />
               </div>
 
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">
-                  พิกัด Google Maps URL
-                </label>
+              <div className="md:col-span-2 pt-2 border-t border-slate-100">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                  <label className="block font-bold text-slate-700">
+                    พิกัดหรือลิงก์แผนที่ Google Maps
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("โรงเรียนบ้านหนองหัวหมู ตำบลทุ่งกระเต็น อำเภอหนองกี่ จังหวัดบุรีรัมย์")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-800 font-semibold px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      <span>ค้นหาตำแหน่งบน Google Maps</span>
+                    </a>
+                    {formData.mapsUrl && (
+                      <a
+                        href={getGoogleMapsNavigationUrl(formData.mapsUrl)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[11px] text-emerald-700 hover:text-emerald-800 font-semibold px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 transition-colors"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        <span>ทดสอบเปิดพิกัดนี้</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+
                 <input
-                  type="url"
+                  type="text"
                   value={formData.mapsUrl}
                   onChange={(e) => setFormData({ ...formData, mapsUrl: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
+                  placeholder="เช่น https://maps.app.goo.gl/... หรือ 14.6854, 102.5321 หรือ <iframe src=...>"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none font-mono text-xs sm:text-sm"
                 />
+
+                {/* Instructions Box */}
+                <div className="mt-3 p-3.5 rounded-xl bg-blue-50/70 border border-blue-100 text-xs text-slate-700 space-y-1.5">
+                  <span className="font-bold text-blue-900 block mb-1">
+                    💡 วิธีการใส่ลิงก์แผนที่ให้ตรงหมุดโรงเรียน (เลือกวิธีใดวิธีหนึ่งได้เลย):
+                  </span>
+                  <div className="space-y-1 text-slate-600 pl-1">
+                    <p>• <strong>วิธีที่ 1 (แนะนำและง่ายที่สุด):</strong> เปิด Google Maps บนมือถือหรือคอม &gt; ค้นหา &ldquo;โรงเรียนบ้านหนองหัวหมู&rdquo; &gt; กดปุ่ม <strong>&ldquo;แชร์&rdquo; (Share)</strong> &gt; คัดลอกลิงก์ (เช่น <code className="bg-white px-1.5 py-0.5 rounded border border-blue-200 font-mono text-[11px]">https://maps.app.goo.gl/...</code>) มาวางลงในช่องนี้ได้ทันที</p>
+                    <p>• <strong>วิธีที่ 2:</strong> ใช้ตัวเลขพิกัด GPS ละติจูด, ลองจิจูด เช่น <code className="bg-white px-1.5 py-0.5 rounded border border-blue-200 font-mono text-[11px]">14.6823, 102.5312</code></p>
+                    <p>• <strong>วิธีที่ 3:</strong> คัดลอกโค้ด <code className="bg-white px-1.5 py-0.5 rounded border border-blue-200 font-mono text-[11px]">&lt;iframe src=&quot;...&quot;&gt;</code> จากเมนู &ldquo;แชร์ &gt; ฝังแผนที่&rdquo; ของ Google Maps มาวาง</p>
+                  </div>
+                </div>
+
+                {/* Live Map Preview */}
+                <div className="mt-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-slate-700">
+                      ตัวอย่างการแสดงผลแผนที่บนหน้าเว็บจริง (Live Map Preview):
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          mapsUrl: "https://maps.google.com/?q=โรงเรียนบ้านหนองหัวหมู+ตำบลทุ่งกระเต็น+อำเภอหนองกี่+จังหวัดบุรีรัมย์",
+                        })
+                      }
+                      className="text-[11px] text-amber-700 hover:text-amber-900 font-semibold"
+                    >
+                      ↺ คืนค่าพิกัดมาตรฐานของโรงเรียน
+                    </button>
+                  </div>
+                  <div className="w-full h-56 sm:h-64 rounded-xl overflow-hidden border border-slate-200 relative bg-slate-100 shadow-inner">
+                    <iframe
+                      title="ตัวอย่างแผนที่ Google Maps"
+                      src={getGoogleMapsEmbedUrl(
+                        formData.mapsUrl,
+                        "โรงเรียนบ้านหนองหัวหมู ตำบลทุ่งกระเต็น อำเภอหนองกี่ จังหวัดบุรีรัมย์"
+                      )}
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen={false}
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
+                    <div className="absolute bottom-2 left-2 bg-[#091A2B]/85 text-white text-[10px] px-2.5 py-1 rounded backdrop-blur-xs font-medium">
+                      📍 หมุดตัวอย่าง: {formData.name} (ต.{formData.subDistrict} อ.{formData.district})
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
