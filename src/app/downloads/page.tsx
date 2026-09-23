@@ -18,14 +18,15 @@ import {
 } from "lucide-react";
 import InnerPageLayout from "@/components/layout/InnerPageLayout";
 import DocumentViewerModal from "@/components/common/DocumentViewerModal";
-import { schoolDownloads } from "@/data/downloads";
 import { schoolInventoryAssets } from "@/data/assets";
 import { schoolStudentStats } from "@/data/studentStats";
 import { DownloadDoc } from "@/types";
+import { useDownloads } from "@/hooks/useDownloads";
 
 type ActiveTab = "documents" | "inventory" | "studentStats";
 
 export default function DownloadsPage() {
+  const { docList } = useDownloads();
   const [activeTab, setActiveTab] = useState<ActiveTab>("documents");
   const [selectedDocCategory, setSelectedDocCategory] = useState<string>("ทั้งหมด");
   const [docSearch, setDocSearch] = useState<string>("");
@@ -49,7 +50,7 @@ export default function DownloadsPage() {
     "สำหรับนักเรียน/ผู้ปกครอง",
   ];
 
-  const filteredDocs = schoolDownloads.filter((doc) => {
+  const filteredDocs = docList.filter((doc) => {
     const matchesCat = selectedDocCategory === "ทั้งหมด" || doc.category === selectedDocCategory;
     const matchesSearch =
       doc.title.toLowerCase().includes(docSearch.toLowerCase()) ||
