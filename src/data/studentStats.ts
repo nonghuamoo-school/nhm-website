@@ -1,0 +1,44 @@
+import { StudentYearStat } from "@/types";
+
+export const schoolStudentStats: Record<string, StudentYearStat> = {
+  "2568": {
+    academicYear: "2568",
+    updatedDate: "10 มีนาคม 2568",
+    grades: [
+      { grade: "อนุบาล 2 (4 ขวบ)", male: 5, female: 5, total: 10, classrooms: 1 },
+      { grade: "อนุบาล 3 (5 ขวบ)", male: 6, female: 6, total: 12, classrooms: 1 },
+      { grade: "ประถมศึกษาปีที่ 1", male: 7, female: 7, total: 14, classrooms: 1 },
+      { grade: "ประถมศึกษาปีที่ 2", male: 7, female: 6, total: 13, classrooms: 1 },
+      { grade: "ประถมศึกษาปีที่ 3", male: 8, female: 6, total: 14, classrooms: 1 },
+      { grade: "ประถมศึกษาปีที่ 4", male: 8, female: 7, total: 15, classrooms: 1 },
+      { grade: "ประถมศึกษาปีที่ 5", male: 7, female: 7, total: 14, classrooms: 1 },
+      { grade: "ประถมศึกษาปีที่ 6", male: 6, female: 7, total: 13, classrooms: 1 },
+    ],
+    summary: {
+      totalMale: 54,
+      totalFemale: 51,
+      totalStudents: 105,
+      totalClassrooms: 8,
+    },
+  },
+  "2567": {
+    academicYear: "2567",
+    updatedDate: "10 พฤศจิกายน 2567",
+    grades: [
+      { grade: "อนุบาล 2 (4 ขวบ)", male: 5, female: 6, total: 11, classrooms: 1 },
+      { grade: "อนุบาล 3 (5 ขวบ)", male: 6, female: 6, total: 12, classrooms: 1 },
+      { grade: "ประถมศึกษาปีที่ 1", male: 7, female: 6, total: 13, classrooms: 1 },
+      { grade: "ประถมศึกษาปีที่ 2", male: 8, female: 6, total: 14, classrooms: 1 },
+      { grade: "ประถมศึกษาปีที่ 3", male: 8, female: 7, total: 15, classrooms: 1 },
+      { grade: "ประถมศึกษาปีที่ 4", male: 7, female: 7, total: 14, classrooms: 1 },
+      { grade: "ประถมศึกษาปีที่ 5", male: 6, female: 7, total: 13, classrooms: 1 },
+      { grade: "ประถมศึกษาปีที่ 6", male: 7, female: 6, total: 13, classrooms: 1 },
+    ],
+    summary: {
+      totalMale: 54,
+      totalFemale: 51,
+      totalStudents: 105,
+      totalClassrooms: 8,
+    },
+  },
+};

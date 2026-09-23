@@ -1,0 +1,1655 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import {
+  Settings,
+  Save,
+  CheckCircle2,
+  Building,
+  Phone,
+  Mail,
+  ShieldCheck,
+  Image as ImageIcon,
+  Upload,
+  Palette,
+  Eye,
+  RefreshCw,
+  MapPin,
+  Award,
+  Sparkles,
+  BookOpen,
+  User,
+  Plus,
+  Trash2,
+  Check,
+  GraduationCap,
+  ArrowRight,
+  ExternalLink,
+  Globe,
+  Building2,
+  CheckCircle
+} from "lucide-react";
+import SchoolLogo from "@/components/common/SchoolLogo";
+import { schoolInfo } from "@/data/schoolInfo";
+import { defaultSchoolSettings } from "@/hooks/useSchoolSettings";
+
+type SettingsTab = "hero" | "branding" | "general" | "vision" | "director" | "contact" | "operations";
+
+export default function AdminSettingsPage() {
+  const [activeTab, setActiveTab] = useState<SettingsTab>("hero");
+  const [saved, setSaved] = useState(false);
+
+  // Form State initialized with defaults
+  const [formData, setFormData] = useState({
+    name: defaultSchoolSettings.name,
+    nameEn: defaultSchoolSettings.nameEn,
+    schoolCode: defaultSchoolSettings.schoolCode,
+    schoolCode10: defaultSchoolSettings.schoolCode10,
+    smisCode8: defaultSchoolSettings.smisCode8,
+    obecCode6: defaultSchoolSettings.obecCode6,
+    affiliation: defaultSchoolSettings.affiliation,
+    subAffiliation: defaultSchoolSettings.subAffiliation,
+    affiliationBadge: defaultSchoolSettings.affiliationBadge,
+    province: defaultSchoolSettings.province,
+    district: defaultSchoolSettings.district,
+    subDistrict: defaultSchoolSettings.subDistrict,
+    villageNo: defaultSchoolSettings.villageNo,
+    postalCode: defaultSchoolSettings.postalCode,
+    phone: defaultSchoolSettings.phone,
+    email: defaultSchoolSettings.email,
+    facebook: defaultSchoolSettings.facebook,
+    lineOfficial: defaultSchoolSettings.lineOfficial,
+    mapsUrl: defaultSchoolSettings.mapsUrl,
+    schoolLevels: defaultSchoolSettings.schoolLevels,
+    establishedYear: defaultSchoolSettings.establishedYear,
+    schoolGroup: defaultSchoolSettings.schoolGroup,
+    localGov: defaultSchoolSettings.localGov,
+    distanceFromOffice: defaultSchoolSettings.distanceFromOffice,
+    distanceFromDistrict: defaultSchoolSettings.distanceFromDistrict,
+    historyText: defaultSchoolSettings.historyText,
+    motto: defaultSchoolSettings.motto,
+    vision: defaultSchoolSettings.vision,
+    welcomeMessage: defaultSchoolSettings.welcomeMessage,
+    heroBtn1Text: defaultSchoolSettings.heroBtn1Text,
+    heroBtn1Url: defaultSchoolSettings.heroBtn1Url,
+    heroBtn2Text: defaultSchoolSettings.heroBtn2Text,
+    heroBtn2Url: defaultSchoolSettings.heroBtn2Url,
+    heroBtn3Text: defaultSchoolSettings.heroBtn3Text,
+    heroBtn3Url: defaultSchoolSettings.heroBtn3Url,
+    heroImageUrl: defaultSchoolSettings.heroImageUrl,
+    heroBadge1Label: defaultSchoolSettings.heroBadge1Label,
+    heroBadge1Value: defaultSchoolSettings.heroBadge1Value,
+    heroBadge2Label: defaultSchoolSettings.heroBadge2Label,
+    heroBadge2Value: defaultSchoolSettings.heroBadge2Value,
+    mission: [...schoolInfo.mission],
+    identity: defaultSchoolSettings.identity,
+    uniqueness: defaultSchoolSettings.uniqueness,
+    emblemType: "vector" as "vector" | "obec" | "moe" | "custom",
+    customLogoUrl: "",
+    primaryColor: defaultSchoolSettings.primaryColor,
+    accentColor: defaultSchoolSettings.accentColor,
+    directorName: defaultSchoolSettings.directorName,
+    directorTitle: defaultSchoolSettings.directorTitle,
+    directorAcademicStanding: defaultSchoolSettings.directorAcademicStanding,
+    directorImageUrl: defaultSchoolSettings.directorImageUrl,
+    directorMessage: defaultSchoolSettings.directorMessage,
+    directorPhone: defaultSchoolSettings.phone,
+    directorEmail: defaultSchoolSettings.email,
+    currentAcademicYear: "2568",
+    currentSemester: "ภาคเรียนที่ 1/2568",
+    visitorCountBase: "12458",
+  });
+
+  const [newMissionItem, setNewMissionItem] = useState("");
+
+  // Load saved settings from localStorage on client mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const savedData = localStorage.getItem("nhm_school_settings");
+        if (savedData) {
+          const parsed = JSON.parse(savedData);
+          setFormData((prev) => ({ ...prev, ...parsed }));
+        }
+      } catch (e) {
+        console.error("Failed to load settings from localStorage", e);
+      }
+    }
+  }, []);
+
+  const handleSave = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("nhm_school_settings", JSON.stringify(formData));
+        window.dispatchEvent(new Event("nhm_settings_updated"));
+      } catch (err) {
+        console.error("Save error", err);
+      }
+    }
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3500);
+  };
+
+  const handleResetDefaults = () => {
+    if (confirm("คุณต้องการคืนค่าเริ่มต้นทั้งหมดของระบบหรือไม่?")) {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("nhm_school_settings");
+        window.dispatchEvent(new Event("nhm_settings_updated"));
+      }
+      window.location.reload();
+    }
+  };
+
+  const handleHeroImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (loadEvt) => {
+        const result = loadEvt.target?.result;
+        if (typeof result === "string") {
+          setFormData((prev) => ({
+            ...prev,
+            heroImageUrl: result,
+          }));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAddMission = () => {
+    if (newMissionItem.trim()) {
+      setFormData({
+        ...formData,
+        mission: [...formData.mission, newMissionItem.trim()],
+      });
+      setNewMissionItem("");
+    }
+  };
+
+  const handleRemoveMission = (idx: number) => {
+    setFormData({
+      ...formData,
+      mission: formData.mission.filter((_, i) => i !== idx),
+    });
+  };
+
+  const handleCustomLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (loadEvt) => {
+        const result = loadEvt.target?.result;
+        if (typeof result === "string") {
+          setFormData((prev) => ({
+            ...prev,
+            emblemType: "custom",
+            customLogoUrl: result,
+          }));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const tabs = [
+    { id: "hero", label: "ส่วนหัวต้อนรับหน้าแรก (Hero Banner)", icon: Sparkles },
+    { id: "branding", label: "อัตลักษณ์และโลโก้", icon: Palette },
+    { id: "general", label: "ข้อมูลทั่วไปและสังกัด", icon: Building },
+    { id: "vision", label: "วิสัยทัศน์และพันธกิจ", icon: BookOpen },
+    { id: "director", label: "ข้อมูลผู้บริหาร", icon: User },
+    { id: "contact", label: "ที่อยู่และการติดต่อ", icon: MapPin },
+    { id: "operations", label: "ปีการศึกษาและระบบ", icon: Settings },
+  ];
+
+  const heroImagePresets = [
+    {
+      title: "บรรยากาศการเรียนรู้เชิงรุก (Active Learning)",
+      url: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=800",
+    },
+    {
+      title: "กิจกรรมการเรียนการสอนและนักเรียน",
+      url: "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=800",
+    },
+    {
+      title: "ห้องสมุดและศูนย์วิทยบริการ",
+      url: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&q=80&w=800",
+    },
+    {
+      title: "วิทยาศาสตร์ เทคโนโลยี และทดลอง",
+      url: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=800",
+    },
+  ];
+
+  return (
+    <div className="space-y-6 max-w-5xl">
+      {/* Top Header with Action Buttons */}
+      <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E5E7EB] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-100 text-[#0F2942] text-[11px] font-bold mb-1">
+            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+            <span>School Configuration Center</span>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#0F2942]">
+            ตั้งค่าระบบและข้อมูลสถานศึกษา
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            จัดการตราสัญลักษณ์ โลโก้ ส่วนหัวหน้าแรก คำขวัญ วิสัยทัศน์ คณะผู้บริหาร และข้อมูลติดต่อ สพป. บุรีรัมย์ เขต 3
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {saved && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold animate-in fade-in">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>บันทึกสำเร็จ</span>
+            </span>
+          )}
+
+          <button
+            type="button"
+            onClick={handleResetDefaults}
+            className="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-semibold transition-colors"
+            title="คืนค่าข้อมูลตั้งต้น"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleSave()}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-xs transition-colors min-h-[42px]"
+          >
+            <Save className="w-4 h-4 text-amber-400" />
+            <span>บันทึกการตั้งค่าทั้งหมด</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Tabs Bar */}
+      <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as SettingsTab)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all min-h-[38px] ${
+                isActive
+                  ? "bg-[#0F2942] text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Form Content */}
+      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-6">
+        
+        {/* ================= TAB 0: HERO BANNER (ส่วนหัวต้อนรับหน้าแรก) ================= */}
+        {activeTab === "hero" && (
+          <div className="space-y-6">
+            {/* Live Interactive Hero Preview Box */}
+            <div className="bg-white rounded-3xl p-6 border border-blue-200 shadow-sm space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-blue-700" />
+                  <h3 className="text-sm sm:text-base font-bold text-[#0F2942]">
+                    ตัวอย่างการแสดงผลส่วนหัวหน้าแรกจริง (Live Hero Banner Preview)
+                  </h3>
+                </div>
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  ⚡ พรีวิวแบบเรียลไทม์
+                </span>
+              </div>
+
+              {/* Exact Simulated Hero Component */}
+              <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-white via-sky-50/40 to-blue-50/50 border border-slate-200/80 shadow-xs p-6 sm:p-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center w-full">
+                  {/* Left: Text & Actions */}
+                  <div className="lg:col-span-7 space-y-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100/70 text-blue-900 border border-blue-200/60 text-xs font-bold">
+                        <Building2 className="w-3.5 h-3.5 text-blue-700" />
+                        <span>{formData.subAffiliation}</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-100/70 text-amber-900 border border-amber-200/60 text-[11px] font-bold">
+                        <Sparkles className="w-3 h-3 text-amber-600" />
+                        <span>{formData.affiliationBadge}</span>
+                      </span>
+                    </div>
+
+                    <div>
+                      <h2 className="text-2xl sm:text-3xl font-black text-[#0F2942] tracking-tight leading-tight">
+                        {formData.name}
+                      </h2>
+                      <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+                        {formData.nameEn} • รหัสสถานศึกษา {formData.schoolCode}
+                      </p>
+                    </div>
+
+                    <div className="p-3.5 rounded-2xl bg-white/90 backdrop-blur-xs border border-blue-100 shadow-2xs">
+                      <span className="text-[11px] font-bold text-amber-600 block uppercase">
+                        คำขวัญประจำโรงเรียน
+                      </span>
+                      <p className="text-sm sm:text-base font-bold text-[#0F2942] mt-0.5">
+                        &ldquo;{formData.motto}&rdquo;
+                      </p>
+                    </div>
+
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+                      {formData.welcomeMessage}
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                      <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F2942] text-white font-bold text-xs">
+                        <span>{formData.heroBtn1Text}</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </span>
+                      <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-[#0F2942] font-bold text-xs border border-slate-200">
+                        <BookOpen className="w-3.5 h-3.5 text-blue-700" />
+                        <span>{formData.heroBtn2Text}</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 text-xs font-bold">
+                        <span>{formData.heroBtn3Text}</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Right: Simulated Photo & 2 Floating Badges */}
+                  <div className="lg:col-span-5 relative">
+                    <div className="relative rounded-2xl overflow-hidden border border-slate-200/90 bg-white aspect-[16/11] shadow-md">
+                      <img
+                        src={formData.heroImageUrl}
+                        alt="Hero Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    {/* Floating Badge 1: Education Level (Bottom Left) */}
+                    <div className="absolute -bottom-2.5 left-2.5 bg-white/95 backdrop-blur-xs text-[#0F2942] rounded-xl p-2.5 border border-slate-200 shadow-md flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-800 flex items-center justify-center shrink-0">
+                        <GraduationCap className="w-4 h-4" />
+                      </div>
+                      <div className="leading-tight">
+                        <span className="text-[9px] text-slate-400 font-bold block uppercase">
+                          {formData.heroBadge1Label}
+                        </span>
+                        <span className="text-xs font-bold text-[#0F2942]">
+                          {formData.heroBadge1Value}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Floating Badge 2: Academic Excellence (Top Right) */}
+                    <div className="absolute -top-2.5 right-2.5 bg-white/95 backdrop-blur-xs text-[#0F2942] rounded-xl px-3 py-1.5 border border-slate-200 shadow-md flex items-center gap-1.5">
+                      <Award className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <div className="leading-tight">
+                        <span className="text-[9px] text-slate-400 font-bold block">
+                          {formData.heroBadge2Label}
+                        </span>
+                        <span className="text-xs font-bold text-emerald-700">
+                          {formData.heroBadge2Value}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Config Card 1: School Identity & Badges */}
+            <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                <Building2 className="w-5 h-5 text-blue-700" />
+                <h3 className="text-base font-bold text-[#0F2942]">
+                  1. ชื่อสถานศึกษาและป้ายสังกัด (School Name & Badges)
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    ชื่อโรงเรียน (ภาษาไทย)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    ชื่อโรงเรียน (ภาษาอังกฤษ)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.nameEn}
+                    onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    รหัสสถานศึกษา 10 หลัก
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.schoolCode}
+                    onChange={(e) => setFormData({ ...formData, schoolCode: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    ป้ายสังกัดเขตพื้นที่ (ป้ายสีฟ้าบนซ้าย)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.subAffiliation}
+                    onChange={(e) => setFormData({ ...formData, subAffiliation: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    ป้ายสังกัดระดับกระทรวง (ป้ายสีทองบนซ้าย)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.affiliationBadge}
+                    onChange={(e) => setFormData({ ...formData, affiliationBadge: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Config Card 2: Motto & Welcome Message */}
+            <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                <BookOpen className="w-5 h-5 text-amber-600" />
+                <h3 className="text-base font-bold text-[#0F2942]">
+                  2. คำขวัญประจำโรงเรียนและข้อความต้อนรับ
+                </h3>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    คำขวัญประจำโรงเรียน (แสดงเด่นในกรอบไฮไลต์)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.motto}
+                    onChange={(e) => setFormData({ ...formData, motto: e.target.value })}
+                    placeholder="เรียนดี กีฬาเด่น เน้นคุณธรรม นำชุมชน"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-bold text-[#0F2942]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    ข้อความแนะนำสถานศึกษา / สารต้อนรับหน้าแรก
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={formData.welcomeMessage}
+                    onChange={(e) => setFormData({ ...formData, welcomeMessage: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 leading-relaxed"
+                  />
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    ข้อความสั้นกระชับ 2-3 บรรทัด เพื่อสรุปจุดเด่นและแนวทางการจัดการศึกษาของโรงเรียน
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Config Card 3: Action Buttons */}
+            <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                <ArrowRight className="w-5 h-5 text-emerald-600" />
+                <h3 className="text-base font-bold text-[#0F2942]">
+                  3. ปุ่มนำทางด่วนหน้าแรก 3 ปุ่ม (Hero Action Buttons)
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Button 1 */}
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                  <span className="text-xs font-bold text-slate-700 block">ปุ่มที่ 1 (ปุ่มสีกรมท่าเข้ม)</span>
+                  <div>
+                    <label className="text-[11px] text-slate-500 block mb-1">ข้อความบนปุ่ม</label>
+                    <input
+                      type="text"
+                      value={formData.heroBtn1Text}
+                      onChange={(e) => setFormData({ ...formData, heroBtn1Text: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-slate-500 block mb-1">ลิงก์ปลายทาง</label>
+                    <input
+                      type="text"
+                      value={formData.heroBtn1Url}
+                      onChange={(e) => setFormData({ ...formData, heroBtn1Url: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-mono"
+                    />
+                  </div>
+                </div>
+
+                {/* Button 2 */}
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                  <span className="text-xs font-bold text-slate-700 block">ปุ่มที่ 2 (ปุ่มสีขาว)</span>
+                  <div>
+                    <label className="text-[11px] text-slate-500 block mb-1">ข้อความบนปุ่ม</label>
+                    <input
+                      type="text"
+                      value={formData.heroBtn2Text}
+                      onChange={(e) => setFormData({ ...formData, heroBtn2Text: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-slate-500 block mb-1">ลิงก์ปลายทาง</label>
+                    <input
+                      type="text"
+                      value={formData.heroBtn2Url}
+                      onChange={(e) => setFormData({ ...formData, heroBtn2Url: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-mono"
+                    />
+                  </div>
+                </div>
+
+                {/* Button 3 */}
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                  <span className="text-xs font-bold text-slate-700 block">ปุ่มที่ 3 (ปุ่มสีทอง/เขตพื้นที่)</span>
+                  <div>
+                    <label className="text-[11px] text-slate-500 block mb-1">ข้อความบนปุ่ม</label>
+                    <input
+                      type="text"
+                      value={formData.heroBtn3Text}
+                      onChange={(e) => setFormData({ ...formData, heroBtn3Text: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-slate-500 block mb-1">ลิงก์ปลายทาง</label>
+                    <input
+                      type="text"
+                      value={formData.heroBtn3Url}
+                      onChange={(e) => setFormData({ ...formData, heroBtn3Url: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Config Card 4: Hero Image & 2 Floating Badges */}
+            <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-5">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                <ImageIcon className="w-5 h-5 text-indigo-600" />
+                <h3 className="text-base font-bold text-[#0F2942]">
+                  4. รูปภาพหน้าปกและป้ายข้อมูลลอย (Hero Visual & Floating Badges)
+                </h3>
+              </div>
+
+              {/* Image Presets Selector */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700">
+                  เลือกรูปภาพบรรยากาศจากพรีเซ็ตคุณภาพสูง หรืออัปโหลดรูปของโรงเรียน
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {heroImagePresets.map((preset, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, heroImageUrl: preset.url })}
+                      className={`group relative rounded-xl overflow-hidden border-2 text-left transition-all aspect-[16/10] ${
+                        formData.heroImageUrl === preset.url
+                          ? "border-blue-600 ring-2 ring-blue-500/20"
+                          : "border-slate-200 hover:border-slate-400"
+                      }`}
+                    >
+                      <img
+                        src={preset.url}
+                        alt={preset.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/40 flex items-end p-2 opacity-90 group-hover:opacity-100">
+                        <span className="text-[10px] text-white font-bold line-clamp-2 leading-tight">
+                          {preset.title}
+                        </span>
+                      </div>
+                      {formData.heroImageUrl === preset.url && (
+                        <span className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                          <Check className="w-3 h-3 stroke-[3]" />
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Custom Image URL or Upload */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 pt-2">
+                <div className="sm:col-span-8">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    URL รูปภาพหน้าปก (หรือวางลิงก์รูปภาพของโรงเรียน)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.heroImageUrl}
+                    onChange={(e) => setFormData({ ...formData, heroImageUrl: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-mono focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  />
+                </div>
+
+                <div className="sm:col-span-4">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    อัปโหลดรูปภาพจากเครื่อง
+                  </label>
+                  <label className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-xs font-bold text-[#0F2942] transition-colors min-h-[42px]">
+                    <Upload className="w-4 h-4 text-blue-600" />
+                    <span>เลือกไฟล์รูปภาพ</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleHeroImageUpload}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {/* 2 Floating Badges Configuration */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-slate-100">
+                {/* Floating Badge 1 */}
+                <div className="p-4 rounded-xl bg-blue-50/40 border border-blue-100 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <GraduationCap className="w-4 h-4 text-blue-700" />
+                    <span className="text-xs font-bold text-blue-950">ป้ายลอยที่ 1 (ล่างซ้ายของภาพ)</span>
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-slate-500 block mb-1">หัวข้อป้าย (ตัวเล็ก)</label>
+                    <input
+                      type="text"
+                      value={formData.heroBadge1Label}
+                      onChange={(e) => setFormData({ ...formData, heroBadge1Label: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-slate-500 block mb-1">ข้อความเด่น (ตัวใหญ่)</label>
+                    <input
+                      type="text"
+                      value={formData.heroBadge1Value}
+                      onChange={(e) => setFormData({ ...formData, heroBadge1Value: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-bold text-[#0F2942]"
+                    />
+                  </div>
+                </div>
+
+                {/* Floating Badge 2 */}
+                <div className="p-4 rounded-xl bg-emerald-50/40 border border-emerald-100 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Award className="w-4 h-4 text-emerald-700" />
+                    <span className="text-xs font-bold text-emerald-950">ป้ายลอยที่ 2 (บนขวาของภาพ)</span>
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-slate-500 block mb-1">หัวข้อป้าย (ตัวเล็ก)</label>
+                    <input
+                      type="text"
+                      value={formData.heroBadge2Label}
+                      onChange={(e) => setFormData({ ...formData, heroBadge2Label: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-slate-500 block mb-1">ข้อความเด่น (ตัวใหญ่)</label>
+                    <input
+                      type="text"
+                      value={formData.heroBadge2Value}
+                      onChange={(e) => setFormData({ ...formData, heroBadge2Value: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-bold text-emerald-700"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Save Reminder */}
+              <div className="pt-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => handleSave()}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-xs transition-colors min-h-[42px]"
+                >
+                  <Save className="w-4 h-4 text-amber-400" />
+                  <span>บันทึกการตั้งค่าส่วนหัวต้อนรับ</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= TAB 1: BRANDING & LOGO ================= */}
+        {activeTab === "branding" && (
+          <div className="space-y-6">
+            {/* Live Header Simulator Preview Box */}
+            <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <Eye className="w-4 h-4 text-blue-700" />
+                  <h3 className="text-sm font-bold text-[#0F2942]">
+                    ตัวอย่างการแสดงผลบนแถบ Header หน้าเว็บจริง (Live Website Header Preview)
+                  </h3>
+                </div>
+                <span className="text-[11px] text-slate-400">อัปเดตแบบเรียลไทม์</span>
+              </div>
+
+              {/* Simulated Brand Header Bar */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <SchoolLogo
+                    size={52}
+                    customLogoUrl={formData.customLogoUrl}
+                    emblemType={formData.emblemType}
+                  />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-base sm:text-lg font-bold text-[#0F2942] tracking-tight">
+                        {formData.name}
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200 hidden sm:inline">
+                        {formData.schoolCode}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      {formData.subAffiliation}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="hidden md:flex items-center gap-2 text-xs">
+                  <span className="px-3 py-1.5 rounded-xl bg-slate-50 text-slate-600 border border-slate-200 font-mono">
+                    👁️ เข้าชม {Number(formData.visitorCountBase).toLocaleString()} ครั้ง
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Emblem / Logo Selection */}
+            <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-5">
+              <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+                <ImageIcon className="w-4 h-4 text-[#0F2942]" />
+                <h3 className="text-sm font-bold text-[#0F2942]">
+                  เลือกรูปแบบตราสัญลักษณ์สถานศึกษา (School Emblem & Logo)
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Option 1: Official Vector Emblem */}
+                <div
+                  onClick={() => setFormData({ ...formData, emblemType: "vector" })}
+                  className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col items-center text-center gap-3 ${
+                    formData.emblemType === "vector"
+                      ? "border-[#0F2942] bg-blue-50/40 ring-2 ring-[#0F2942]/20 shadow-xs"
+                      : "border-slate-200 hover:border-slate-300 bg-white"
+                  }`}
+                >
+                  <SchoolLogo size={56} emblemType="vector" />
+                  <div>
+                    <span className="text-xs font-bold text-[#0F2942] block">
+                      ตราประจำโรงเรียน (Vector)
+                    </span>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      ตราสัญลักษณ์ น.ห.ม. เปลวเทียนปัญญา
+                    </p>
+                  </div>
+                  {formData.emblemType === "vector" && (
+                    <span className="text-[10px] font-bold text-blue-700 bg-blue-100/80 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <Check className="w-3 h-3" /> ใช้งานอยู่
+                    </span>
+                  )}
+                </div>
+
+                {/* Option 2: OBEC Logo */}
+                <div
+                  onClick={() => setFormData({ ...formData, emblemType: "obec" })}
+                  className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col items-center text-center gap-3 ${
+                    formData.emblemType === "obec"
+                      ? "border-[#0F2942] bg-blue-50/40 ring-2 ring-[#0F2942]/20 shadow-xs"
+                      : "border-slate-200 hover:border-slate-300 bg-white"
+                  }`}
+                >
+                  <SchoolLogo size={56} emblemType="obec" />
+                  <div>
+                    <span className="text-xs font-bold text-[#0F2942] block">
+                      ตรา สพฐ.
+                    </span>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      สำนักงานคณะกรรมการการศึกษาขั้นพื้นฐาน
+                    </p>
+                  </div>
+                  {formData.emblemType === "obec" && (
+                    <span className="text-[10px] font-bold text-blue-700 bg-blue-100/80 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <Check className="w-3 h-3" /> ใช้งานอยู่
+                    </span>
+                  )}
+                </div>
+
+                {/* Option 3: MOE Logo */}
+                <div
+                  onClick={() => setFormData({ ...formData, emblemType: "moe" })}
+                  className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col items-center text-center gap-3 ${
+                    formData.emblemType === "moe"
+                      ? "border-[#0F2942] bg-blue-50/40 ring-2 ring-[#0F2942]/20 shadow-xs"
+                      : "border-slate-200 hover:border-slate-300 bg-white"
+                  }`}
+                >
+                  <SchoolLogo size={56} emblemType="moe" />
+                  <div>
+                    <span className="text-xs font-bold text-[#0F2942] block">
+                      ตราเสมาธรรมจักร
+                    </span>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      กระทรวงศึกษาธิการ
+                    </p>
+                  </div>
+                  {formData.emblemType === "moe" && (
+                    <span className="text-[10px] font-bold text-blue-700 bg-blue-100/80 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <Check className="w-3 h-3" /> ใช้งานอยู่
+                    </span>
+                  )}
+                </div>
+
+                {/* Option 4: Custom Upload */}
+                <div
+                  onClick={() => setFormData({ ...formData, emblemType: "custom" })}
+                  className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col items-center text-center gap-3 ${
+                    formData.emblemType === "custom"
+                      ? "border-[#0F2942] bg-blue-50/40 ring-2 ring-[#0F2942]/20 shadow-xs"
+                      : "border-slate-200 hover:border-slate-300 bg-white"
+                  }`}
+                >
+                  {formData.customLogoUrl ? (
+                    <img
+                      src={formData.customLogoUrl}
+                      alt="Custom Logo"
+                      className="w-14 h-14 rounded-full object-cover border-2 border-amber-400"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-full bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400">
+                      <Upload className="w-5 h-5" />
+                    </div>
+                  )}
+                  <div>
+                    <span className="text-xs font-bold text-[#0F2942] block">
+                      อัปโหลดโลโก้เอง
+                    </span>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      ไฟล์ภาพ PNG, JPG หรือ SVG
+                    </p>
+                  </div>
+                  {formData.emblemType === "custom" && (
+                    <span className="text-[10px] font-bold text-blue-700 bg-blue-100/80 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <Check className="w-3 h-3" /> ใช้งานอยู่
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Custom Upload Input & File Box */}
+              {formData.emblemType === "custom" && (
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+                  <span className="text-xs font-bold text-slate-700 block">
+                    อัปโหลดไฟล์ภาพตราสัญลักษณ์ หรือใส่ URL ภาพ
+                  </span>
+                  <div className="flex flex-col sm:flex-row items-center gap-3">
+                    <label className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-xs font-bold text-slate-700 cursor-pointer shadow-2xs">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>เลือกไฟล์จากเครื่อง...</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleCustomLogoUpload}
+                        className="hidden"
+                      />
+                    </label>
+
+                    <span className="text-xs text-slate-400">หรือวาง URL:</span>
+
+                    <input
+                      type="url"
+                      placeholder="https://example.com/school-logo.png"
+                      value={formData.customLogoUrl}
+                      onChange={(e) =>
+                        setFormData({ ...formData, customLogoUrl: e.target.value })
+                      }
+                      className="flex-1 w-full text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Color Palette Customizer */}
+            <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-4">
+              <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+                <Palette className="w-4 h-4 text-[#0F2942]" />
+                <h3 className="text-sm font-bold text-[#0F2942]">
+                  โทนสีหลักประจำโรงเรียน (Color Theme)
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    สีหลักสถานศึกษา (Primary Navy Color)
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={formData.primaryColor}
+                      onChange={(e) =>
+                        setFormData({ ...formData, primaryColor: e.target.value })
+                      }
+                      className="w-10 h-10 rounded-xl cursor-pointer border border-slate-200 p-0.5"
+                    />
+                    <input
+                      type="text"
+                      value={formData.primaryColor}
+                      onChange={(e) =>
+                        setFormData({ ...formData, primaryColor: e.target.value })
+                      }
+                      className="flex-1 px-3 py-2 rounded-xl border border-slate-200 font-mono text-xs"
+                    />
+                  </div>
+                  <span className="text-[11px] text-slate-400 mt-1 block">
+                    ค่ามาตรฐาน: #0F2942 (Deep Navy Blue สพป.)
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    สีไฮไลต์ประจำโรงเรียน (Accent Gold Color)
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={formData.accentColor}
+                      onChange={(e) =>
+                        setFormData({ ...formData, accentColor: e.target.value })
+                      }
+                      className="w-10 h-10 rounded-xl cursor-pointer border border-slate-200 p-0.5"
+                    />
+                    <input
+                      type="text"
+                      value={formData.accentColor}
+                      onChange={(e) =>
+                        setFormData({ ...formData, accentColor: e.target.value })
+                      }
+                      className="flex-1 px-3 py-2 rounded-xl border border-slate-200 font-mono text-xs"
+                    />
+                  </div>
+                  <span className="text-[11px] text-slate-400 mt-1 block">
+                    ค่ามาตรฐาน: #EAB308 (Royal Gold)
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= TAB 2: GENERAL INFO ================= */}
+        {activeTab === "general" && (
+          <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-4">
+            <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+              <Building className="w-4 h-4 text-[#0F2942]" />
+              <h3 className="text-sm font-bold text-[#0F2942]">
+                ข้อมูลพื้นฐานสถานศึกษาและสังกัดทางการ
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  ชื่อสถานศึกษา (ภาษาไทย) *
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  ชื่อสถานศึกษา (ภาษาอังกฤษ)
+                </label>
+                <input
+                  type="text"
+                  value={formData.nameEn}
+                  onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  รหัสสถานศึกษา 10 หลัก (School Code)
+                </label>
+                <input
+                  type="text"
+                  value={formData.schoolCode}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      schoolCode: e.target.value,
+                      schoolCode10: e.target.value,
+                    })
+                  }
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-hidden font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  รหัส Smis 8 หลัก
+                </label>
+                <input
+                  type="text"
+                  value={formData.smisCode8}
+                  onChange={(e) => setFormData({ ...formData, smisCode8: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-hidden font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  รหัส Obec 6 หลัก
+                </label>
+                <input
+                  type="text"
+                  value={formData.obecCode6}
+                  onChange={(e) => setFormData({ ...formData, obecCode6: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-hidden font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  ระดับชั้นที่เปิดสอน (School Levels)
+                </label>
+                <input
+                  type="text"
+                  value={formData.schoolLevels}
+                  onChange={(e) => setFormData({ ...formData, schoolLevels: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-hidden"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  วัน-เดือน-ปี ก่อตั้ง (พ.ศ.)
+                </label>
+                <input
+                  type="text"
+                  value={formData.establishedYear}
+                  onChange={(e) => setFormData({ ...formData, establishedYear: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-hidden"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  กลุ่มโรงเรียน (School Group)
+                </label>
+                <input
+                  type="text"
+                  value={formData.schoolGroup}
+                  onChange={(e) => setFormData({ ...formData, schoolGroup: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-hidden"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  องค์กรปกครองส่วนท้องถิ่น (อปท.)
+                </label>
+                <input
+                  type="text"
+                  value={formData.localGov}
+                  onChange={(e) => setFormData({ ...formData, localGov: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-hidden"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  ระยะทางจาก รร. ถึง สพท.
+                </label>
+                <input
+                  type="text"
+                  value={formData.distanceFromOffice}
+                  onChange={(e) => setFormData({ ...formData, distanceFromOffice: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-hidden"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  ระยะทางจาก รร. ถึง ที่ว่าการอำเภอ
+                </label>
+                <input
+                  type="text"
+                  value={formData.distanceFromDistrict}
+                  onChange={(e) => setFormData({ ...formData, distanceFromDistrict: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-hidden"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  สำนักงานเขตพื้นที่การศึกษา (สพป.) *
+                </label>
+                <input
+                  type="text"
+                  value={formData.subAffiliation}
+                  onChange={(e) => setFormData({ ...formData, subAffiliation: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-hidden"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block font-bold text-slate-700 mb-1">
+                  สังกัดส่วนกลาง
+                </label>
+                <input
+                  type="text"
+                  value={formData.affiliation}
+                  onChange={(e) => setFormData({ ...formData, affiliation: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-hidden"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block font-bold text-slate-700 mb-1">
+                  ประวัติความเป็นมาของโรงเรียน (History & Background)
+                </label>
+                <textarea
+                  rows={4}
+                  value={formData.historyText}
+                  onChange={(e) => setFormData({ ...formData, historyText: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-hidden leading-relaxed"
+                />
+                <p className="text-[11px] text-slate-400 mt-1">
+                  แสดงในหน้า &ldquo;ข้อมูลโรงเรียนและประวัติความเป็นมา&rdquo; (/about)
+                </p>
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block font-bold text-slate-700 mb-1">
+                  คำขวัญประจำโรงเรียน (Motto)
+                </label>
+                <input
+                  type="text"
+                  value={formData.motto}
+                  onChange={(e) => setFormData({ ...formData, motto: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-hidden"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  อัตลักษณ์สถานศึกษา (Identity)
+                </label>
+                <input
+                  type="text"
+                  value={formData.identity}
+                  onChange={(e) => setFormData({ ...formData, identity: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-hidden"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  เอกลักษณ์สถานศึกษา (Uniqueness)
+                </label>
+                <input
+                  type="text"
+                  value={formData.uniqueness}
+                  onChange={(e) => setFormData({ ...formData, uniqueness: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-hidden"
+                />
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => handleSave()}
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-xs transition-colors min-h-[42px]"
+              >
+                <Save className="w-4 h-4 text-amber-400" />
+                <span>บันทึกข้อมูลพื้นฐาน</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ================= TAB 3: VISION & MISSION ================= */}
+        {activeTab === "vision" && (
+          <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-5">
+            <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+              <BookOpen className="w-4 h-4 text-[#0F2942]" />
+              <h3 className="text-sm font-bold text-[#0F2942]">
+                วิสัยทัศน์และพันธกิจของโรงเรียนบ้านหนองหัวหมู
+              </h3>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  วิสัยทัศน์สถานศึกษา (Vision)
+                </label>
+                <textarea
+                  rows={3}
+                  value={formData.vision}
+                  onChange={(e) => setFormData({ ...formData, vision: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none leading-relaxed"
+                />
+              </div>
+
+              {/* Mission Bullet Points Editor */}
+              <div className="space-y-2">
+                <label className="block font-bold text-slate-700">
+                  พันธกิจของโรงเรียน (Missions)
+                </label>
+
+                {/* Add new mission */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="พิมพ์พันธกิจข้อใหม่ที่ต้องการเพิ่ม..."
+                    value={newMissionItem}
+                    onChange={(e) => setNewMissionItem(e.target.value)}
+                    className="flex-1 px-3.5 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none text-xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddMission}
+                    className="px-4 py-2 rounded-xl bg-[#0F2942] text-white font-bold text-xs hover:bg-[#163C61] transition-colors flex items-center gap-1 shrink-0"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>เพิ่มข้อ</span>
+                  </button>
+                </div>
+
+                {/* Mission list */}
+                <div className="space-y-2 pt-2">
+                  {formData.mission.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs"
+                    >
+                      <span className="text-slate-700 flex-1 mr-3">
+                        {idx + 1}. {item}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveMission(idx)}
+                        className="p-1 text-slate-400 hover:text-red-600 transition-colors"
+                        title="ลบข้อนี้"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= TAB 4: DIRECTOR PROFILE ================= */}
+        {activeTab === "director" && (
+          <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-5">
+            <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+              <User className="w-4 h-4 text-[#0F2942]" />
+              <h3 className="text-sm font-bold text-[#0F2942]">
+                ข้อมูลผู้อำนวยการโรงเรียนและสาส์นจากผู้บริหาร
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 text-xs items-start">
+              {/* Photo Preview Column (4 cols) */}
+              <div className="sm:col-span-4 flex flex-col items-center text-center p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+                <img
+                  src={formData.directorImageUrl}
+                  alt={formData.directorName}
+                  className="w-28 h-36 rounded-xl object-cover border-2 border-slate-300 shadow-xs"
+                />
+                <div>
+                  <span className="font-bold text-sm text-[#0F2942] block">
+                    {formData.directorName}
+                  </span>
+                  <span className="text-slate-500 text-[11px]">
+                    {formData.directorTitle} ({formData.directorAcademicStanding})
+                  </span>
+                </div>
+                <input
+                  type="url"
+                  placeholder="URL ภาพผู้อำนวยการ..."
+                  value={formData.directorImageUrl}
+                  onChange={(e) =>
+                    setFormData({ ...formData, directorImageUrl: e.target.value })
+                  }
+                  className="w-full text-[11px] px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white"
+                />
+              </div>
+
+              {/* Form Fields (8 cols) */}
+              <div className="sm:col-span-8 space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">
+                      ชื่อ-นามสกุล ผู้อำนวยการ *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.directorName}
+                      onChange={(e) =>
+                        setFormData({ ...formData, directorName: e.target.value })
+                      }
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">
+                      วิทยฐานะ
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.directorAcademicStanding}
+                      onChange={(e) =>
+                        setFormData({ ...formData, directorAcademicStanding: e.target.value })
+                      }
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">
+                      เบอร์โทรศัพท์ติดต่อ
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.directorPhone}
+                      onChange={(e) =>
+                        setFormData({ ...formData, directorPhone: e.target.value })
+                      }
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">
+                      อีเมลผู้บริหาร
+                    </label>
+                    <input
+                      type="email"
+                      value={formData.directorEmail}
+                      onChange={(e) =>
+                        setFormData({ ...formData, directorEmail: e.target.value })
+                      }
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    สาส์นจากผู้อำนวยการสถานศึกษา (Director&rsquo;s Message)
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={formData.directorMessage}
+                    onChange={(e) =>
+                      setFormData({ ...formData, directorMessage: e.target.value })
+                    }
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none leading-relaxed"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= TAB 5: CONTACT & MAPS ================= */}
+        {activeTab === "contact" && (
+          <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-4">
+            <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+              <MapPin className="w-4 h-4 text-[#0F2942]" />
+              <h3 className="text-sm font-bold text-[#0F2942]">
+                ที่ตั้งสถานศึกษา ช่องทางติดต่อ และโซเชียลมีเดีย
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  หมู่ที่ / บ้าน
+                </label>
+                <input
+                  type="text"
+                  value={formData.villageNo}
+                  onChange={(e) => setFormData({ ...formData, villageNo: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  ตำบล
+                </label>
+                <input
+                  type="text"
+                  value={formData.subDistrict}
+                  onChange={(e) => setFormData({ ...formData, subDistrict: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  อำเภอ
+                </label>
+                <input
+                  type="text"
+                  value={formData.district}
+                  onChange={(e) => setFormData({ ...formData, district: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  จังหวัด
+                </label>
+                <input
+                  type="text"
+                  value={formData.province}
+                  onChange={(e) => setFormData({ ...formData, province: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none font-bold"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  รหัสไปรษณีย์
+                </label>
+                <input
+                  type="text"
+                  value={formData.postalCode}
+                  onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  โทรศัพท์โรงเรียน
+                </label>
+                <input
+                  type="text"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block font-bold text-slate-700 mb-1">
+                  อีเมลทางการสถานศึกษา
+                </label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  LINE Official ID
+                </label>
+                <input
+                  type="text"
+                  value={formData.lineOfficial}
+                  onChange={(e) => setFormData({ ...formData, lineOfficial: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block font-bold text-slate-700 mb-1">
+                  Facebook Fanpage URL
+                </label>
+                <input
+                  type="url"
+                  value={formData.facebook}
+                  onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  พิกัด Google Maps URL
+                </label>
+                <input
+                  type="url"
+                  value={formData.mapsUrl}
+                  onChange={(e) => setFormData({ ...formData, mapsUrl: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= TAB 6: OPERATIONS ================= */}
+        {activeTab === "operations" && (
+          <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-4">
+            <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+              <Settings className="w-4 h-4 text-[#0F2942]" />
+              <h3 className="text-sm font-bold text-[#0F2942]">
+                ปีการศึกษาที่เปิดใช้งานและค่าเริ่มต้นของระบบ
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  ปีการศึกษาปัจจุบัน (Active Academic Year)
+                </label>
+                <select
+                  value={formData.currentAcademicYear}
+                  onChange={(e) =>
+                    setFormData({ ...formData, currentAcademicYear: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
+                >
+                  <option value="2568">2568 (ปัจจุบัน)</option>
+                  <option value="2567">2567</option>
+                  <option value="2569">2569</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  ภาคเรียนที่เปิดใช้งาน
+                </label>
+                <input
+                  type="text"
+                  value={formData.currentSemester}
+                  onChange={(e) =>
+                    setFormData({ ...formData, currentSemester: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  ตัวนับสถิติผู้เข้าชมเริ่มต้น (Visitor Base)
+                </label>
+                <input
+                  type="number"
+                  value={formData.visitorCountBase}
+                  onChange={(e) =>
+                    setFormData({ ...formData, visitorCountBase: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none font-mono"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Bottom Save Bar */}
+        <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+          <span className="text-xs text-slate-500">
+            * การบันทึกข้อมูลจะถูกซิงค์ไปยังหน้าเว็บหลักและระบบวิเคราะห์สถิติทันที
+          </span>
+
+          <button
+            type="submit"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-xs transition-colors min-h-[42px]"
+          >
+            <Save className="w-4 h-4 text-amber-400" />
+            <span>บันทึกการตั้งค่าทั้งหมด</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
