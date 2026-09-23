@@ -19,7 +19,10 @@ import {
   Trash2,
   ExternalLink,
   ChevronDown,
-  Info
+  Info,
+  Calendar,
+  Layers,
+  X
 } from "lucide-react";
 import {
   getStoredAcademicScores,
@@ -32,6 +35,8 @@ import {
   fetchOnetPostersCloud,
   defaultAcademicScores,
   defaultHistoricalOnetScores,
+  createDefaultExamYear,
+  AllAcademicScores,
   ExamDataset,
   OnetPosterItem
 } from "@/data/academicScores";
@@ -79,9 +84,15 @@ function compressImageFile(file: File, maxWidth = 1200, quality = 0.85): Promise
 export default function AdminAcademicPage() {
   const [activeMainTab, setActiveMainTab] = useState<"scores" | "posters">("scores");
   const [activeExam, setActiveExam] = useState<"O-NET" | "RT" | "NT">("O-NET");
-  const [datasets, setDatasets] = useState<Record<string, ExamDataset>>(defaultAcademicScores);
+  const [datasets, setDatasets] = useState<AllAcademicScores>(defaultAcademicScores);
+  const [selectedYear, setSelectedYear] = useState<string>("");
   const [posters, setPosters] = useState<OnetPosterItem[]>(defaultHistoricalOnetScores);
   
+  // New Year Creator State
+  const [isAddingNewYear, setIsAddingNewYear] = useState(false);
+  const [newYearInput, setNewYearInput] = useState("");
+  const [copyPreviousScores, setCopyPreviousScores] = useState(false);
+
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [savedMessage, setSavedMessage] = useState("");
   const [resetSuccess, setResetSuccess] = useState(false);
@@ -91,7 +102,8 @@ export default function AdminAcademicPage() {
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    setDatasets(getStoredAcademicScores());
+    const loadedData = getStoredAcademicScores();
+    setDatasets(loadedData);
     setPosters(getStoredOnetPosters());
 
     fetchAcademicScoresCloud().then((cloudData) => {
@@ -102,7 +114,23 @@ export default function AdminAcademicPage() {
     });
   }, []);
 
-  const currentExamData = datasets[activeExam] || defaultAcademicScores[activeExam];
+  // Compute available years for the current exam
+  const examMap = datasets[activeExam] || defaultAcademicScores[activeExam] || {};
+  const availableYears = Object.keys(examMap).sort((a, b) => b.localeCompare(a));
+
+  // Determine active year
+  const activeYear = (selectedYear && examMap[selectedYear])
+    ? selectedYear
+    : (availableYears[0] || "2567");
+
+  // Keep selectedYear synced when switching tabs
+  useEffect(() => {
+    if (!examMap[selectedYear]) {
+      setSelectedYear(availableYears[0] || "2567");
+    }
+  }, [activeExam, examMap, selectedYear, availableYears]);
+
+  const currentExamData: ExamDataset = examMap[activeYear] || createDefaultExamYear(activeExam, activeYear);
 
   // ================= 1. SCORES TAB LOGIC =================
   const handleScoreChange = (
@@ -120,14 +148,17 @@ export default function AdminAcademicPage() {
     setDatasets((prev) => ({
       ...prev,
       [activeExam]: {
-        ...prev[activeExam],
-        subjects: updatedSubjects,
+        ...(prev[activeExam] || {}),
+        [activeYear]: {
+          ...currentExamData,
+          subjects: updatedSubjects,
+        },
       },
     }));
   };
 
   const handleAutoCalculateTotal = () => {
-    const subjectsWithoutTotal = currentExamData.subjects.filter((s) => s.name !== "รวม");
+    const subjectsWithoutTotal = currentExamData.subjects.filter((s) => !s.name.includes("รวม"));
     if (subjectsWithoutTotal.length === 0) return;
 
     const count = subjectsWithoutTotal.length;
@@ -136,7 +167,7 @@ export default function AdminAcademicPage() {
     const avgNational = subjectsWithoutTotal.reduce((acc, s) => acc + s.national, 0) / count;
 
     const updatedSubjects = currentExamData.subjects.map((s) => {
-      if (s.name === "รวม") {
+      if (s.name.includes("รวม")) {
         return {
           ...s,
           school: parseFloat(avgSchool.toFixed(2)),
@@ -150,19 +181,89 @@ export default function AdminAcademicPage() {
     setDatasets((prev) => ({
       ...prev,
       [activeExam]: {
-        ...prev[activeExam],
-        subjects: updatedSubjects,
+        ...(prev[activeExam] || {}),
+        [activeYear]: {
+          ...currentExamData,
+          subjects: updatedSubjects,
+        },
       },
     }));
   };
 
+  // Add a new Academic Year for the active exam
+  const handleCreateNewExamYear = () => {
+    const trimmed = newYearInput.trim();
+    if (!trimmed || !/^\d{4}$/.test(trimmed)) {
+      alert("กรุณาระบุปีการศึกษาเป็นตัวเลข 4 หลัก เช่น 2568 หรือ 2569");
+      return;
+    }
+
+    if (examMap[trimmed]) {
+      alert(`มีข้อมูลผลสอบ ${activeExam} ปีการศึกษา ${trimmed} อยู่แล้วในระบบ`);
+      setSelectedYear(trimmed);
+      setIsAddingNewYear(false);
+      setNewYearInput("");
+      return;
+    }
+
+    let newEntry: ExamDataset;
+    if (copyPreviousScores && currentExamData) {
+      newEntry = {
+        ...currentExamData,
+        year: trimmed,
+        title: `ค่าเฉลี่ยคะแนน ${activeExam} ${currentExamData.grade} ปีการศึกษา ${trimmed}`,
+      };
+    } else {
+      newEntry = createDefaultExamYear(activeExam, trimmed);
+    }
+
+    setDatasets((prev) => ({
+      ...prev,
+      [activeExam]: {
+        ...(prev[activeExam] || {}),
+        [trimmed]: newEntry,
+      },
+    }));
+
+    setSelectedYear(trimmed);
+    setIsAddingNewYear(false);
+    setNewYearInput("");
+    setSavedMessage(`เพิ่มปีการศึกษา ${trimmed} สำหรับ ${activeExam} เรียบร้อยแล้ว! กรอกคะแนนแล้วกดบันทึกได้เลย`);
+    setSavedSuccess(true);
+    setTimeout(() => setSavedSuccess(false), 3500);
+  };
+
+  // Delete an Academic Year
+  const handleDeleteExamYear = (yearToDelete: string) => {
+    if (availableYears.length <= 1) {
+      alert(`ไม่สามารถลบปีการศึกษาได้ เนื่องจากต้องมีข้อมูลอย่างน้อย 1 ปีสำหรับ ${activeExam}`);
+      return;
+    }
+
+    if (confirm(`คุณต้องการลบข้อมูลผลสอบ ${activeExam} ปีการศึกษา ${yearToDelete} หรือไม่?`)) {
+      const updatedExamMap = { ...examMap };
+      delete updatedExamMap[yearToDelete];
+
+      setDatasets((prev) => ({
+        ...prev,
+        [activeExam]: updatedExamMap,
+      }));
+
+      const remainingYears = Object.keys(updatedExamMap).sort((a, b) => b.localeCompare(a));
+      setSelectedYear(remainingYears[0] || "");
+      setSavedMessage(`ลบปีการศึกษา ${yearToDelete} เรียบร้อยแล้ว`);
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 3000);
+    }
+  };
+
   // ================= 2. POSTERS TAB LOGIC =================
-  const handleAddPoster = () => {
-    const newYear = (posters.length > 0 ? (parseInt(posters[0].year) + 1).toString() : "2569");
+  const handleAddPoster = (targetYear?: string) => {
+    const newYear = targetYear || (posters.length > 0 ? (parseInt(posters[0].year) + 1).toString() : "2568");
     const newPoster: OnetPosterItem = {
       year: newYear,
       title: `ผลการทดสอบ O-NET ป.6 ปีการศึกษา ${newYear}`,
-      image: "/images/onet-2568.png",
+      image: "/images/onet-2567.png",
       highlight: "ผลการทดสอบระดับชาติอย่างเป็นทางการ",
       subjects: [
         { name: "ภาษาไทย", school: 65.0, national: 50.0, diff: "+15.00", higher: true },
@@ -220,7 +321,7 @@ export default function AdminAcademicPage() {
       const updated = [...posters];
       updated[index] = { ...updated[index], image: dataUrl };
       setPosters(updated);
-    } catch (err) {
+    } catch {
       alert("เกิดข้อผิดพลาดในการโหลดรูปภาพ กรุณาลองใหม่อีกครั้ง");
     } finally {
       setUploadingPosterIndex(null);
@@ -233,7 +334,7 @@ export default function AdminAcademicPage() {
     await saveStoredOnetPosters(posters);
     setSavedMessage(
       activeMainTab === "scores"
-        ? "บันทึกข้อมูลคะแนน 3 ระดับเรียบร้อยแล้ว! ข้อมูลซิงค์ Cloud Database แบบ Real-time"
+        ? `บันทึกข้อมูลคะแนน ${activeExam} ปีการศึกษา ${activeYear} และทุกปีเรียบร้อยแล้ว! ข้อมูลซิงค์ Cloud Database แบบ Real-time`
         : "บันทึกภาพประกาศผลสอบ O-NET และข้อมูลเรียบร้อยแล้ว! ซิงค์ Real-time ทันที"
     );
     setSavedSuccess(true);
@@ -245,6 +346,7 @@ export default function AdminAcademicPage() {
       if (confirm("คุณต้องการรีเซ็ตคะแนนทั้งหมดกลับเป็นค่ามาตรฐาน สทศ. หรือไม่?")) {
         await resetStoredAcademicScores();
         setDatasets(defaultAcademicScores);
+        setSelectedYear("2567");
         setResetSuccess(true);
         setTimeout(() => setResetSuccess(false), 3500);
       }
@@ -278,7 +380,7 @@ export default function AdminAcademicPage() {
             จัดการคะแนน O-NET / NT / RT และภาพประกาศผลสอบ
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            กรอกคะแนนเปรียบเทียบ 3 ระดับ และอัปโหลดภาพโปสเตอร์/อินโฟกราฟิกประกาศผลสอบระดับชาติ
+            เลือก/เพิ่มปีการศึกษา กรอกคะแนนเปรียบเทียบ 3 ระดับ และอัปโหลดภาพโปสเตอร์ประกาศผลสอบระดับชาติ
           </p>
         </div>
 
@@ -330,7 +432,7 @@ export default function AdminAcademicPage() {
           }`}
         >
           <BarChart3 className="w-4 h-4" />
-          <span>1. กรอกคะแนน 3 ระดับ (โรงเรียน • เขต • ประเทศ)</span>
+          <span>1. กรอกคะแนน 3 ระดับ (O-NET / RT / NT แยกตามปี)</span>
         </button>
 
         <button
@@ -352,29 +454,153 @@ export default function AdminAcademicPage() {
       {/* ================= TAB 1: 3-LEVEL SCORES ================= */}
       {activeMainTab === "scores" && (
         <div className="space-y-6">
-          {/* Exam Subtabs Selector */}
-          <div className="bg-white p-2.5 rounded-2xl border border-slate-200/90 shadow-2xs flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl">
-              {(["O-NET", "RT", "NT"] as const).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveExam(tab)}
-                  className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-                    activeExam === tab
-                      ? "bg-[#0F2942] text-white shadow-md scale-100"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
-                  }`}
-                >
-                  {tab === "O-NET" ? "O-NET (ป.6)" : tab === "RT" ? "RT (ป.1)" : "NT (ป.3)"}
-                </button>
-              ))}
+          {/* Top Bar: Exam Subtabs + Academic Year Selector */}
+          <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            
+            {/* Exam Types Selector */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl">
+                {(["O-NET", "RT", "NT"] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveExam(tab)}
+                    className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                      activeExam === tab
+                        ? "bg-[#0F2942] text-white shadow-md"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                    }`}
+                  >
+                    {tab === "O-NET" ? "O-NET (ป.6)" : tab === "RT" ? "RT (ป.1)" : "NT (ป.3)"}
+                  </button>
+                ))}
+              </div>
+
+              <div className="text-xs text-slate-500 flex items-center gap-2">
+                <span className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-800 font-semibold border border-blue-200">
+                  {currentExamData.grade}
+                </span>
+                <span>• สทศ. / สพฐ.</span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-4 text-xs font-semibold text-slate-500 px-3">
-              <span>ปีการศึกษา: <strong className="text-slate-900">{currentExamData.year}</strong></span>
-              <span>•</span>
-              <span>ระดับชั้น: <strong className="text-slate-900">{currentExamData.grade}</strong></span>
+            {/* Academic Year Toolbar (Core User Request!) */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5 mr-1">
+                  <Calendar className="w-4 h-4 text-blue-700" />
+                  เลือกปีการศึกษา:
+                </span>
+
+                {availableYears.map((yearStr) => {
+                  const isCurrent = activeYear === yearStr;
+                  return (
+                    <button
+                      key={yearStr}
+                      type="button"
+                      onClick={() => setSelectedYear(yearStr)}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                        isCurrent
+                          ? "bg-[#0F2942] text-white shadow-sm ring-2 ring-blue-500/30"
+                          : "bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
+                      }`}
+                    >
+                      <span>ปี {yearStr}</span>
+                      {isCurrent && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+                    </button>
+                  );
+                })}
+
+                <button
+                  type="button"
+                  onClick={() => setIsAddingNewYear(!isAddingNewYear)}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all shadow-2xs"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>+ เพิ่มปีการศึกษาใหม่</span>
+                </button>
+              </div>
+
+              {/* Delete Active Year Button */}
+              {availableYears.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => handleDeleteExamYear(activeYear)}
+                  className="inline-flex items-center gap-1 text-xs text-rose-600 hover:text-rose-800 hover:bg-rose-50 px-2.5 py-1.5 rounded-xl border border-rose-200 transition-colors"
+                  title={`ลบข้อมูลปีการศึกษา ${activeYear}`}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>ลบปี {activeYear}</span>
+                </button>
+              )}
             </div>
+
+            {/* Inline Add Year Form */}
+            {isAddingNewYear && (
+              <div className="p-4 bg-gradient-to-r from-blue-50 via-indigo-50/50 to-white rounded-2xl border border-blue-200 space-y-3 animate-in fade-in">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-[#0F2942] flex items-center gap-1.5">
+                    <Plus className="w-4 h-4 text-blue-600" />
+                    เพิ่มปีการศึกษาใหม่สำหรับ {activeExam} ({currentExamData.grade})
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingNewYear(false)}
+                    className="p-1 hover:bg-slate-200/60 rounded-lg text-slate-400 hover:text-slate-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-slate-600">กดเลือกปีด่วน:</span>
+                  {(["2568", "2569", "2570", "2565"] as const).map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setNewYearInput(preset)}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-colors ${
+                        newYearInput === preset
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-white text-slate-700 border-slate-200 hover:bg-blue-50"
+                      }`}
+                    >
+                      ปี {preset}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                  <div className="flex-1 max-w-xs">
+                    <input
+                      type="text"
+                      value={newYearInput}
+                      onChange={(e) => setNewYearInput(e.target.value)}
+                      placeholder="ระบุปี พ.ศ. เช่น 2568 หรือ 2569"
+                      maxLength={4}
+                      className="w-full text-xs py-2 px-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-hidden font-bold"
+                    />
+                  </div>
+
+                  <label className="flex items-center gap-2 text-xs text-slate-600 select-none cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={copyPreviousScores}
+                      onChange={(e) => setCopyPreviousScores(e.target.checked)}
+                      className="rounded-md border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span>คัดลอกรายวิชาจากปีล่าสุด</span>
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={handleCreateNewExamYear}
+                    className="px-4 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold shadow-xs transition-colors"
+                  >
+                    ยืนยันเพิ่มปีการศึกษา
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* 3-Level Table Card */}
@@ -383,8 +609,8 @@ export default function AdminAcademicPage() {
               <div>
                 <h3 className="font-bold text-base text-[#0F2942] flex items-center gap-2">
                   <span>ตารางกรอกคะแนน ({activeExam} {currentExamData.grade})</span>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 font-normal">
-                    3 ระดับเปรียบเทียบ
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 font-bold">
+                    ปีการศึกษา {activeYear}
                   </span>
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
@@ -486,7 +712,7 @@ export default function AdminAcademicPage() {
             </div>
 
             <div className="px-6 py-3.5 border-t border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500">
-              <span>* กรุณากดปุ่ม "บันทึกข้อมูลทั้งหมด" เพื่อยืนยันการเปลี่ยนแปลง</span>
+              <span>* กรุณากดปุ่ม "บันทึกข้อมูลทั้งหมด" เพื่อยืนยันการเปลี่ยนแปลงข้อมูลปี {activeYear}</span>
               <button
                 onClick={handleSaveAll}
                 type="button"
@@ -508,10 +734,14 @@ export default function AdminAcademicPage() {
                 </h3>
               </div>
               <span className="text-xs text-slate-500">
-                กราฟแท่งเปรียบเทียบ 3 ระดับ และตารางผลคะแนน
+                กราฟแท่งเปรียบเทียบ 3 ระดับ ({activeExam} ปี {activeYear})
               </span>
             </div>
-            <AcademicPerformanceChart showAdminLink={false} />
+            <AcademicPerformanceChart
+              showAdminLink={false}
+              initialExam={activeExam}
+              initialYear={activeYear}
+            />
           </div>
         </div>
       )}
@@ -530,19 +760,29 @@ export default function AdminAcademicPage() {
                   จัดการภาพโปสเตอร์ประกาศผลสอบ O-NET (Infographics)
                 </h3>
                 <p className="text-xs text-slate-600 mt-1 max-w-2xl leading-relaxed">
-                  ท่านสามารถกดปุ่ม <strong>"เลือกไฟล์รูปภาพจากเครื่อง"</strong> เพื่ออัปโหลดรูปโปสเตอร์ประกาศผลสอบจากคอมพิวเตอร์หรือโทรศัพท์มือถือได้โดยตรง ภาพจะถูกย่อและจัดเก็บพร้อมแสดงผลที่หน้า <strong>/academic (ผลการทดสอบระดับชาติ)</strong> ทันที
+                  ท่านสามารถกดปุ่ม <strong>"เลือกไฟล์รูปภาพจากเครื่อง"</strong> เพื่ออัปโหลดรูปโปสเตอร์ประกาศผลสอบจากคอมพิวเตอร์หรือโทรศัพท์มือถือได้โดยตรง ภาพจะถูกจัดเก็บพร้อมแสดงผลที่หน้า <strong>/academic (ผลการทดสอบระดับชาติ)</strong> ทันที
                 </p>
               </div>
             </div>
 
-            <button
-              onClick={handleAddPoster}
-              type="button"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-md transition-all shrink-0"
-            >
-              <Plus className="w-4 h-4" />
-              <span>+ เพิ่มภาพประกาศผลสอบปีใหม่</span>
-            </button>
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <button
+                onClick={() => handleAddPoster("2568")}
+                type="button"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-900 text-xs font-bold transition-all shadow-2xs"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>+ เพิ่มปี 2568</span>
+              </button>
+              <button
+                onClick={() => handleAddPoster()}
+                type="button"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-md transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                <span>+ เพิ่มภาพประกาศปีใหม่</span>
+              </button>
+            </div>
           </div>
 
           {/* Poster Cards List */}
@@ -567,7 +807,7 @@ export default function AdminAcademicPage() {
                     <button
                       onClick={() => handleDeletePoster(pIdx)}
                       type="button"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-600 hover:text-rose-800 hover:bg-rose-50 border border-rose-200 transition-all"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-600 hover:text-rose-800 hover:bg-rose-50 border border-rose-200 transition-all cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       <span>ลบประกาศปีนี้</span>
@@ -604,7 +844,7 @@ export default function AdminAcademicPage() {
                             <button
                               type="button"
                               onClick={() => fileInputRefs.current[pIdx]?.click()}
-                              className="p-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold flex items-center gap-1 shadow-md"
+                              className="p-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold flex items-center gap-1 shadow-md cursor-pointer"
                             >
                               <Upload className="w-3.5 h-3.5" />
                               <span>เปลี่ยนรูปภาพ</span>
@@ -636,7 +876,7 @@ export default function AdminAcademicPage() {
                         type="button"
                         onClick={() => fileInputRefs.current[pIdx]?.click()}
                         disabled={uploadingPosterIndex === pIdx}
-                        className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-300 text-blue-800 text-xs font-bold transition-all shadow-2xs"
+                        className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-300 text-blue-800 text-xs font-bold transition-all shadow-2xs cursor-pointer"
                       >
                         <Upload className="w-4 h-4 text-blue-600" />
                         <span>
@@ -673,7 +913,7 @@ export default function AdminAcademicPage() {
                             type="text"
                             value={poster.image}
                             onChange={(e) => handlePosterFieldChange(pIdx, "image", e.target.value)}
-                            placeholder="เช่น /images/onet-2568.png หรือ https://..."
+                            placeholder="เช่น /images/onet-2567.png หรือ https://..."
                             className="w-full py-1.5 px-3 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-600 focus:outline-hidden focus:ring-1 focus:ring-blue-500"
                           />
                         </>
@@ -728,104 +968,70 @@ export default function AdminAcademicPage() {
                     <div className="space-y-2 pt-2 border-t border-slate-100">
                       <div className="flex items-center justify-between">
                         <label className="text-xs font-bold text-slate-700">
-                          คะแนนเปรียบเทียบระดับโรงเรียน กับ ระดับประเทศ:
+                          คะแนนสรุปเปรียบเทียบในโปสเตอร์ (โรงเรียน vs ประเทศ):
                         </label>
                         <span className="text-[11px] text-slate-400">
-                          (ระบบคำนวณผลต่าง +/- ให้อัตโนมัติ)
+                          ระบบจะคำนวณส่วนต่าง (+/-) อัตโนมัติ
                         </span>
                       </div>
 
-                      <div className="bg-slate-50 rounded-2xl p-3 border border-slate-200 overflow-x-auto">
-                        <table className="w-full text-xs">
-                          <thead>
-                            <tr className="text-slate-500 border-b border-slate-200">
-                              <th className="py-1.5 text-left font-bold">วิชา</th>
-                              <th className="py-1.5 text-center font-bold">รร. หนองหัวหมู</th>
-                              <th className="py-1.5 text-center font-bold">ระดับประเทศ</th>
-                              <th className="py-1.5 text-center font-bold">ผลต่าง (Diff)</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-200/60">
-                            {poster.subjects?.map((sub, sIdx) => (
-                              <tr key={sIdx}>
-                                <td className="py-2 font-semibold text-[#0F2942]">{sub.name}</td>
-                                <td className="py-2 text-center">
-                                  <input
-                                    type="number"
-                                    step="0.01"
-                                    value={sub.school}
-                                    onChange={(e) =>
-                                      handlePosterSubjectChange(pIdx, sIdx, "school", e.target.value)
-                                    }
-                                    className="w-20 py-1 text-center font-bold text-emerald-900 bg-white border border-emerald-300 rounded-lg text-xs"
-                                  />
-                                </td>
-                                <td className="py-2 text-center">
-                                  <input
-                                    type="number"
-                                    step="0.01"
-                                    value={sub.national}
-                                    onChange={(e) =>
-                                      handlePosterSubjectChange(pIdx, sIdx, "national", e.target.value)
-                                    }
-                                    className="w-20 py-1 text-center font-medium text-blue-900 bg-white border border-blue-300 rounded-lg text-xs"
-                                  />
-                                </td>
-                                <td className="py-2 text-center">
-                                  <span
-                                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                      sub.higher
-                                        ? "bg-emerald-100 text-emerald-800"
-                                        : "bg-rose-100 text-rose-800"
-                                    }`}
-                                  >
-                                    {sub.diff}
-                                  </span>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                      <div className="space-y-2">
+                        {poster.subjects.map((sub, sIdx) => (
+                          <div
+                            key={sIdx}
+                            className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs"
+                          >
+                            <span className="font-bold text-[#0F2942] w-24 shrink-0">
+                              {sub.name}
+                            </span>
+
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[11px] text-slate-500">โรงเรียน:</span>
+                                <input
+                                  type="number"
+                                  step="0.01"
+                                  value={sub.school}
+                                  onChange={(e) =>
+                                    handlePosterSubjectChange(pIdx, sIdx, "school", e.target.value)
+                                  }
+                                  className="w-20 py-1 px-2 text-center font-bold text-emerald-900 bg-white border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-500"
+                                />
+                              </div>
+
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[11px] text-slate-500">ประเทศ:</span>
+                                <input
+                                  type="number"
+                                  step="0.01"
+                                  value={sub.national}
+                                  onChange={(e) =>
+                                    handlePosterSubjectChange(pIdx, sIdx, "national", e.target.value)
+                                  }
+                                  className="w-20 py-1 px-2 text-center font-medium text-blue-900 bg-white border border-slate-300 rounded-lg focus:ring-1 focus:ring-blue-500"
+                                />
+                              </div>
+
+                              <div className="w-20 text-center font-mono font-bold">
+                                <span
+                                  className={`px-2 py-0.5 rounded-md text-[11px] ${
+                                    sub.higher
+                                      ? "bg-emerald-100 text-emerald-800"
+                                      : "bg-rose-100 text-rose-800"
+                                  }`}
+                                >
+                                  {sub.diff}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
                 </div>
-
-                {/* Footer Bar */}
-                <div className="px-6 py-3 bg-slate-50/60 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                  <span>* ข้อมูลจะถูกจัดแสดงในหน้าเว็บไซต์หลัก <strong>/academic</strong> ทันทีหลังกดบันทึก</span>
-                  <button
-                    onClick={handleSaveAll}
-                    type="button"
-                    className="inline-flex items-center gap-1.5 font-bold text-blue-700 hover:text-blue-900"
-                  >
-                    <Save className="w-4 h-4" />
-                    <span>บันทึกข้อมูลโปสเตอร์นี้</span>
-                  </button>
-                </div>
               </div>
             ))}
-          </div>
-
-          {/* Bottom Add & Save */}
-          <div className="flex items-center justify-between pt-2">
-            <button
-              onClick={handleAddPoster}
-              type="button"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-[#0F2942] text-xs font-bold shadow-2xs"
-            >
-              <Plus className="w-4 h-4" />
-              <span>+ เพิ่มภาพประกาศผลสอบปีใหม่</span>
-            </button>
-
-            <button
-              onClick={handleSaveAll}
-              type="button"
-              className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 shadow-md transition-all"
-            >
-              <Save className="w-4 h-4" />
-              <span>บันทึกข้อมูลภาพโปสเตอร์ทั้งหมด</span>
-            </button>
           </div>
         </div>
       )}

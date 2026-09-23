@@ -12,25 +12,32 @@ import {
   Building2,
   Globe2,
   CheckCircle2,
-  Info
+  Info,
+  Calendar
 } from "lucide-react";
 import {
   getStoredAcademicScores,
   fetchAcademicScoresCloud,
   defaultAcademicScores,
+  AllAcademicScores,
   ExamDataset,
   AcademicScoreItem
 } from "@/data/academicScores";
 
 interface AcademicPerformanceChartProps {
   showAdminLink?: boolean;
+  initialExam?: "O-NET" | "RT" | "NT";
+  initialYear?: string;
 }
 
 export default function AcademicPerformanceChart({
   showAdminLink = true,
+  initialExam,
+  initialYear,
 }: AcademicPerformanceChartProps) {
-  const [activeTab, setActiveTab] = useState<"O-NET" | "RT" | "NT">("O-NET");
-  const [datasets, setDatasets] = useState<Record<string, ExamDataset>>(defaultAcademicScores);
+  const [activeTab, setActiveTab] = useState<"O-NET" | "RT" | "NT">(initialExam || "O-NET");
+  const [datasets, setDatasets] = useState<AllAcademicScores>(defaultAcademicScores);
+  const [selectedYear, setSelectedYear] = useState<string>(initialYear || "");
   const [hoveredSubject, setHoveredSubject] = useState<AcademicScoreItem | null>(null);
 
   const loadData = () => {
@@ -51,7 +58,31 @@ export default function AcademicPerformanceChart({
     return () => window.removeEventListener("academic_scores_updated", handleUpdate);
   }, []);
 
-  const currentDataset = datasets[activeTab] || defaultAcademicScores[activeTab];
+  // Sync prop changes if passed
+  useEffect(() => {
+    if (initialExam) setActiveTab(initialExam);
+  }, [initialExam]);
+
+  useEffect(() => {
+    if (initialYear) setSelectedYear(initialYear);
+  }, [initialYear]);
+
+  // Compute available years for current active exam
+  const examMap = datasets[activeTab] || defaultAcademicScores[activeTab] || {};
+  const availableYears = Object.keys(examMap).sort((a, b) => b.localeCompare(a));
+  
+  const currentYear = (selectedYear && examMap[selectedYear])
+    ? selectedYear
+    : (availableYears[0] || "2567");
+
+  const currentDataset: ExamDataset = examMap[currentYear] || {
+    id: activeTab,
+    title: `ค่าเฉลี่ยคะแนน ${activeTab}`,
+    grade: activeTab === "O-NET" ? "ชั้นประถมศึกษาปีที่ 6" : activeTab === "RT" ? "ชั้นประถมศึกษาปีที่ 1" : "ชั้นประถมศึกษาปีที่ 3",
+    year: currentYear,
+    source: "สทศ.",
+    subjects: [],
+  };
 
   // SVG Chart Geometry Constants
   const svgWidth = 840;
@@ -67,8 +98,8 @@ export default function AcademicPerformanceChart({
   const maxY = 100;
   const yTicks = [100, 80, 60, 40, 20, 0];
 
-  const subjects = currentDataset.subjects;
-  const groupCount = subjects.length;
+  const subjects = currentDataset.subjects || [];
+  const groupCount = Math.max(1, subjects.length);
   const groupWidth = plotWidth / groupCount;
   const barWidth = Math.min(22, (groupWidth - 40) / 3);
   const barGap = 4;
@@ -88,13 +119,13 @@ export default function AcademicPerformanceChart({
         <div className="absolute bottom-0 left-1/4 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
 
         <div className="relative z-10">
-          <div className="flex items-center gap-2 mb-1.5">
+          <div className="flex flex-wrap items-center gap-2 mb-1.5">
             <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[11px] font-bold flex items-center gap-1">
               <Sparkles className="w-3 h-3 text-emerald-400" />
               เปรียบเทียบ 3 ระดับมาตรฐาน
             </span>
-            <span className="text-xs text-blue-200/80 font-mono">
-              สทศ. • ปีการศึกษา {currentDataset.year}
+            <span className="text-xs text-blue-200 font-bold bg-white/10 px-2.5 py-0.5 rounded-full border border-white/15">
+              สทศ. • ปีการศึกษา {currentYear}
             </span>
           </div>
 
@@ -107,27 +138,56 @@ export default function AcademicPerformanceChart({
           </p>
         </div>
 
-        {/* Tab Switcher (Segmented Pill) */}
-        <div className="relative z-10 flex items-center gap-1 bg-black/30 backdrop-blur-md p-1.5 rounded-2xl border border-white/15 self-start md:self-auto shadow-inner">
-          {(["O-NET", "RT", "NT"] as const).map((tab) => {
-            const isActive = activeTab === tab;
-            return (
-              <button
-                key={tab}
-                onClick={() => {
-                  setActiveTab(tab);
-                  setHoveredSubject(null);
-                }}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all min-h-[38px] ${
-                  isActive
-                    ? "bg-white text-[#0F2942] shadow-md scale-100"
-                    : "text-slate-300 hover:text-white hover:bg-white/10"
-                }`}
-              >
-                {tab === "O-NET" ? "O-NET (ป.6)" : tab === "RT" ? "RT (ป.1)" : "NT (ป.3)"}
-              </button>
-            );
-          })}
+        {/* Tab Switcher & Year Selector */}
+        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-2 self-start md:self-auto">
+          {/* Exam Type Segmented Pill */}
+          <div className="flex items-center gap-1 bg-black/30 backdrop-blur-md p-1.5 rounded-2xl border border-white/15 shadow-inner">
+            {(["O-NET", "RT", "NT"] as const).map((tab) => {
+              const isActive = activeTab === tab;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => {
+                    setActiveTab(tab);
+                    setHoveredSubject(null);
+                  }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all min-h-[36px] ${
+                    isActive
+                      ? "bg-white text-[#0F2942] shadow-md scale-100"
+                      : "text-slate-300 hover:text-white hover:bg-white/10"
+                  }`}
+                >
+                  {tab === "O-NET" ? "O-NET (ป.6)" : tab === "RT" ? "RT (ป.1)" : "NT (ป.3)"}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Academic Year Switcher */}
+          {availableYears.length > 1 && (
+            <div className="flex items-center gap-1 bg-black/40 backdrop-blur-md p-1 rounded-xl border border-white/15 shadow-inner">
+              <span className="text-[11px] text-blue-200 font-semibold px-2 flex items-center gap-1">
+                <Calendar className="w-3 h-3 text-amber-300" />
+                ปี:
+              </span>
+              {availableYears.map((yr) => (
+                <button
+                  key={yr}
+                  onClick={() => {
+                    setSelectedYear(yr);
+                    setHoveredSubject(null);
+                  }}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                    currentYear === yr
+                      ? "bg-amber-400 text-slate-950 shadow-sm"
+                      : "text-slate-300 hover:text-white hover:bg-white/10"
+                  }`}
+                >
+                  {yr}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -260,92 +320,94 @@ export default function AcademicPerformanceChart({
                     {/* Hover column background highlight */}
                     {isHovered && (
                       <rect
-                        x={groupCenterX - groupWidth / 2 + 4}
+                        x={chartLeft + idx * groupWidth}
                         y={chartTop}
-                        width={groupWidth - 8}
-                        height={plotHeight}
+                        width={groupWidth}
+                        height={chartBottom - chartTop + 35}
                         fill="#F1F5F9"
-                        opacity="0.6"
                         rx="12"
+                        opacity="0.6"
                       />
                     )}
 
-                    {/* BAR 1: โรงเรียน (Emerald) */}
-                    <rect
-                      x={groupStartX}
-                      y={schoolY}
-                      width={barWidth}
-                      height={schoolH}
-                      rx="5"
-                      fill="url(#schoolGrad)"
-                      filter="url(#barShadow)"
-                      className="transition-all duration-500 hover:brightness-110"
-                    />
-                    {/* Score on Top of School Bar */}
-                    <text
-                      x={groupStartX + barWidth / 2}
-                      y={schoolY - 6}
-                      textAnchor="middle"
-                      className="fill-emerald-800 font-mono text-[10px] font-black"
-                    >
-                      {item.school.toFixed(1)}
-                    </text>
+                    {/* Bar 1: โรงเรียน (Emerald) */}
+                    <g filter="url(#barShadow)">
+                      <rect
+                        x={groupStartX}
+                        y={schoolY}
+                        width={barWidth}
+                        height={Math.max(2, schoolH)}
+                        rx="6"
+                        fill="url(#schoolGrad)"
+                        className="transition-all duration-300 group-hover:brightness-110"
+                      />
+                      <text
+                        x={groupStartX + barWidth / 2}
+                        y={schoolY - 6}
+                        textAnchor="middle"
+                        className="font-mono text-[11px] font-black fill-emerald-800"
+                      >
+                        {item.school.toFixed(1)}
+                      </text>
+                    </g>
 
-                    {/* BAR 2: เขตพื้นที่ (Amber) */}
-                    <rect
-                      x={groupStartX + barWidth + barGap}
-                      y={areaY}
-                      width={barWidth}
-                      height={areaH}
-                      rx="5"
-                      fill="url(#areaGrad)"
-                      filter="url(#barShadow)"
-                      className="transition-all duration-500 hover:brightness-110"
-                    />
-                    <text
-                      x={groupStartX + barWidth + barGap + barWidth / 2}
-                      y={areaY - 6}
-                      textAnchor="middle"
-                      className="fill-amber-800 font-mono text-[10px] font-bold"
-                    >
-                      {item.area.toFixed(1)}
-                    </text>
+                    {/* Bar 2: เขตพื้นที่ (Amber) */}
+                    <g filter="url(#barShadow)">
+                      <rect
+                        x={groupStartX + barWidth + barGap}
+                        y={areaY}
+                        width={barWidth}
+                        height={Math.max(2, areaH)}
+                        rx="6"
+                        fill="url(#areaGrad)"
+                        className="transition-all duration-300 group-hover:brightness-110"
+                      />
+                      <text
+                        x={groupStartX + barWidth + barGap + barWidth / 2}
+                        y={areaY - 6}
+                        textAnchor="middle"
+                        className="font-mono text-[10px] font-bold fill-amber-800"
+                      >
+                        {item.area.toFixed(1)}
+                      </text>
+                    </g>
 
-                    {/* BAR 3: ประเทศ (Royal Blue) */}
-                    <rect
-                      x={groupStartX + 2 * (barWidth + barGap)}
-                      y={nationalY}
-                      width={barWidth}
-                      height={nationalH}
-                      rx="5"
-                      fill="url(#nationalGrad)"
-                      filter="url(#barShadow)"
-                      className="transition-all duration-500 hover:brightness-110"
-                    />
-                    <text
-                      x={groupStartX + 2 * (barWidth + barGap) + barWidth / 2}
-                      y={nationalY - 6}
-                      textAnchor="middle"
-                      className="fill-blue-900 font-mono text-[10px] font-bold"
-                    >
-                      {item.national.toFixed(1)}
-                    </text>
+                    {/* Bar 3: ประเทศ (Royal Blue) */}
+                    <g filter="url(#barShadow)">
+                      <rect
+                        x={groupStartX + 2 * (barWidth + barGap)}
+                        y={nationalY}
+                        width={barWidth}
+                        height={Math.max(2, nationalH)}
+                        rx="6"
+                        fill="url(#nationalGrad)"
+                        className="transition-all duration-300 group-hover:brightness-110"
+                      />
+                      <text
+                        x={groupStartX + 2 * (barWidth + barGap) + barWidth / 2}
+                        y={nationalY - 6}
+                        textAnchor="middle"
+                        className="font-mono text-[10px] font-bold fill-blue-800"
+                      >
+                        {item.national.toFixed(1)}
+                      </text>
+                    </g>
 
-                    {/* Diff pill tag above school bar */}
+                    {/* Difference Tag above group */}
                     <g transform={`translate(${groupCenterX}, ${Math.min(schoolY, areaY, nationalY) - 24})`}>
                       <rect
                         x="-24"
                         y="-10"
                         width="48"
                         height="18"
-                        rx="9"
-                        fill={isPositive ? "#ECFDF5" : "#FEF2F2"}
-                        stroke={isPositive ? "#10B981" : "#EF4444"}
+                        rx="6"
+                        fill={isPositive ? "#DCFCE7" : "#FEE2E2"}
+                        stroke={isPositive ? "#86EFAC" : "#FCA5A5"}
                         strokeWidth="1"
                       />
                       <text
                         x="0"
-                        y="2"
+                        y="2.5"
                         textAnchor="middle"
                         className={`font-mono text-[9px] font-black ${
                           isPositive ? "fill-emerald-700" : "fill-rose-700"
@@ -384,7 +446,7 @@ export default function AcademicPerformanceChart({
             <table className="w-full text-xs sm:text-sm border-collapse">
               <thead>
                 <tr className="bg-slate-200/80 text-[#0F2942] font-black border-b border-slate-300">
-                  <th className="py-3 px-4 text-left font-bold w-48">ระดับการประเมิน</th>
+                  <th className="py-3 px-4 text-left font-bold w-48">ระดับการประเมิน ({currentYear})</th>
                   {subjects.map((s) => (
                     <th key={s.name} className="py-3 px-3 text-center font-bold">
                       {s.name}

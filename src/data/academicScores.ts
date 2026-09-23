@@ -17,47 +17,140 @@ export interface ExamDataset {
   posterImageUrl?: string;
 }
 
-export const defaultAcademicScores: Record<string, ExamDataset> = {
+// Multi-year type: [ExamType][AcademicYear] -> ExamDataset
+export type AllAcademicScores = Record<string, Record<string, ExamDataset>>;
+
+export const defaultAcademicScores: AllAcademicScores = {
   "O-NET": {
-    id: "O-NET",
-    title: "ค่าเฉลี่ยคะแนน O-NET ป.6 (ล่าสุด)",
-    grade: "ชั้นประถมศึกษาปีที่ 6",
-    year: "2568",
-    source: "สทศ.",
-    posterImageUrl: "/images/onet-2568.png",
-    subjects: [
-      { name: "ภาษาไทย", school: 67.50, area: 54.50, national: 47.60 },
-      { name: "คณิตศาสตร์", school: 31.34, area: 28.10, national: 24.90 },
-      { name: "วิทยาศาสตร์", school: 43.13, area: 39.20, national: 35.43 },
-      { name: "ภาษาอังกฤษ", school: 24.22, area: 28.80, national: 33.58 },
-      { name: "รวมเฉลี่ย 4 วิชา", school: 41.55, area: 37.65, national: 35.38 },
-    ],
+    "2567": {
+      id: "O-NET",
+      title: "ค่าเฉลี่ยคะแนน O-NET ป.6",
+      grade: "ชั้นประถมศึกษาปีที่ 6",
+      year: "2567",
+      source: "สทศ.",
+      posterImageUrl: "/images/onet-2567.png",
+      subjects: [
+        { name: "ภาษาไทย", school: 63.14, area: 54.20, national: 54.20 },
+        { name: "คณิตศาสตร์", school: 40.46, area: 29.21, national: 29.21 },
+        { name: "วิทยาศาสตร์", school: 46.07, area: 42.87, national: 42.87 },
+        { name: "ภาษาอังกฤษ", school: 34.82, area: 33.49, national: 33.49 },
+        { name: "รวมเฉลี่ย 4 วิชา", school: 46.12, area: 39.94, national: 39.94 },
+      ],
+    },
+    "2566": {
+      id: "O-NET",
+      title: "ค่าเฉลี่ยคะแนน O-NET ป.6",
+      grade: "ชั้นประถมศึกษาปีที่ 6",
+      year: "2566",
+      source: "สทศ.",
+      posterImageUrl: "/images/onet-2566.png",
+      subjects: [
+        { name: "ภาษาไทย", school: 67.61, area: 57.30, national: 57.30 },
+        { name: "คณิตศาสตร์", school: 34.71, area: 29.96, national: 29.96 },
+        { name: "วิทยาศาสตร์", school: 52.86, area: 40.75, national: 40.75 },
+        { name: "ภาษาอังกฤษ", school: 33.04, area: 37.32, national: 37.32 },
+        { name: "รวมเฉลี่ย 4 วิชา", school: 47.05, area: 41.33, national: 41.33 },
+      ],
+    },
   },
   "RT": {
-    id: "RT",
-    title: "ค่าเฉลี่ยคะแนน RT ป.1",
-    grade: "ชั้นประถมศึกษาปีที่ 1",
-    year: "2567",
-    source: "สทศ.",
-    subjects: [
-      { name: "RT1 (อ่านออกเสียง)", school: 90.42, area: 81.20, national: 80.28 },
-      { name: "RT2 (อ่านรู้เรื่อง)", school: 80.14, area: 78.50, national: 77.16 },
-      { name: "รวมเฉลี่ย", school: 85.28, area: 79.85, national: 78.72 },
-    ],
+    "2567": {
+      id: "RT",
+      title: "ค่าเฉลี่ยคะแนน RT ป.1",
+      grade: "ชั้นประถมศึกษาปีที่ 1",
+      year: "2567",
+      source: "สทศ.",
+      subjects: [
+        { name: "RT1 (อ่านออกเสียง)", school: 90.42, area: 81.20, national: 80.28 },
+        { name: "RT2 (อ่านรู้เรื่อง)", school: 80.14, area: 78.50, national: 77.16 },
+        { name: "รวมเฉลี่ย", school: 85.28, area: 79.85, national: 78.72 },
+      ],
+    },
+    "2566": {
+      id: "RT",
+      title: "ค่าเฉลี่ยคะแนน RT ป.1",
+      grade: "ชั้นประถมศึกษาปีที่ 1",
+      year: "2566",
+      source: "สทศ.",
+      subjects: [
+        { name: "RT1 (อ่านออกเสียง)", school: 84.10, area: 79.50, national: 77.89 },
+        { name: "RT2 (อ่านรู้เรื่อง)", school: 80.80, area: 78.10, national: 76.57 },
+        { name: "รวมเฉลี่ย", school: 82.45, area: 78.80, national: 77.23 },
+      ],
+    },
   },
   "NT": {
-    id: "NT",
-    title: "ค่าเฉลี่ยคะแนน NT ป.3",
-    grade: "ชั้นประถมศึกษาปีที่ 3",
-    year: "2567",
-    source: "สทศ.",
-    subjects: [
-      { name: "คณิตศาสตร์", school: 57.20, area: 54.10, national: 54.00 },
-      { name: "ภาษาไทย", school: 59.50, area: 56.20, national: 56.10 },
-      { name: "รวมเฉลี่ย", school: 58.35, area: 55.15, national: 55.05 },
-    ],
+    "2567": {
+      id: "NT",
+      title: "ค่าเฉลี่ยคะแนน NT ป.3",
+      grade: "ชั้นประถมศึกษาปีที่ 3",
+      year: "2567",
+      source: "สทศ.",
+      subjects: [
+        { name: "คณิตศาสตร์", school: 57.20, area: 54.10, national: 54.00 },
+        { name: "ภาษาไทย", school: 59.50, area: 56.20, national: 56.10 },
+        { name: "รวมเฉลี่ย", school: 58.35, area: 55.15, national: 55.05 },
+      ],
+    },
+    "2566": {
+      id: "NT",
+      title: "ค่าเฉลี่ยคะแนน NT ป.3",
+      grade: "ชั้นประถมศึกษาปีที่ 3",
+      year: "2566",
+      source: "สทศ.",
+      subjects: [
+        { name: "คณิตศาสตร์", school: 66.45, area: 64.10, national: 63.80 },
+        { name: "ภาษาไทย", school: 71.35, area: 68.20, national: 66.70 },
+        { name: "รวมเฉลี่ย", school: 68.90, area: 66.15, national: 65.25 },
+      ],
+    },
   },
 };
+
+export function createDefaultExamYear(examId: "O-NET" | "RT" | "NT", year: string): ExamDataset {
+  if (examId === "O-NET") {
+    return {
+      id: "O-NET",
+      title: `ค่าเฉลี่ยคะแนน O-NET ป.6 ปีการศึกษา ${year}`,
+      grade: "ชั้นประถมศึกษาปีที่ 6",
+      year,
+      source: "สทศ.",
+      subjects: [
+        { name: "ภาษาไทย", school: 0, area: 0, national: 0 },
+        { name: "คณิตศาสตร์", school: 0, area: 0, national: 0 },
+        { name: "วิทยาศาสตร์", school: 0, area: 0, national: 0 },
+        { name: "ภาษาอังกฤษ", school: 0, area: 0, national: 0 },
+        { name: "รวมเฉลี่ย 4 วิชา", school: 0, area: 0, national: 0 },
+      ],
+    };
+  } else if (examId === "RT") {
+    return {
+      id: "RT",
+      title: `ค่าเฉลี่ยคะแนน RT ป.1 ปีการศึกษา ${year}`,
+      grade: "ชั้นประถมศึกษาปีที่ 1",
+      year,
+      source: "สทศ.",
+      subjects: [
+        { name: "RT1 (อ่านออกเสียง)", school: 0, area: 0, national: 0 },
+        { name: "RT2 (อ่านรู้เรื่อง)", school: 0, area: 0, national: 0 },
+        { name: "รวมเฉลี่ย", school: 0, area: 0, national: 0 },
+      ],
+    };
+  } else {
+    return {
+      id: "NT",
+      title: `ค่าเฉลี่ยคะแนน NT ป.3 ปีการศึกษา ${year}`,
+      grade: "ชั้นประถมศึกษาปีที่ 3",
+      year,
+      source: "สทศ.",
+      subjects: [
+        { name: "คณิตศาสตร์", school: 0, area: 0, national: 0 },
+        { name: "ภาษาไทย", school: 0, area: 0, national: 0 },
+        { name: "รวมเฉลี่ย", school: 0, area: 0, national: 0 },
+      ],
+    };
+  }
+}
 
 export interface OnetPosterSubject {
   name: string;
@@ -76,17 +169,6 @@ export interface OnetPosterItem {
 }
 
 export const defaultHistoricalOnetScores: OnetPosterItem[] = [
-  {
-    year: "2568",
-    title: "ผลการทดสอบ O-NET ป.6 ปีการศึกษา 2568",
-    image: "/images/onet-2568.png",
-    subjects: [
-      { name: "ภาษาไทย", school: 67.50, national: 47.60, diff: "+19.90", higher: true },
-      { name: "คณิตศาสตร์", school: 31.34, national: 24.90, diff: "+6.44", higher: true },
-      { name: "วิทยาศาสตร์", school: 43.13, national: 35.43, diff: "+7.70", higher: true },
-      { name: "ภาษาอังกฤษ", school: 24.22, national: 33.58, diff: "-9.36", higher: false },
-    ],
-  },
   {
     year: "2567",
     title: "ผลการทดสอบ O-NET ป.6 ปีการศึกษา 2567 (สูงกว่าระดับประเทศทุกวิชา)",
@@ -114,23 +196,76 @@ export const defaultHistoricalOnetScores: OnetPosterItem[] = [
 
 export const historicalOnetScores = defaultHistoricalOnetScores;
 
-const STORAGE_KEY = "nhm_academic_scores_v3";
+const STORAGE_KEY = "nhm_academic_scores_v4";
 const POSTERS_STORAGE_KEY = "nhm_academic_posters_v2";
 const CLOUD_KEY_SCORES = "academic_scores";
 const CLOUD_KEY_POSTERS = "onet_posters";
 
+function normalizeAcademicScores(parsed: any): AllAcademicScores {
+  const result: AllAcademicScores = {
+    "O-NET": {},
+    "RT": {},
+    "NT": {},
+  };
+
+  const examKeys = ["O-NET", "RT", "NT"] as const;
+
+  for (const key of examKeys) {
+    const val = parsed?.[key];
+    if (!val) {
+      result[key] = { ...defaultAcademicScores[key] };
+      continue;
+    }
+
+    // Check if it's the old single-dataset format (has .subjects directly on val)
+    if (Array.isArray(val.subjects)) {
+      const year = val.year || "2567";
+      result[key][year] = {
+        ...val,
+        id: key,
+        year,
+      };
+      // Include default historical years if missing
+      for (const defYear of Object.keys(defaultAcademicScores[key])) {
+        if (!result[key][defYear]) {
+          result[key][defYear] = defaultAcademicScores[key][defYear];
+        }
+      }
+    } else if (typeof val === "object") {
+      // New format: val is Record<string, ExamDataset>
+      const years = Object.keys(val);
+      if (years.length === 0) {
+        result[key] = { ...defaultAcademicScores[key] };
+      } else {
+        for (const yr of years) {
+          if (val[yr] && Array.isArray(val[yr].subjects)) {
+            result[key][yr] = val[yr];
+          }
+        }
+        if (Object.keys(result[key]).length === 0) {
+          result[key] = { ...defaultAcademicScores[key] };
+        }
+      }
+    } else {
+      result[key] = { ...defaultAcademicScores[key] };
+    }
+  }
+
+  return result;
+}
+
 // ===================== ACADEMIC SCORES =====================
 
-export function getStoredAcademicScores(): Record<string, ExamDataset> {
+export function getStoredAcademicScores(): AllAcademicScores {
   if (typeof window === "undefined") {
     return defaultAcademicScores;
   }
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("nhm_academic_scores_v3");
     if (!raw) return defaultAcademicScores;
     const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed === "object" && Object.keys(parsed).length > 0) {
-      return parsed; // Use ONLY stored data — do NOT merge with defaults
+    if (parsed && typeof parsed === "object") {
+      return normalizeAcademicScores(parsed);
     }
     return defaultAcademicScores;
   } catch {
@@ -138,7 +273,7 @@ export function getStoredAcademicScores(): Record<string, ExamDataset> {
   }
 }
 
-export async function saveStoredAcademicScores(data: Record<string, ExamDataset>): Promise<void> {
+export async function saveStoredAcademicScores(data: AllAcademicScores): Promise<void> {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -158,7 +293,7 @@ export async function saveStoredAcademicScores(data: Record<string, ExamDataset>
   }
 }
 
-export async function fetchAcademicScoresCloud(): Promise<Record<string, ExamDataset> | null> {
+export async function fetchAcademicScoresCloud(): Promise<AllAcademicScores | null> {
   if (!isSupabaseConfigured() || !supabase) return null;
   try {
     const { data, error } = await supabase
@@ -167,11 +302,12 @@ export async function fetchAcademicScoresCloud(): Promise<Record<string, ExamDat
       .eq("key", CLOUD_KEY_SCORES)
       .single();
     if (!error && data && data.value && typeof data.value === "object" && Object.keys(data.value).length > 0) {
+      const normalized = normalizeAcademicScores(data.value);
       if (typeof window !== "undefined") {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data.value));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
         window.dispatchEvent(new Event("academic_scores_updated"));
       }
-      return data.value as Record<string, ExamDataset>;
+      return normalized;
     }
     return null;
   } catch {
@@ -183,6 +319,7 @@ export async function resetStoredAcademicScores(): Promise<void> {
   if (typeof window === "undefined") return;
   try {
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem("nhm_academic_scores_v3");
     window.dispatchEvent(new Event("academic_scores_updated"));
   } catch (err) {
     console.error("Failed to reset academic scores in localStorage:", err);
