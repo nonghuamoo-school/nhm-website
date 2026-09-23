@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import {
   getStoredAcademicScores,
+  fetchAcademicScoresCloud,
   defaultAcademicScores,
   ExamDataset,
   AcademicScoreItem
@@ -39,6 +40,12 @@ export default function AcademicPerformanceChart({
 
   useEffect(() => {
     loadData();
+
+    // Fetch from Supabase cloud
+    fetchAcademicScoresCloud().then((cloudData) => {
+      if (cloudData) setDatasets(cloudData);
+    });
+
     const handleUpdate = () => loadData();
     window.addEventListener("academic_scores_updated", handleUpdate);
     return () => window.removeEventListener("academic_scores_updated", handleUpdate);

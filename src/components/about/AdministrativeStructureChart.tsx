@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import {
   Layers,
   User,
@@ -13,13 +14,72 @@ import {
   FileDown,
   Printer,
   ExternalLink,
-  ShieldCheck
+  ShieldCheck,
+  Edit3
 } from "lucide-react";
+import { useSchoolSettings } from "@/hooks/useSchoolSettings";
+import { usePersonnel } from "@/hooks/usePersonnel";
 
 export default function AdministrativeStructureChart() {
+  const { settings } = useSchoolSettings();
+  const { personnelList } = usePersonnel();
+
   const handlePrint = () => {
     window.print();
   };
+
+  // Helper to find division head and members dynamically
+  const getDivisionData = (keyword: string, fallbackHead: string, fallbackMembers: string[]) => {
+    const matched = personnelList.filter((p) => {
+      const inDept = p.department && p.department.includes(keyword);
+      const inPos = p.position && p.position.includes(keyword);
+      const inRoles = p.roles && p.roles.some((r) => r.includes(keyword));
+      return inDept || inPos || inRoles;
+    });
+
+    if (matched.length === 0) {
+      return { head: fallbackHead, members: fallbackMembers };
+    }
+
+    // Head is someone with "หัวหน้า" in position/roles
+    const headMember = matched.find((p) => 
+      (p.position && p.position.includes("หัวหน้า")) ||
+      (p.roles && p.roles.some((r) => r.includes("หัวหน้า") && r.includes(keyword)))
+    ) || matched[0];
+
+    const members = matched
+      .filter((p) => p.id !== headMember.id && !p.position?.includes("ผู้อำนวยการ"))
+      .map((p) => p.name);
+
+    return {
+      head: headMember.name,
+      members: members.length > 0 ? members : fallbackMembers,
+    };
+  };
+
+  const academicDiv = getDivisionData("วิชาการ", "นายธนาธิป คุณวงศ์", [
+    "นางสาวอรทัย วงศ์จันทร์",
+    "นางสาวสุพิชชา ตาชูชาติ",
+    "นางสาวธัญญลักษณ์ กิ่งดี",
+  ]);
+
+  const personnelDiv = getDivisionData("บุคคล", "นายณัฏฐ์นริศ หอยสังข์", [
+    "นางสาวอรทัย วงศ์จันทร์",
+  ]);
+
+  const generalDiv = getDivisionData("ทั่วไป", "นางสาวโสภา ผลึกรุ่งโรจน์", [
+    "นางเสาวณีย์ พูนสวัสดิ์",
+    "นางสาวเจนจิรา ปลั่งกลาง",
+    "นางสาวสุภาภรณ์ สายธิไชย",
+    "นางสาวธัญญลักษณ์ กิ่งดี",
+  ]);
+
+  const budgetDiv = getDivisionData("งบประมาณ", "นางเสาวณีย์ พูนสวัสดิ์", [
+    "นางสาวสุรีรัตน์ ฉิมจารย์",
+    "นางสาวโสภา ผลึกรุ่งโรจน์",
+    "นางสาวสุพิชชา ตาชูชาติ",
+    "นางสาวสุภาภรณ์ สายธิไชย",
+  ]);
 
   return (
     <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-8">
@@ -31,27 +91,34 @@ export default function AdministrativeStructureChart() {
             <span>โครงสร้างการบริหารสถานศึกษา</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-[#0F2942] tracking-tight">
-            โครงสร้างการบริหารงานโรงเรียนบ้านหนองหัวหมู
+            โครงสร้างการบริหารงาน{settings.name}
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
             ผังโครงสร้างสายบังคับบัญชา 4 ฝ่ายบริหารงานตามระเบียบกระทรวงศึกษาธิการ
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          <Link
+            href="/admin/personnel"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-800 text-xs font-bold border border-slate-200 transition-colors"
+          >
+            <Edit3 className="w-3.5 h-3.5 text-blue-600" />
+            <span>จัดการบุคลากร/ผังบริหาร</span>
+          </Link>
           <a
             href="/images/admin-structure.png"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-900 text-xs font-bold border border-blue-200 transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-900 text-xs font-bold border border-blue-200 transition-colors"
           >
-            <FileDown className="w-4 h-4 text-blue-700" />
-            <span>เปิดผังต้นฉบับ (PDF / ภาพ)</span>
+            <FileDown className="w-3.5 h-3.5 text-blue-700" />
+            <span>ผังต้นฉบับ</span>
           </a>
           <button
             type="button"
             onClick={handlePrint}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200 transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200 transition-colors"
           >
             <Printer className="w-4 h-4" />
             <span>พิมพ์</span>
@@ -67,13 +134,13 @@ export default function AdministrativeStructureChart() {
           <div className="relative group">
             <div className="px-8 py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-600 text-white text-center shadow-md border-2 border-amber-300 min-w-[260px]">
               <span className="text-xs font-bold tracking-wider uppercase block text-amber-100 mb-0.5">
-                ผู้อำนวยการโรงเรียน
+                {settings.directorTitle || "ผู้อำนวยการโรงเรียน"}
               </span>
               <h3 className="text-base sm:text-lg font-black text-white">
-                นายอดุลย์ วิกุล
+                {settings.directorName || "นายอดุลย์ วิกุล"}
               </h3>
               <span className="text-[11px] text-amber-100 block mt-0.5">
-                ผู้อำนวยการชำนาญการพิเศษ
+                {settings.directorAcademicStanding || "ผู้อำนวยการชำนาญการพิเศษ"}
               </span>
             </div>
 
@@ -122,12 +189,12 @@ export default function AdministrativeStructureChart() {
               <div className="p-3.5 space-y-2 text-xs">
                 <div className="p-2 rounded-xl bg-amber-50/80 border border-amber-200">
                   <span className="text-[10px] font-bold text-amber-800 block uppercase">หัวหน้าฝ่าย</span>
-                  <p className="font-black text-slate-800 text-xs">นายธนาธิป คุณวงศ์</p>
+                  <p className="font-black text-slate-800 text-xs">{academicDiv.head}</p>
                 </div>
                 <div className="space-y-1.5 pt-1 text-slate-700">
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium">• นางสาวอรทัย วงศ์จันทร์</p>
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium">• นางสาวสุพิชชา ตาชูชาติ</p>
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium">• นางสาวธัญญลักษณ์ กิ่งดี</p>
+                  {academicDiv.members.map((name, i) => (
+                    <p key={i} className="flex items-center gap-1.5 text-[11px] font-medium">• {name}</p>
+                  ))}
                 </div>
               </div>
             </div>
@@ -141,10 +208,12 @@ export default function AdministrativeStructureChart() {
               <div className="p-3.5 space-y-2 text-xs">
                 <div className="p-2 rounded-xl bg-yellow-50/80 border border-yellow-200">
                   <span className="text-[10px] font-bold text-yellow-800 block uppercase">หัวหน้าฝ่าย</span>
-                  <p className="font-black text-slate-800 text-xs">นายณัฏฐ์นริศ หอยสังข์</p>
+                  <p className="font-black text-slate-800 text-xs">{personnelDiv.head}</p>
                 </div>
                 <div className="space-y-1.5 pt-1 text-slate-700">
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium">• นางสาวอรทัย วงศ์จันทร์</p>
+                  {personnelDiv.members.map((name, i) => (
+                    <p key={i} className="flex items-center gap-1.5 text-[11px] font-medium">• {name}</p>
+                  ))}
                 </div>
               </div>
             </div>
@@ -158,13 +227,12 @@ export default function AdministrativeStructureChart() {
               <div className="p-3.5 space-y-2 text-xs">
                 <div className="p-2 rounded-xl bg-emerald-50/80 border border-emerald-200">
                   <span className="text-[10px] font-bold text-emerald-800 block uppercase">หัวหน้าฝ่าย</span>
-                  <p className="font-black text-slate-800 text-xs">นางสาวโสภา ผลึกรุ่งโรจน์</p>
+                  <p className="font-black text-slate-800 text-xs">{generalDiv.head}</p>
                 </div>
                 <div className="space-y-1.5 pt-1 text-slate-700">
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium">• นางเสาวณีย์ พูนสวัสดิ์</p>
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium">• นางสาวเจนจิรา ปลั่งกลาง</p>
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium">• นางสาวสุภาภรณ์ สายธิไชย</p>
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium">• นางสาวธัญญลักษณ์ กิ่งดี</p>
+                  {generalDiv.members.map((name, i) => (
+                    <p key={i} className="flex items-center gap-1.5 text-[11px] font-medium">• {name}</p>
+                  ))}
                 </div>
               </div>
             </div>
@@ -178,13 +246,12 @@ export default function AdministrativeStructureChart() {
               <div className="p-3.5 space-y-2 text-xs">
                 <div className="p-2 rounded-xl bg-rose-50/80 border border-rose-200">
                   <span className="text-[10px] font-bold text-rose-800 block uppercase">หัวหน้าฝ่าย</span>
-                  <p className="font-black text-slate-800 text-xs">นางเสาวณีย์ พูนสวัสดิ์</p>
+                  <p className="font-black text-slate-800 text-xs">{budgetDiv.head}</p>
                 </div>
                 <div className="space-y-1.5 pt-1 text-slate-700">
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium">• นางสาวสุรีรัตน์ ฉิมจารย์</p>
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium">• นางสาวโสภา ผลึกรุ่งโรจน์</p>
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium">• นางสาวสุพิชชา ตาชูชาติ</p>
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium">• นางสาวสุภาภรณ์ สายธิไชย</p>
+                  {budgetDiv.members.map((name, i) => (
+                    <p key={i} className="flex items-center gap-1.5 text-[11px] font-medium">• {name}</p>
+                  ))}
                 </div>
               </div>
             </div>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { BookOpen, CheckCircle, BarChart3, Award, Sparkles, ExternalLink, FileDown, UploadCloud, Edit3, X } from "lucide-react";
 import InnerPageLayout from "@/components/layout/InnerPageLayout";
 import AcademicPerformance from "@/components/home/AcademicPerformance";
-import { getStoredOnetPosters, defaultHistoricalOnetScores, OnetPosterItem } from "@/data/academicScores";
+import { getStoredOnetPosters, fetchOnetPostersCloud, defaultHistoricalOnetScores, OnetPosterItem } from "@/data/academicScores";
 
 export default function AcademicPage() {
   const [selectedPoster, setSelectedPoster] = useState<string | null>(null);
@@ -13,6 +13,11 @@ export default function AcademicPage() {
 
   useEffect(() => {
     setPosters(getStoredOnetPosters());
+
+    // Fetch from Supabase cloud
+    fetchOnetPostersCloud().then((cloudData) => {
+      if (cloudData) setPosters(cloudData);
+    });
 
     const handleUpdate = () => {
       setPosters(getStoredOnetPosters());

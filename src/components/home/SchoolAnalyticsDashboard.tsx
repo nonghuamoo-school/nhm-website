@@ -12,7 +12,7 @@ import {
   Sparkles,
   School
 } from "lucide-react";
-import { getStoredStudentStats, defaultSchoolStudentStats } from "@/data/studentStats";
+import { getStoredStudentStats, fetchStudentStatsCloud, defaultSchoolStudentStats } from "@/data/studentStats";
 
 export default function SchoolAnalyticsDashboard() {
   const [allStats, setAllStats] = useState(defaultSchoolStudentStats);
@@ -20,6 +20,11 @@ export default function SchoolAnalyticsDashboard() {
 
   useEffect(() => {
     setAllStats(getStoredStudentStats());
+
+    // Fetch from Supabase cloud — overwrites localStorage if data found
+    fetchStudentStatsCloud().then((cloudData) => {
+      if (cloudData) setAllStats(cloudData);
+    });
 
     const handleUpdate = () => {
       setAllStats(getStoredStudentStats());

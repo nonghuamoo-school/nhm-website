@@ -1,3 +1,5 @@
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+
 export interface AcademicScoreItem {
   name: string; // e.g. "ภาษาไทย"
   school: number; // โรงเรียน
@@ -114,6 +116,10 @@ export const historicalOnetScores = defaultHistoricalOnetScores;
 
 const STORAGE_KEY = "nhm_academic_scores_v3";
 const POSTERS_STORAGE_KEY = "nhm_academic_posters_v2";
+const CLOUD_KEY_SCORES = "academic_scores";
+const CLOUD_KEY_POSTERS = "onet_posters";
+
+// ===================== ACADEMIC SCORES =====================
 
 export function getStoredAcademicScores(): Record<string, ExamDataset> {
   if (typeof window === "undefined") {
@@ -123,13 +129,16 @@ export function getStoredAcademicScores(): Record<string, ExamDataset> {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaultAcademicScores;
     const parsed = JSON.parse(raw);
-    return { ...defaultAcademicScores, ...parsed };
+    if (parsed && typeof parsed === "object" && Object.keys(parsed).length > 0) {
+      return parsed; // Use ONLY stored data — do NOT merge with defaults
+    }
+    return defaultAcademicScores;
   } catch {
     return defaultAcademicScores;
   }
 }
 
-export function saveStoredAcademicScores(data: Record<string, ExamDataset>): void {
+export async function saveStoredAcademicScores(data: Record<string, ExamDataset>): Promise<void> {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -137,9 +146,40 @@ export function saveStoredAcademicScores(data: Record<string, ExamDataset>): voi
   } catch (err) {
     console.error("Failed to save academic scores to localStorage:", err);
   }
+
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      await supabase
+        .from("school_settings")
+        .upsert({ key: CLOUD_KEY_SCORES, value: data, updated_at: new Date().toISOString() });
+    } catch (cloudErr) {
+      console.warn("Could not sync academic scores to Supabase:", cloudErr);
+    }
+  }
 }
 
-export function resetStoredAcademicScores(): void {
+export async function fetchAcademicScoresCloud(): Promise<Record<string, ExamDataset> | null> {
+  if (!isSupabaseConfigured() || !supabase) return null;
+  try {
+    const { data, error } = await supabase
+      .from("school_settings")
+      .select("value")
+      .eq("key", CLOUD_KEY_SCORES)
+      .single();
+    if (!error && data && data.value && typeof data.value === "object" && Object.keys(data.value).length > 0) {
+      if (typeof window !== "undefined") {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data.value));
+        window.dispatchEvent(new Event("academic_scores_updated"));
+      }
+      return data.value as Record<string, ExamDataset>;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export async function resetStoredAcademicScores(): Promise<void> {
   if (typeof window === "undefined") return;
   try {
     localStorage.removeItem(STORAGE_KEY);
@@ -147,7 +187,17 @@ export function resetStoredAcademicScores(): void {
   } catch (err) {
     console.error("Failed to reset academic scores in localStorage:", err);
   }
+
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      await supabase.from("school_settings").delete().eq("key", CLOUD_KEY_SCORES);
+    } catch (cloudErr) {
+      console.warn("Could not reset academic scores in Supabase:", cloudErr);
+    }
+  }
 }
+
+// ===================== O-NET POSTERS =====================
 
 export function getStoredOnetPosters(): OnetPosterItem[] {
   if (typeof window === "undefined") {
@@ -166,7 +216,7 @@ export function getStoredOnetPosters(): OnetPosterItem[] {
   }
 }
 
-export function saveStoredOnetPosters(posters: OnetPosterItem[]): void {
+export async function saveStoredOnetPosters(posters: OnetPosterItem[]): Promise<void> {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(POSTERS_STORAGE_KEY, JSON.stringify(posters));
@@ -175,9 +225,46 @@ export function saveStoredOnetPosters(posters: OnetPosterItem[]): void {
   } catch (err) {
     console.error("Failed to save O-NET posters to localStorage:", err);
   }
+
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      // Filter out base64 images for cloud storage (too large)
+      const cloudPosters = posters.map(p => ({
+        ...p,
+        image: p.image.startsWith("data:") ? "" : p.image,
+      }));
+      await supabase
+        .from("school_settings")
+        .upsert({ key: CLOUD_KEY_POSTERS, value: cloudPosters, updated_at: new Date().toISOString() });
+    } catch (cloudErr) {
+      console.warn("Could not sync O-NET posters to Supabase:", cloudErr);
+    }
+  }
 }
 
-export function resetStoredOnetPosters(): void {
+export async function fetchOnetPostersCloud(): Promise<OnetPosterItem[] | null> {
+  if (!isSupabaseConfigured() || !supabase) return null;
+  try {
+    const { data, error } = await supabase
+      .from("school_settings")
+      .select("value")
+      .eq("key", CLOUD_KEY_POSTERS)
+      .single();
+    if (!error && data && Array.isArray(data.value) && data.value.length > 0) {
+      if (typeof window !== "undefined") {
+        localStorage.setItem(POSTERS_STORAGE_KEY, JSON.stringify(data.value));
+        window.dispatchEvent(new Event("academic_posters_updated"));
+        window.dispatchEvent(new Event("academic_scores_updated"));
+      }
+      return data.value as OnetPosterItem[];
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export async function resetStoredOnetPosters(): Promise<void> {
   if (typeof window === "undefined") return;
   try {
     localStorage.removeItem(POSTERS_STORAGE_KEY);
@@ -186,5 +273,12 @@ export function resetStoredOnetPosters(): void {
   } catch (err) {
     console.error("Failed to reset O-NET posters in localStorage:", err);
   }
-}
 
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      await supabase.from("school_settings").delete().eq("key", CLOUD_KEY_POSTERS);
+    } catch (cloudErr) {
+      console.warn("Could not reset O-NET posters in Supabase:", cloudErr);
+    }
+  }
+}

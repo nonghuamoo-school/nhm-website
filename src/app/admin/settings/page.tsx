@@ -31,7 +31,8 @@ import {
 } from "lucide-react";
 import SchoolLogo from "@/components/common/SchoolLogo";
 import { schoolInfo } from "@/data/schoolInfo";
-import { defaultSchoolSettings } from "@/hooks/useSchoolSettings";
+import { defaultSchoolSettings, saveSchoolSettingsCloud, SchoolSettingsData } from "@/hooks/useSchoolSettings";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { getGoogleMapsEmbedUrl, getGoogleMapsNavigationUrl } from "@/lib/maps";
 import Swal from "sweetalert2";
 
@@ -97,6 +98,8 @@ export default function AdminSettingsPage() {
     directorMessage: defaultSchoolSettings.directorMessage,
     directorPhone: defaultSchoolSettings.phone,
     directorEmail: defaultSchoolSettings.email,
+    colors: defaultSchoolSettings.colors,
+    philosophy: defaultSchoolSettings.philosophy,
     currentAcademicYear: "2568",
     currentSemester: "ภาคเรียนที่ 1/2568",
     visitorCountBase: "0",
@@ -104,7 +107,7 @@ export default function AdminSettingsPage() {
 
   const [newMissionItem, setNewMissionItem] = useState("");
 
-  // Load saved settings from localStorage on client mount
+  // Load saved settings from localStorage and Supabase on client mount
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
@@ -117,17 +120,34 @@ export default function AdminSettingsPage() {
         console.error("Failed to load settings from localStorage", e);
       }
     }
+
+    // Fetch from Supabase cloud
+    if (isSupabaseConfigured() && supabase) {
+      supabase
+        .from("school_settings")
+        .select("value")
+        .eq("key", "school_info")
+        .single()
+        .then(({ data, error }) => {
+          if (!error && data && data.value && typeof data.value === "object") {
+            setFormData((prev) => ({ ...prev, ...data.value }));
+            if (typeof window !== "undefined") {
+              localStorage.setItem("nhm_school_settings", JSON.stringify({ ...defaultSchoolSettings, ...data.value }));
+            }
+          }
+        });
+    }
   }, []);
 
   const handleSave = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem("nhm_school_settings", JSON.stringify(formData));
-        window.dispatchEvent(new Event("nhm_settings_updated"));
+    try {
+      // 1. Save to cloud and localStorage via helper
+      await saveSchoolSettingsCloud(formData as unknown as SchoolSettingsData);
 
-        // Two-way sync: Update director in personnel database as well
-        try {
+      // 2. Two-way sync: Update director in personnel database as well
+      try {
+        if (typeof window !== "undefined") {
           const persRaw = localStorage.getItem("nhm_school_personnel");
           if (persRaw) {
             const persList = JSON.parse(persRaw);
@@ -144,29 +164,41 @@ export default function AdminSettingsPage() {
             localStorage.setItem("nhm_school_personnel", JSON.stringify(updated));
             window.dispatchEvent(new Event("nhm_personnel_updated"));
           }
-        } catch (persErr) {
-          console.error("Error syncing director to personnel", persErr);
         }
 
-        await Swal.fire({
-          icon: "success",
-          title: "บันทึกการตั้งค่าเรียบร้อยแล้ว!",
-          text: "ข้อมูลถูกบันทึกและซิงค์ไปยังหน้าเว็บไซต์หลักทันที",
-          confirmButtonText: "ตกลง",
-          confirmButtonColor: "#0F2942",
-          timer: 2500,
-          timerProgressBar: true,
-        });
-      } catch (err) {
-        console.error("Save error", err);
-        Swal.fire({
-          icon: "error",
-          title: "เกิดข้อผิดพลาดในการบันทึก",
-          text: "กรุณาลองใหม่อีกครั้ง",
-          confirmButtonText: "ตกลง",
-          confirmButtonColor: "#0F2942",
-        });
+        // Sync director update to Supabase personnel table
+        if (isSupabaseConfigured() && supabase) {
+          await supabase
+            .from("personnel")
+            .update({
+              name: formData.directorName,
+              image_url: formData.directorImageUrl,
+              updated_at: new Date().toISOString()
+            })
+            .eq("id", "p-01");
+        }
+      } catch (persErr) {
+        console.error("Error syncing director to personnel", persErr);
       }
+
+      await Swal.fire({
+        icon: "success",
+        title: "บันทึกการตั้งค่าเรียบร้อยแล้ว!",
+        text: "ข้อมูลถูกบันทึกและซิงค์ Cloud Database (Real-time) เรียบร้อยแล้ว",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#0F2942",
+        timer: 2500,
+        timerProgressBar: true,
+      });
+    } catch (err) {
+      console.error("Save error", err);
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาดในการบันทึก",
+        text: "กรุณาลองใหม่อีกครั้ง",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#0F2942",
+      });
     }
     setSaved(true);
     setTimeout(() => setSaved(false), 3500);
@@ -189,6 +221,15 @@ export default function AdminSettingsPage() {
         localStorage.removeItem("nhm_school_settings");
         window.dispatchEvent(new Event("nhm_settings_updated"));
       }
+
+      if (isSupabaseConfigured() && supabase) {
+        try {
+          await supabase.from("school_settings").delete().eq("key", "school_info");
+        } catch (e) {
+          console.warn("Could not delete school_info from Supabase:", e);
+        }
+      }
+
       await Swal.fire({
         icon: "success",
         title: "คืนค่าเริ่มต้นเรียบร้อยแล้ว",

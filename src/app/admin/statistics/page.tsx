@@ -29,6 +29,7 @@ import {
   getStoredStudentStats,
   saveStoredStudentStats,
   resetStoredStudentStats,
+  fetchStudentStatsCloud,
   defaultSchoolStudentStats
 } from "@/data/studentStats";
 import { StudentYearStat, StudentGradeStat } from "@/types";
@@ -63,6 +64,17 @@ export default function AdminStatisticsPage() {
     if (years.length > 0 && !data[selectedStudentYear]) {
       setSelectedStudentYear(years[0]);
     }
+
+    // Fetch from Supabase cloud
+    fetchStudentStatsCloud().then((cloudData) => {
+      if (cloudData) {
+        setAllStudentStats(cloudData);
+        const cloudYears = Object.keys(cloudData).sort((a, b) => b.localeCompare(a));
+        if (cloudYears.length > 0) {
+          setSelectedStudentYear(cloudYears[0]);
+        }
+      }
+    });
   }, []);
 
   const stats = visitorService.getVisitorStats();

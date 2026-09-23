@@ -19,7 +19,7 @@ import {
 import InnerPageLayout from "@/components/layout/InnerPageLayout";
 import DocumentViewerModal from "@/components/common/DocumentViewerModal";
 import { schoolInventoryAssets } from "@/data/assets";
-import { getStoredStudentStats, defaultSchoolStudentStats } from "@/data/studentStats";
+import { getStoredStudentStats, fetchStudentStatsCloud, defaultSchoolStudentStats } from "@/data/studentStats";
 import { DownloadDoc } from "@/types";
 import { useDownloads } from "@/hooks/useDownloads";
 
@@ -45,6 +45,11 @@ export default function DownloadsPage() {
 
   useEffect(() => {
     setStudentStatsData(getStoredStudentStats());
+
+    // Fetch from Supabase cloud
+    fetchStudentStatsCloud().then((cloudData) => {
+      if (cloudData) setStudentStatsData(cloudData);
+    });
 
     const handleUpdate = () => {
       setStudentStatsData(getStoredStudentStats());

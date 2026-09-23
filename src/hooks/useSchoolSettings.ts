@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { schoolInfo } from "@/data/schoolInfo";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export interface SchoolSettingsData {
   name: string;
@@ -89,7 +90,7 @@ export const defaultSchoolSettings: SchoolSettingsData = {
   historyText:
     "โรงเรียนบ้านหนองหัวหมู ก่อตั้งขึ้นเมื่อวันที่ 1 พฤษภาคม พ.ศ. 2517 ตั้งอยู่เลขที่ 144 หมู่ที่ 7 บ้านโคกสะอาด ตำบลทุ่งกระเต็น อำเภอหนองกี่ จังหวัดบุรีรัมย์ สังกัดสำนักงานเขตพื้นที่การศึกษาประถมศึกษาบุรีรัมย์ เขต 3 จัดการศึกษาขั้นพื้นฐานตั้งแต่ระดับอนุบาล 2 ถึงประถมศึกษาปีที่ 6 มุ่งเน้นการจัดการเรียนรู้เชิงรุก (Active Learning) ปลูกฝังคุณธรรม จริยธรรม สอดแทรกทักษะชีวิตตามหลักปรัชญาของเศรษฐกิจพอเพียง",
   motto: "เรียนดี กีฬาเด่น เน้นคุณธรรม นำชุมชน",
-  philosophy: "นตฺถิ ปญฺญา สมา อาภา “ไม่มีแสงสว่างใดเสมอด้วยปัญญา”",
+  philosophy: "นตฺถิ ปญฺญา สมา อาภา \"ไม่มีแสงสว่างใดเสมอด้วยปัญญา\"",
   colors: "สีแสด – สีขาว",
   vision: schoolInfo.vision,
   mission: [...schoolInfo.mission],
@@ -111,13 +112,16 @@ export const defaultSchoolSettings: SchoolSettingsData = {
   emblemType: "custom",
   customLogoUrl: "/images/school-logo.png",
   primaryColor: "#0F2942",
-  accentColor: "#F97316", // Orange theme accent from official color "สีแสด - สีขาว"
+  accentColor: "#F97316",
   directorName: "นายอดุลย์ วิกุล",
   directorTitle: "ผู้อำนวยการสถานศึกษา",
   directorAcademicStanding: "ผู้อำนวยการชำนาญการพิเศษ",
   directorImageUrl: schoolInfo.director.imageUrl,
   directorMessage: schoolInfo.director.message,
 };
+
+const STORAGE_KEY = "nhm_school_settings";
+const CLOUD_KEY = "school_info";
 
 export function useSchoolSettings() {
   const [settings, setSettings] = useState<SchoolSettingsData>(defaultSchoolSettings);
@@ -127,7 +131,7 @@ export function useSchoolSettings() {
     const loadSettings = () => {
       if (typeof window === "undefined") return;
       try {
-        const saved = localStorage.getItem("nhm_school_settings");
+        const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
           const parsed = JSON.parse(saved);
           if (parsed.facebook === "โรงเรียนบ้านหนองหัวหมู" || !parsed.facebook) {
@@ -144,6 +148,24 @@ export function useSchoolSettings() {
 
     loadSettings();
 
+    // Fetch from Supabase cloud — overwrites localStorage if data found
+    if (isSupabaseConfigured() && supabase) {
+      supabase
+        .from("school_settings")
+        .select("value")
+        .eq("key", CLOUD_KEY)
+        .single()
+        .then(({ data, error }) => {
+          if (!error && data && data.value && typeof data.value === "object") {
+            const cloudSettings = data.value as Partial<SchoolSettingsData>;
+            setSettings((prev) => ({ ...prev, ...cloudSettings }));
+            if (typeof window !== "undefined") {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...defaultSchoolSettings, ...cloudSettings }));
+            }
+          }
+        });
+    }
+
     const handleStorageChange = () => loadSettings();
     window.addEventListener("storage", handleStorageChange);
     window.addEventListener("nhm_settings_updated", handleStorageChange);
@@ -155,4 +177,26 @@ export function useSchoolSettings() {
   }, []);
 
   return { settings, isLoaded };
+}
+
+// Helper to save settings to both localStorage and Supabase
+export async function saveSchoolSettingsCloud(data: SchoolSettingsData): Promise<void> {
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      window.dispatchEvent(new Event("nhm_settings_updated"));
+    } catch (err) {
+      console.error("Error saving school settings to localStorage:", err);
+    }
+  }
+
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      await supabase
+        .from("school_settings")
+        .upsert({ key: CLOUD_KEY, value: data, updated_at: new Date().toISOString() });
+    } catch (cloudErr) {
+      console.warn("Could not sync school settings to Supabase:", cloudErr);
+    }
+  }
 }

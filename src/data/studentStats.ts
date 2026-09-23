@@ -1,4 +1,5 @@
 import { StudentYearStat } from "@/types";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export const defaultSchoolStudentStats: Record<string, StudentYearStat> = {
   "2568": {
@@ -46,7 +47,9 @@ export const defaultSchoolStudentStats: Record<string, StudentYearStat> = {
 export const schoolStudentStats = defaultSchoolStudentStats;
 
 const STORAGE_KEY = "nhm_student_stats_v2";
+const CLOUD_KEY = "student_stats";
 
+// Read from localStorage — NO default merge (fixes year leak bug)
 export function getStoredStudentStats(): Record<string, StudentYearStat> {
   if (typeof window === "undefined") {
     return defaultSchoolStudentStats;
@@ -56,7 +59,7 @@ export function getStoredStudentStats(): Record<string, StudentYearStat> {
     if (!raw) return defaultSchoolStudentStats;
     const parsed = JSON.parse(raw);
     if (parsed && typeof parsed === "object" && Object.keys(parsed).length > 0) {
-      return { ...defaultSchoolStudentStats, ...parsed };
+      return parsed; // Use ONLY stored data — do NOT merge with defaults
     }
     return defaultSchoolStudentStats;
   } catch {
@@ -64,7 +67,8 @@ export function getStoredStudentStats(): Record<string, StudentYearStat> {
   }
 }
 
-export function saveStoredStudentStats(data: Record<string, StudentYearStat>): void {
+// Save to localStorage + Supabase cloud
+export async function saveStoredStudentStats(data: Record<string, StudentYearStat>): Promise<void> {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -72,9 +76,43 @@ export function saveStoredStudentStats(data: Record<string, StudentYearStat>): v
   } catch (err) {
     console.error("Failed to save student stats to localStorage:", err);
   }
+
+  // Sync to Supabase cloud
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      await supabase
+        .from("school_settings")
+        .upsert({ key: CLOUD_KEY, value: data, updated_at: new Date().toISOString() });
+    } catch (cloudErr) {
+      console.warn("Could not sync student stats to Supabase:", cloudErr);
+    }
+  }
 }
 
-export function resetStoredStudentStats(): void {
+// Fetch from Supabase cloud → update localStorage
+export async function fetchStudentStatsCloud(): Promise<Record<string, StudentYearStat> | null> {
+  if (!isSupabaseConfigured() || !supabase) return null;
+  try {
+    const { data, error } = await supabase
+      .from("school_settings")
+      .select("value")
+      .eq("key", CLOUD_KEY)
+      .single();
+    if (!error && data && data.value && typeof data.value === "object" && Object.keys(data.value).length > 0) {
+      // Update localStorage cache
+      if (typeof window !== "undefined") {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data.value));
+        window.dispatchEvent(new Event("student_stats_updated"));
+      }
+      return data.value as Record<string, StudentYearStat>;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export async function resetStoredStudentStats(): Promise<void> {
   if (typeof window === "undefined") return;
   try {
     localStorage.removeItem(STORAGE_KEY);
@@ -82,5 +120,13 @@ export function resetStoredStudentStats(): void {
   } catch (err) {
     console.error("Failed to reset student stats in localStorage:", err);
   }
-}
 
+  // Also reset in cloud
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      await supabase.from("school_settings").delete().eq("key", CLOUD_KEY);
+    } catch (cloudErr) {
+      console.warn("Could not reset student stats in Supabase:", cloudErr);
+    }
+  }
+}

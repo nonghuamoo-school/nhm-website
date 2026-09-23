@@ -25,9 +25,11 @@ import {
   getStoredAcademicScores,
   saveStoredAcademicScores,
   resetStoredAcademicScores,
+  fetchAcademicScoresCloud,
   getStoredOnetPosters,
   saveStoredOnetPosters,
   resetStoredOnetPosters,
+  fetchOnetPostersCloud,
   defaultAcademicScores,
   defaultHistoricalOnetScores,
   ExamDataset,
@@ -91,6 +93,13 @@ export default function AdminAcademicPage() {
   useEffect(() => {
     setDatasets(getStoredAcademicScores());
     setPosters(getStoredOnetPosters());
+
+    fetchAcademicScoresCloud().then((cloudData) => {
+      if (cloudData) setDatasets(cloudData);
+    });
+    fetchOnetPostersCloud().then((cloudPosters) => {
+      if (cloudPosters) setPosters(cloudPosters);
+    });
   }, []);
 
   const currentExamData = datasets[activeExam] || defaultAcademicScores[activeExam];
@@ -219,29 +228,29 @@ export default function AdminAcademicPage() {
   };
 
   // ================= 3. SAVE / RESET LOGIC =================
-  const handleSaveAll = () => {
-    saveStoredAcademicScores(datasets);
-    saveStoredOnetPosters(posters);
+  const handleSaveAll = async () => {
+    await saveStoredAcademicScores(datasets);
+    await saveStoredOnetPosters(posters);
     setSavedMessage(
       activeMainTab === "scores"
-        ? "บันทึกข้อมูลคะแนน 3 ระดับเรียบร้อยแล้ว! ทุกหน้าเว็บถูกอัปเดตแบบ Real-time"
-        : "บันทึกภาพประกาศผลสอบ O-NET และข้อมูลอินโฟกราฟิกเรียบร้อยแล้ว!"
+        ? "บันทึกข้อมูลคะแนน 3 ระดับเรียบร้อยแล้ว! ข้อมูลซิงค์ Cloud Database แบบ Real-time"
+        : "บันทึกภาพประกาศผลสอบ O-NET และข้อมูลเรียบร้อยแล้ว! ซิงค์ Real-time ทันที"
     );
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 3500);
   };
 
-  const handleResetCurrent = () => {
+  const handleResetCurrent = async () => {
     if (activeMainTab === "scores") {
       if (confirm("คุณต้องการรีเซ็ตคะแนนทั้งหมดกลับเป็นค่ามาตรฐาน สทศ. หรือไม่?")) {
-        resetStoredAcademicScores();
+        await resetStoredAcademicScores();
         setDatasets(defaultAcademicScores);
         setResetSuccess(true);
         setTimeout(() => setResetSuccess(false), 3500);
       }
     } else {
       if (confirm("คุณต้องการรีเซ็ตภาพประกาศผลสอบ O-NET กลับเป็นค่าเริ่มต้นหรือไม่?")) {
-        resetStoredOnetPosters();
+        await resetStoredOnetPosters();
         setPosters(defaultHistoricalOnetScores);
         setResetSuccess(true);
         setTimeout(() => setResetSuccess(false), 3500);

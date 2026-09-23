@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Users, UserCheck, School, Sparkles, Filter, Database, CheckCircle2 } from "lucide-react";
-import { getStoredStudentStats, defaultSchoolStudentStats } from "@/data/studentStats";
+import { getStoredStudentStats, fetchStudentStatsCloud, defaultSchoolStudentStats } from "@/data/studentStats";
 
 export default function StudentAnalyticsWidget() {
   const [allStats, setAllStats] = useState(defaultSchoolStudentStats);
@@ -10,6 +10,11 @@ export default function StudentAnalyticsWidget() {
 
   useEffect(() => {
     setAllStats(getStoredStudentStats());
+
+    // Fetch from Supabase cloud — overwrites localStorage if data found
+    fetchStudentStatsCloud().then((cloudData) => {
+      if (cloudData) setAllStats(cloudData);
+    });
 
     const handleUpdate = () => {
       const updated = getStoredStudentStats();
