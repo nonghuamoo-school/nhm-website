@@ -179,52 +179,57 @@ export default function SchoolAnalyticsDashboard() {
           </div>
 
           {/* Chart Canvas with Guide Lines */}
-          <div className="relative pt-6 pb-2 px-2 sm:px-4 bg-gradient-to-b from-slate-50/50 to-slate-100/50 rounded-2xl border border-slate-200/80">
+          <div className="relative pt-6 pb-2 px-1 sm:px-4 bg-gradient-to-b from-slate-50/50 to-slate-100/50 rounded-2xl border border-slate-200/80 overflow-hidden">
             {/* Horizontal Grid lines */}
-            <div className="absolute inset-x-4 top-6 bottom-10 flex flex-col justify-between pointer-events-none opacity-40">
-              <div className="border-b border-dashed border-slate-300 w-full" />
-              <div className="border-b border-dashed border-slate-300 w-full" />
-              <div className="border-b border-dashed border-slate-300 w-full" />
+            <div className="absolute inset-x-2 sm:inset-x-4 top-8 bottom-7 flex flex-col justify-between pointer-events-none opacity-30">
+              <div className="border-b border-dashed border-slate-400 w-full" />
+              <div className="border-b border-dashed border-slate-400 w-full" />
+              <div className="border-b border-dashed border-slate-400 w-full" />
               <div className="border-b border-slate-300 w-full" />
             </div>
 
-            <div className="h-56 flex items-end justify-between gap-2 sm:gap-3 relative z-10">
+            <div className="h-48 sm:h-56 grid grid-cols-8 gap-1 sm:gap-2.5 items-end relative z-10 w-full">
               {studentData.grades.map((grade, idx) => {
                 const isKindergarten = idx < 2;
                 const maxStudentCount = 16;
                 const heightPercent = Math.round((grade.total / maxStudentCount) * 100);
+                const shortLabel = grade.grade
+                  .replace("อนุบาล 2 (4 ขวบ)", "อ.2")
+                  .replace("อนุบาล 3 (5 ขวบ)", "อ.3")
+                  .replace(/อนุบาล\s*(\d+).*/, "อ.$1")
+                  .replace(/ประถมศึกษาปีที่\s*(\d+).*/, "ป.$1");
 
                 return (
                   <div
                     key={grade.grade}
-                    className="flex-1 flex flex-col items-center h-full justify-end group cursor-pointer"
+                    className="flex flex-col items-center h-full justify-end group cursor-pointer"
                     title={`${grade.grade}: รวม ${grade.total} คน (ชาย ${grade.male}, หญิง ${grade.female})`}
                   >
-                    {/* Floating Count Badge */}
-                    <div className="mb-2 px-1.5 py-0.5 rounded-md bg-white border border-slate-200 shadow-2xs group-hover:bg-[#0F2942] group-hover:text-white group-hover:border-[#0F2942] transition-all duration-200">
-                      <span className="text-[11px] font-black text-[#0F2942] group-hover:text-white">
+                    {/* Centered Count Label */}
+                    <div className="mb-1 sm:mb-1.5 flex items-center justify-center">
+                      <span className="text-[10px] sm:text-xs font-black text-[#0F2942] group-hover:text-blue-700 font-mono transition-colors">
                         {grade.total}
                       </span>
                     </div>
 
                     {/* Bar Column */}
-                    <div className="w-full max-w-[32px] sm:max-w-[38px] h-full flex items-end justify-center">
+                    <div className="w-full max-w-[24px] sm:max-w-[34px] h-full flex items-end justify-center mx-auto">
                       <div
                         style={{ height: `${heightPercent}%` }}
-                        className={`w-full rounded-t-lg transition-all duration-500 relative group-hover:scale-y-105 origin-bottom shadow-sm ${
+                        className={`w-full rounded-t-md sm:rounded-t-lg transition-all duration-500 relative group-hover:scale-y-105 origin-bottom shadow-xs ${
                           isKindergarten
                             ? "bg-gradient-to-t from-emerald-600 to-teal-400 group-hover:from-emerald-500 group-hover:to-teal-300"
                             : "bg-gradient-to-t from-[#0F2942] via-blue-700 to-sky-400 group-hover:from-blue-800 group-hover:to-sky-300"
                         }`}
                       >
                         {/* Subtle Glass Highlight */}
-                        <div className="absolute inset-x-0 top-0 h-1 bg-white/40 rounded-t-lg" />
+                        <div className="absolute inset-x-0 top-0 h-1 bg-white/40 rounded-t-md sm:rounded-t-lg" />
                       </div>
                     </div>
 
-                    {/* Grade Label */}
-                    <span className="text-[11px] font-bold text-slate-700 mt-2.5 truncate w-full text-center group-hover:text-blue-700 transition-colors">
-                      {grade.grade.replace("ประถมศึกษาปีที่ ", "ป.").replace("อนุบาล ", "อ.")}
+                    {/* Uniform Short Grade Label (อ.2, อ.3, ป.1 ... ป.6) */}
+                    <span className="text-[10px] sm:text-xs font-bold text-slate-700 mt-2 text-center w-full group-hover:text-blue-700 transition-colors">
+                      {shortLabel}
                     </span>
                   </div>
                 );
@@ -232,10 +237,10 @@ export default function SchoolAnalyticsDashboard() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-100">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-[11px] text-slate-500 pt-2 border-t border-slate-100">
             <span>ระดับชั้น อ.2 ถึง ป.6 (รวม 8 ห้องเรียน)</span>
-            <span className="font-bold text-[#0F2942] bg-slate-100 px-2.5 py-1 rounded-lg">
-              ยอดรวมทั้งโรงเรียน: <strong className="text-blue-600">105</strong> คน
+            <span className="font-bold text-[#0F2942] sm:bg-slate-100 sm:px-2.5 sm:py-1 sm:rounded-lg self-start sm:self-auto">
+              ยอดรวมทั้งโรงเรียน: <strong className="text-blue-600 font-mono">105</strong> คน
             </span>
           </div>
         </div>

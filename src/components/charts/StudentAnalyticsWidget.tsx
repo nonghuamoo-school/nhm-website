@@ -117,21 +117,26 @@ export default function StudentAnalyticsWidget() {
             <span className="text-[11px] text-slate-400">เฉลี่ย 13.1 คน / ห้อง</span>
           </div>
 
-          <div className="h-56 pt-6 pb-2 flex items-end justify-between gap-1.5 sm:gap-3 bg-slate-50/70 p-3 sm:p-4 rounded-2xl border border-slate-200">
+          <div className="h-48 sm:h-56 pt-6 pb-2 grid grid-cols-8 gap-1 sm:gap-2.5 items-end bg-slate-50/70 p-2 sm:p-4 rounded-2xl border border-slate-200 overflow-hidden">
             {stats.grades.map((grade) => {
               const heightPercent = Math.round((grade.total / maxStudentCount) * 85) + 15;
+              const shortLabel = grade.grade
+                .replace("อนุบาล 2 (4 ขวบ)", "อ.2")
+                .replace("อนุบาล 3 (5 ขวบ)", "อ.3")
+                .replace(/อนุบาล\s*(\d+).*/, "อ.$1")
+                .replace(/ประถมศึกษาปีที่\s*(\d+).*/, "ป.$1");
 
               return (
                 <div
                   key={grade.grade}
-                  className="flex-1 flex flex-col items-center h-full justify-end group cursor-pointer"
+                  className="flex flex-col items-center h-full justify-end group cursor-pointer"
                   title={`${grade.grade}: รวม ${grade.total} คน (ชาย ${grade.male}, หญิง ${grade.female})`}
                 >
-                  <span className="text-[11px] font-bold font-mono text-[#0F2942] mb-1.5 group-hover:scale-110 transition-all">
+                  <span className="text-[10px] sm:text-[11px] font-bold font-mono text-[#0F2942] mb-1.5 group-hover:scale-110 transition-all">
                     {grade.total}
                   </span>
 
-                  <div className="w-full max-w-[34px] h-full flex items-end justify-center bg-slate-200/80 rounded-full p-1 overflow-hidden">
+                  <div className="w-full max-w-[24px] sm:max-w-[34px] h-full flex items-end justify-center bg-slate-200/80 rounded-full p-1 overflow-hidden">
                     <div
                       style={{ height: `${heightPercent}%` }}
                       className="w-full bg-gradient-to-t from-blue-700 via-sky-500 to-cyan-400 rounded-full group-hover:from-blue-600 group-hover:to-emerald-400 transition-all duration-500 shadow-sm relative"
@@ -140,8 +145,8 @@ export default function StudentAnalyticsWidget() {
                     </div>
                   </div>
 
-                  <span className="text-[10px] font-bold text-slate-600 mt-2 truncate w-full text-center">
-                    {grade.grade.replace("ประถมศึกษาปีที่ ", "ป.").replace("อนุบาล ", "อ.")}
+                  <span className="text-[10px] sm:text-xs font-bold text-slate-600 mt-2 text-center w-full">
+                    {shortLabel}
                   </span>
                 </div>
               );
