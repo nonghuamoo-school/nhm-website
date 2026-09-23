@@ -97,7 +97,7 @@ export default function AdminSettingsPage() {
     directorEmail: defaultSchoolSettings.email,
     currentAcademicYear: "2568",
     currentSemester: "ภาคเรียนที่ 1/2568",
-    visitorCountBase: "12458",
+    visitorCountBase: "0",
   });
 
   const [newMissionItem, setNewMissionItem] = useState("");
@@ -330,7 +330,7 @@ export default function AdminSettingsPage() {
                         {formData.name}
                       </h2>
                       <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
-                        {formData.nameEn} • รหัสสถานศึกษา {formData.schoolCode}
+                        {formData.nameEn}
                       </p>
                     </div>
 
@@ -771,9 +771,6 @@ export default function AdminSettingsPage() {
                     <div className="flex items-center gap-2">
                       <span className="text-base sm:text-lg font-bold text-[#0F2942] tracking-tight">
                         {formData.name}
-                      </span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200 hidden sm:inline">
-                        {formData.schoolCode}
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 mt-0.5">

@@ -36,7 +36,6 @@ export default function SchoolGeneralInfoCard() {
     .join(" ") || `ตำบลท่าโพธิ์ชัย อำเภอหนองกี่ จังหวัดบุรีรัมย์ 31210`;
 
   const infoRows = [
-    { label: "รหัสโรงเรียน 10 หลัก", value: settings.schoolCode10 || settings.schoolCode || "1031260609", icon: "#" },
     { label: "รหัส Smis 8 หลัก", value: settings.smisCode8 || "31030074", icon: "#" },
     { label: "รหัส Obec 6 หลัก", value: settings.obecCode6 || "260609", icon: "#" },
     { label: "ชื่อสถานศึกษา (ไทย)", value: settings.name, icon: "📖" },

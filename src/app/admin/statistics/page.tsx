@@ -20,8 +20,8 @@ export default function AdminStatisticsPage() {
   const stats = visitorService.getVisitorStats();
 
   // Find maximum view count to scale bars cleanly
-  const maxDaily = Math.max(...stats.dailyTrend.map((d) => d.views));
-  const maxMonthly = Math.max(...stats.monthlyTrend.map((m) => m.views));
+  const maxDaily = Math.max(1, ...stats.dailyTrend.map((d) => d.views));
+  const maxMonthly = Math.max(1, ...stats.monthlyTrend.map((m) => m.views));
 
   return (
     <div className="space-y-6">

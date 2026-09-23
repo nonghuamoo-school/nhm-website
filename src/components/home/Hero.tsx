@@ -34,7 +34,7 @@ export default function Hero() {
                 {settings.name}
               </h1>
               <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
-                {settings.nameEn} • รหัสสถานศึกษา {settings.schoolCode}
+                {settings.nameEn}
               </p>
             </div>
 

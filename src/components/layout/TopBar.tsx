@@ -6,7 +6,7 @@ import { schoolInfo } from "@/data/schoolInfo";
 import { visitorService } from "@/services/visitorService";
 
 export default function TopBar() {
-  const [visitorCount, setVisitorCount] = useState<number>(12458);
+  const [visitorCount, setVisitorCount] = useState<number | null>(null);
   const [fontSizeIndex, setFontSizeIndex] = useState<number>(0);
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function TopBar() {
             <Eye className="w-3.5 h-3.5 text-sky-400 shrink-0" />
             <span className="hidden md:inline">ผู้เข้าชม</span>
             <strong className="text-white font-bold font-mono">
-              {visitorCount.toLocaleString()}
+              {(visitorCount ?? 1).toLocaleString()}
             </strong>
             <span className="hidden md:inline">ครั้ง</span>
           </div>

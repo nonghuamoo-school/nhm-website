@@ -115,8 +115,8 @@ export default function AboutPage() {
           <h3 className="text-base font-bold text-[#0F2942] mb-4">ข้อมูลจำเพาะสถานศึกษา (Fact Sheet)</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs">
             <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
-              <span className="text-slate-400 block mb-0.5">รหัสโรงเรียน 10 หลัก</span>
-              <span className="font-bold text-slate-800 font-mono">{settings.schoolCode10 || settings.schoolCode}</span>
+              <span className="text-slate-400 block mb-0.5">กลุ่มโรงเรียน</span>
+              <span className="font-bold text-slate-800">{settings.schoolGroup || "ดอนอะรางทุ่งกระเต็น"}</span>
             </div>
             <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
               <span className="text-slate-400 block mb-0.5">ปีที่ก่อตั้ง</span>
