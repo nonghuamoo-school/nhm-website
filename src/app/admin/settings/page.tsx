@@ -320,6 +320,10 @@ export default function AdminSettingsPage() {
 
   const heroImagePresets = [
     {
+      title: "ซุ้มประตูโรงเรียนบ้านหนองหัวหมู (ภาพหลักสถานศึกษา)",
+      url: "/images/school-hero-gate.png",
+    },
+    {
       title: "บรรยากาศการเรียนรู้เชิงรุก (Active Learning)",
       url: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=800",
     },

@@ -103,8 +103,7 @@ export const defaultSchoolSettings: SchoolSettingsData = {
   heroBtn2Url: "/news",
   heroBtn3Text: "เว็บไซต์ สพป. บุรีรัมย์ เขต 3",
   heroBtn3Url: "https://www.brm3.go.th",
-  heroImageUrl:
-    "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=800",
+  heroImageUrl: "/images/school-hero-gate.png",
   heroBadge1Label: "ระดับการศึกษา",
   heroBadge1Value: "อนุบาล 2 – ประถมศึกษาปีที่ 6",
   heroBadge2Label: "ผลสัมฤทธิ์ทางการเรียน",
