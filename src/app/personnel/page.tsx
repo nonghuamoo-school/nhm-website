@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Filter, Users, ChevronDown, Check, Sparkles } from "lucide-react";
+import { Filter, Users, ChevronDown, Check, Sparkles, LayoutList, LayoutGrid } from "lucide-react";
 import InnerPageLayout from "@/components/layout/InnerPageLayout";
 import PersonnelCard from "@/components/home/PersonnelCard";
 import { usePersonnel } from "@/hooks/usePersonnel";
@@ -27,6 +27,7 @@ const DEPARTMENTS = [
 export default function PersonnelPage() {
   const { personnelList } = usePersonnel();
   const [selectedDept, setSelectedDept] = useState<string>("ทั้งหมด");
+  const [mobileLayout, setMobileLayout] = useState<"single" | "grid">("single");
 
   const filtered = (
     selectedDept === "ทั้งหมด"
@@ -41,16 +42,45 @@ export default function PersonnelPage() {
 
   const toolbar = (
     <div className="space-y-3">
-      {/* Mobile View: Clean Dropdown & Single-Line Horizontal Swipeable Pills */}
+      {/* Mobile View: Clean Dropdown, View Mode Toggle, and Single-Line Horizontal Swipeable Pills */}
       <div className="sm:hidden space-y-2.5">
         <div className="flex items-center justify-between text-xs">
           <span className="flex items-center gap-1.5 font-bold text-[#0F2942]">
             <Filter className="w-3.5 h-3.5 text-blue-600" />
             <span>เลือกฝ่ายงาน / กลุ่มสาระ:</span>
           </span>
-          <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
-            {filtered.length} ท่าน
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+              {filtered.length} ท่าน
+            </span>
+            {/* View Mode Toggle for mobile */}
+            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+              <button
+                type="button"
+                onClick={() => setMobileLayout("single")}
+                className={`p-1 rounded-md transition-colors ${
+                  mobileLayout === "single"
+                    ? "bg-white text-[#0F2942] shadow-2xs"
+                    : "text-slate-400 hover:text-slate-700"
+                }`}
+                title="มุมมองรายการเต็ม (อ่านง่าย สบายตา)"
+              >
+                <LayoutList className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobileLayout("grid")}
+                className={`p-1 rounded-md transition-colors ${
+                  mobileLayout === "grid"
+                    ? "bg-white text-[#0F2942] shadow-2xs"
+                    : "text-slate-400 hover:text-slate-700"
+                }`}
+                title="มุมมองตารางคู่ (2 คอลัมน์)"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Mobile Dropdown */}
@@ -80,7 +110,7 @@ export default function PersonnelPage() {
           <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
 
-        {/* Mobile Horizontal Quick-Switch Chips (Single Line Scrolling - NO vertical wrapping) */}
+        {/* Mobile Horizontal Quick-Switch Chips */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs -mx-1 px-1 select-none">
           {["ทั้งหมด", "ฝ่ายบริหารสถานศึกษา", "ฝ่ายบริหารวิชาการ", "กลุ่มสาระการเรียนรู้ภาษาไทย", "กลุ่มสาระการเรียนรู้คณิตศาสตร์"].map((dept) => (
             <button
@@ -157,11 +187,21 @@ export default function PersonnelPage() {
       description={`คณะผู้บริหาร ครูผู้สอน และบุคลากรทางการศึกษา โรงเรียนบ้านหนองหัวหมู (รวม ${personnelList.length} ท่าน)`}
       toolbar={toolbar}
     >
-      <div className="space-y-6">
-        {/* Personnel Grid: 2 cols on mobile, 3-4 cols on desktop */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="space-y-6 pb-20 sm:pb-8">
+        {/* Personnel Grid: Configurable 1 col or 2 cols on mobile, 3-4 cols on desktop */}
+        <div
+          className={`grid gap-3 sm:gap-4 ${
+            mobileLayout === "single"
+              ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+              : "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+          }`}
+        >
           {filtered.map((person) => (
-            <PersonnelCard key={person.id} person={person} />
+            <PersonnelCard
+              key={person.id}
+              person={person}
+              layout={mobileLayout === "single" ? "auto" : "vertical"}
+            />
           ))}
         </div>
 

@@ -96,15 +96,42 @@ export default function SchoolGeneralInfoCard() {
               <p className="text-xs sm:text-sm font-medium text-slate-500 font-serif tracking-wide">
                 {settings.nameEn}
               </p>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/80 text-blue-900 text-xs font-semibold mt-2">
-                <Building2 className="w-3.5 h-3.5 text-blue-700" />
-                <span>สังกัด {settings.subAffiliation}</span>
+              <div className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200/80 text-blue-900 text-xs font-semibold mt-2 max-w-full text-center leading-relaxed">
+                <Building2 className="w-3.5 h-3.5 text-blue-700 shrink-0" />
+                <span className="thai-wrap">สังกัด {settings.subAffiliation}</span>
               </div>
             </div>
           </div>
 
-          {/* Official Specification Table */}
-          <div className="overflow-x-auto">
+          {/* Mobile View: Dedicated Clean Stacked Cards (Zero syllable cuts on small screens) */}
+          <div className="sm:hidden divide-y divide-slate-100 bg-slate-50/60 rounded-2xl border border-slate-200/80 p-2">
+            {infoRows.map((row) => (
+              <div key={row.label} className="py-2.5 px-3 space-y-1">
+                <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
+                  <span className="opacity-80">{row.icon}</span>
+                  <span>{row.label}</span>
+                </div>
+                <div className="text-xs font-bold text-slate-900 leading-relaxed pl-5 thai-wrap">
+                  {row.isLink ? (
+                    <a
+                      href={row.value}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-blue-700 hover:underline"
+                    >
+                      <span>{row.displayValue || row.value}</span>
+                      <ExternalLink className="w-3 h-3 shrink-0" />
+                    </a>
+                  ) : (
+                    row.value
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop View: Official Specification Table */}
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full text-xs sm:text-sm border-collapse">
               <tbody className="divide-y divide-slate-100">
                 {infoRows.map((row, idx) => (
@@ -114,11 +141,11 @@ export default function SchoolGeneralInfoCard() {
                       idx % 2 === 0 ? "bg-white" : "bg-slate-50/50"
                     } hover:bg-blue-50/40`}
                   >
-                    <td className="py-2.5 px-3 sm:px-4 font-semibold text-slate-600 w-1/3 sm:w-1/4 whitespace-nowrap">
+                    <td className="py-2.5 px-4 font-semibold text-slate-600 w-1/3 whitespace-nowrap">
                       <span className="mr-2 opacity-70">{row.icon}</span>
                       {row.label}
                     </td>
-                    <td className="py-2.5 px-3 sm:px-4 text-slate-800 font-medium">
+                    <td className="py-2.5 px-4 text-slate-800 font-medium thai-wrap">
                       {row.isLink ? (
                         <a
                           href={row.value}
@@ -141,7 +168,7 @@ export default function SchoolGeneralInfoCard() {
 
           {/* Timestamp footer from SMIS */}
           <div className="text-center text-[11px] text-slate-400 pt-2 border-t border-slate-100">
-            (ข้อมูลทางการสถานศึกษา สังกัด สพป. บุรีรัมย์ เขต 3 ปีการศึกษา 2568)
+            (ข้อมูลทางการสถานศึกษา สังกัด สพป. บุรีรัมย์ เขต 3 ปีการศึกษา 2569)
           </div>
         </div>
 

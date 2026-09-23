@@ -438,17 +438,19 @@ export default function AcademicPerformanceChart({
 
       {/* ================= 4. EXECUTIVE COMPARATIVE DATA TABLE ================= */}
       <div className="p-4 sm:p-8 pt-0">
-        <div className="sm:hidden flex items-center justify-center gap-1.5 py-1 px-3 bg-slate-100 border border-slate-200 rounded-full text-[10px] text-slate-600 font-medium mb-2.5 w-fit mx-auto">
-          <span>เลื่อนตารางไปทางขวาเพื่อดูทุกวิชา</span>
+        <div className="sm:hidden flex items-center justify-center gap-1.5 py-1 px-3 bg-blue-50 border border-blue-200 rounded-full text-[11px] text-blue-700 font-bold mb-3 w-fit mx-auto shadow-2xs">
+          <span>↔ เลื่อนตารางไปทางขวาเพื่อดูทุกวิชา</span>
         </div>
         <div className="bg-slate-50/70 rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
           <div className="overflow-x-auto">
-            <table className="w-full text-xs sm:text-sm border-collapse">
+            <table className="w-full min-w-[620px] text-xs sm:text-sm border-collapse">
               <thead>
                 <tr className="bg-slate-200/80 text-[#0F2942] font-black border-b border-slate-300">
-                  <th className="py-3 px-4 text-left font-bold w-48">ระดับการประเมิน ({currentYear})</th>
+                  <th className="py-3.5 px-4 text-left font-bold min-w-[210px] whitespace-nowrap sticky left-0 bg-slate-200 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)]">
+                    ระดับการประเมิน ({currentYear})
+                  </th>
                   {subjects.map((s) => (
-                    <th key={s.name} className="py-3 px-3 text-center font-bold">
+                    <th key={s.name} className="py-3 px-3 text-center font-bold min-w-[85px] sm:min-w-[100px] whitespace-nowrap">
                       {s.name}
                     </th>
                   ))}
@@ -457,12 +459,12 @@ export default function AcademicPerformanceChart({
               <tbody className="divide-y divide-slate-200/70">
                 {/* Row 1: โรงเรียนบ้านหนองหัวหมู (Highlighted) */}
                 <tr className="bg-emerald-50/40 hover:bg-emerald-50/80 transition-colors font-bold text-emerald-950">
-                  <td className="py-3 px-4 flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                  <td className="py-3 px-4 flex items-center gap-2 whitespace-nowrap min-w-[210px] sticky left-0 bg-emerald-50/95 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)]">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
                     <span>โรงเรียนบ้านหนองหัวหมู</span>
                   </td>
                   {subjects.map((s) => (
-                    <td key={s.name} className="py-3 px-3 text-center font-mono text-emerald-800 text-sm font-black">
+                    <td key={s.name} className="py-3 px-3 text-center font-mono text-emerald-800 text-sm font-black whitespace-nowrap">
                       {s.school.toFixed(2)}
                     </td>
                   ))}
@@ -470,12 +472,12 @@ export default function AcademicPerformanceChart({
 
                 {/* Row 2: สพป. บุรีรัมย์ เขต 3 */}
                 <tr className="hover:bg-amber-50/30 transition-colors text-slate-800">
-                  <td className="py-2.5 px-4 flex items-center gap-2 font-medium">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                  <td className="py-2.5 px-4 flex items-center gap-2 font-medium whitespace-nowrap min-w-[210px] sticky left-0 bg-white/95 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)]">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0" />
                     <span>สพป. บุรีรัมย์ เขต 3</span>
                   </td>
                   {subjects.map((s) => (
-                    <td key={s.name} className="py-2.5 px-3 text-center font-mono text-amber-900 font-semibold">
+                    <td key={s.name} className="py-2.5 px-3 text-center font-mono text-amber-900 font-semibold whitespace-nowrap">
                       {s.area.toFixed(2)}
                     </td>
                   ))}
@@ -483,12 +485,12 @@ export default function AcademicPerformanceChart({
 
                 {/* Row 3: ระดับประเทศ */}
                 <tr className="hover:bg-blue-50/30 transition-colors text-slate-800">
-                  <td className="py-2.5 px-4 flex items-center gap-2 font-medium">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+                  <td className="py-2.5 px-4 flex items-center gap-2 font-medium whitespace-nowrap min-w-[210px] sticky left-0 bg-white/95 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)]">
+                    <span className="w-2.5 h-2.5 rounded-full bg-blue-600 shrink-0" />
                     <span>ระดับประเทศ</span>
                   </td>
                   {subjects.map((s) => (
-                    <td key={s.name} className="py-2.5 px-3 text-center font-mono text-blue-900 font-semibold">
+                    <td key={s.name} className="py-2.5 px-3 text-center font-mono text-blue-900 font-semibold whitespace-nowrap">
                       {s.national.toFixed(2)}
                     </td>
                   ))}
@@ -496,14 +498,14 @@ export default function AcademicPerformanceChart({
 
                 {/* Row 4: เปรียบเทียบ ส่วนต่าง (โรงเรียน vs ประเทศ) */}
                 <tr className="bg-white text-[11px] font-bold border-t-2 border-slate-200">
-                  <td className="py-2.5 px-4 text-slate-500">
+                  <td className="py-2.5 px-4 text-slate-500 whitespace-nowrap min-w-[210px] sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)]">
                     ส่วนต่าง (โรงเรียน vs ประเทศ)
                   </td>
                   {subjects.map((s) => {
                     const diff = s.school - s.national;
                     const isPos = diff >= 0;
                     return (
-                      <td key={s.name} className="py-2.5 px-3 text-center font-mono">
+                      <td key={s.name} className="py-2.5 px-3 text-center font-mono whitespace-nowrap">
                         <span
                           className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md ${
                             isPos
