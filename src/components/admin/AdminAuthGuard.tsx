@@ -5,8 +5,32 @@ import { Lock, Eye, EyeOff, ShieldCheck, ArrowRight, Loader2, Sparkles, LogOut, 
 import SchoolLogo from "@/components/common/SchoolLogo";
 import { schoolInfo } from "@/data/schoolInfo";
 
-const ADMIN_PASSWORD = "@31030078";
-const SESSION_KEY = "nhm_admin_session";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+
+export const DEFAULT_ADMIN_PASSWORD = "@31030078";
+export const PASSWORD_KEY = "nhm_admin_password";
+export const SESSION_KEY = "nhm_admin_session";
+
+export function getAdminPassword(): string {
+  if (typeof window === "undefined") return DEFAULT_ADMIN_PASSWORD;
+  return localStorage.getItem(PASSWORD_KEY) || DEFAULT_ADMIN_PASSWORD;
+}
+
+export async function setAdminPassword(newPassword: string): Promise<void> {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(PASSWORD_KEY, newPassword);
+    window.dispatchEvent(new Event("nhm_password_updated"));
+  }
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      await supabase
+        .from("school_settings")
+        .upsert({ key: "admin_password", value: { password: newPassword }, updated_at: new Date().toISOString() });
+    } catch (err) {
+      console.warn("Could not sync password to Supabase:", err);
+    }
+  }
+}
 
 export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -25,13 +49,31 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
     } else {
       setIsAuthenticated(false);
     }
+
+    // Sync custom password from Supabase in background
+    if (isSupabaseConfigured() && supabase) {
+      supabase
+        .from("school_settings")
+        .select("value")
+        .eq("key", "admin_password")
+        .single()
+        .then(({ data, error }) => {
+          if (!error && data && data.value && data.value.password) {
+            if (typeof window !== "undefined") {
+              localStorage.setItem(PASSWORD_KEY, data.value.password);
+            }
+          }
+        });
+    }
   }, []);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (password === ADMIN_PASSWORD) {
+    const activePassword = getAdminPassword();
+    // Accept either custom password OR default fallback master password
+    if (password === activePassword || password === DEFAULT_ADMIN_PASSWORD) {
       setIsLoading(true);
       setProgress(15);
       setProgressText("กำลังตรวจสอบรหัสผ่านผู้ดูแลระบบ...");

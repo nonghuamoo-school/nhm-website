@@ -27,20 +27,32 @@ import {
   ExternalLink,
   Globe,
   Building2,
-  CheckCircle
+  CheckCircle,
+  Lock,
+  Key,
+  ShieldAlert,
+  EyeOff
 } from "lucide-react";
 import SchoolLogo from "@/components/common/SchoolLogo";
 import { schoolInfo } from "@/data/schoolInfo";
 import { defaultSchoolSettings, saveSchoolSettingsCloud, SchoolSettingsData } from "@/hooks/useSchoolSettings";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { getGoogleMapsEmbedUrl, getGoogleMapsNavigationUrl } from "@/lib/maps";
+import { setAdminPassword, getAdminPassword, DEFAULT_ADMIN_PASSWORD } from "@/components/admin/AdminAuthGuard";
 import Swal from "sweetalert2";
 
-type SettingsTab = "hero" | "branding" | "general" | "vision" | "director" | "contact" | "operations";
+type SettingsTab = "hero" | "branding" | "general" | "vision" | "director" | "contact" | "operations" | "security";
 
 export default function AdminSettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>("hero");
   const [saved, setSaved] = useState(false);
+
+  // Admin password change states
+  const [currentPasswordInput, setCurrentPasswordInput] = useState("");
+  const [newPasswordInput, setNewPasswordInput] = useState("");
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   // Form State initialized with defaults
   const [formData, setFormData] = useState({
@@ -355,6 +367,79 @@ export default function AdminSettingsPage() {
     }
   };
 
+  const handleChangeAdminPassword = async () => {
+    if (!currentPasswordInput) {
+      Swal.fire({
+        icon: "warning",
+        title: "กรุณาระบุรหัสผ่านเดิม",
+        text: "หากจำรหัสผ่านเดิมไม่ได้ ให้กรอกรหัสผ่านเริ่มต้น @31030078",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#0F2942",
+      });
+      return;
+    }
+
+    const currentSaved = getAdminPassword();
+    if (currentPasswordInput !== currentSaved && currentPasswordInput !== DEFAULT_ADMIN_PASSWORD) {
+      Swal.fire({
+        icon: "error",
+        title: "รหัสผ่านเดิมไม่ถูกต้อง",
+        text: "กรุณาตรวจสอบรหัสผ่านเดิมอีกครั้ง (หรือใช้ @31030078)",
+        confirmButtonText: "ลองใหม่",
+        confirmButtonColor: "#0F2942",
+      });
+      return;
+    }
+
+    if (!newPasswordInput || newPasswordInput.length < 4) {
+      Swal.fire({
+        icon: "warning",
+        title: "รหัสผ่านสั้นเกินไป",
+        text: "รหัสผ่านใหม่ต้องมีความยาวอย่างน้อย 4 ตัวอักษร",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#0F2942",
+      });
+      return;
+    }
+
+    if (newPasswordInput !== confirmPasswordInput) {
+      Swal.fire({
+        icon: "error",
+        title: "รหัสผ่านไม่ตรงกัน",
+        text: "รหัสผ่านใหม่และช่องยืนยันรหัสผ่านต้องตรงกันทุกตัวอักษร",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#0F2942",
+      });
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      await setAdminPassword(newPasswordInput);
+      await Swal.fire({
+        icon: "success",
+        title: "เปลี่ยนรหัสผ่านสำเร็จ!",
+        html: `รหัสผ่านใหม่ของคุณคือ: <strong class="font-mono text-blue-900 bg-blue-50 px-2 py-0.5 rounded">${newPasswordInput}</strong><br><span class="text-xs text-slate-500">ระบบซิงค์รหัสผ่านใหม่เรียบร้อยแล้ว ใช้เข้าสู่ระบบได้ทันที</span>`,
+        confirmButtonText: "เข้าใจแล้ว",
+        confirmButtonColor: "#0F2942",
+      });
+      setCurrentPasswordInput("");
+      setNewPasswordInput("");
+      setConfirmPasswordInput("");
+    } catch (err) {
+      console.error("Change password error:", err);
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text: "ไม่สามารถบันทึกรหัสผ่านใหม่ได้ กรุณาลองใหม่อีกครั้ง",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#0F2942",
+      });
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
   const tabs = [
     { id: "hero", label: "ส่วนหัวต้อนรับหน้าแรก (Hero Banner)", icon: Sparkles },
     { id: "branding", label: "อัตลักษณ์และโลโก้", icon: Palette },
@@ -363,6 +448,7 @@ export default function AdminSettingsPage() {
     { id: "director", label: "ข้อมูลผู้บริหาร", icon: User },
     { id: "contact", label: "ที่อยู่และการติดต่อ", icon: MapPin },
     { id: "operations", label: "ปีการศึกษาและระบบ", icon: Settings },
+    { id: "security", label: "รหัสผ่าน Admin", icon: Lock },
   ];
 
   const heroImagePresets = [
@@ -2005,6 +2091,127 @@ export default function AdminSettingsPage() {
                   }
                   className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none font-mono"
                 />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= TAB 8: SECURITY & ADMIN PASSWORD ================= */}
+        {activeTab === "security" && (
+          <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center font-bold">
+                  <Lock className="w-5 h-5 text-blue-700" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-[#0F2942]">
+                    ความปลอดภัยและการเปลี่ยนรหัสผ่านผู้ดูแลระบบ (Admin Password)
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    กำหนดรหัสผ่านสำหรับเข้าสู่ระบบหลังบ้านเพื่อจัดการข้อมูลสถานศึกษา
+                  </p>
+                </div>
+              </div>
+
+              <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 self-start sm:self-auto">
+                ระบบรักษาความปลอดภัย 2 ชั้น
+              </span>
+            </div>
+
+            {/* Information Notice */}
+            <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/90 text-amber-950 space-y-2 text-xs leading-relaxed">
+              <div className="flex items-center gap-2 font-bold text-amber-900">
+                <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>คำแนะนำด้านความปลอดภัยและการป้องกันการลืมรหัสผ่าน:</span>
+              </div>
+              <ul className="list-disc pl-5 space-y-1 text-slate-700 text-xs">
+                <li>
+                  รหัสผ่านเริ่มต้นของระบบคือ: <strong className="font-mono bg-white px-2 py-0.5 rounded border border-amber-300 text-[#0F2942]">@31030078</strong> (อิงตามรหัส SMIS 8 หลักของโรงเรียน)
+                </li>
+                <li>
+                  ท่านสามารถเปลี่ยนเป็นรหัสผ่านใหม่ที่จำง่ายสำหรับคณะครูได้ตลอดเวลา (แนะนำความยาวตั้งแต่ 4 ตัวอักษรขึ้นไป)
+                </li>
+                <li>
+                  <strong className="text-emerald-800">ระบบกู้คืนฉุกเฉิน (Master Key):</strong> หากในอนาคตผู้ดูแลลืมรหัสผ่านใหม่ ระบบยังมีรหัสผ่าน Master ฉุกเฉินคือ <code className="bg-white px-1.5 py-0.5 rounded border border-slate-300 text-blue-900 font-bold">@31030078</code> ที่จะใช้เข้าสู่ระบบได้เสมอ ไม่ต้องกลัวถูกล็อค!
+                </li>
+              </ul>
+            </div>
+
+            {/* Change Password Form */}
+            <div className="max-w-md space-y-4 pt-2">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  รหัสผ่านเดิม (Current Password) *
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Key className="w-4 h-4 text-slate-400" />
+                  </div>
+                  <input
+                    type="password"
+                    placeholder="กรอกรหัสผ่านปัจจุบัน (หรือ @31030078)..."
+                    value={currentPasswordInput}
+                    onChange={(e) => setCurrentPasswordInput(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border border-slate-300 bg-[#F8FAFC] focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 font-mono"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  รหัสผ่านใหม่ที่ต้องการตั้ง (New Password) *
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="w-4 h-4 text-slate-400" />
+                  </div>
+                  <input
+                    type={showNewPassword ? "text" : "password"}
+                    placeholder="ระบุรหัสผ่านใหม่ (อย่างน้อย 4 ตัวอักษร)..."
+                    value={newPasswordInput}
+                    onChange={(e) => setNewPasswordInput(e.target.value)}
+                    className="w-full pl-9 pr-10 py-2.5 text-xs rounded-xl border border-slate-300 bg-[#F8FAFC] focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+                    tabIndex={-1}
+                  >
+                    {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  ยืนยันรหัสผ่านใหม่อีกครั้ง (Confirm New Password) *
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="w-4 h-4 text-slate-400" />
+                  </div>
+                  <input
+                    type={showNewPassword ? "text" : "password"}
+                    placeholder="พิมพ์รหัสผ่านใหม่อีกครั้งเพื่อยืนยัน..."
+                    value={confirmPasswordInput}
+                    onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border border-slate-300 bg-[#F8FAFC] focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="button"
+                  disabled={isChangingPassword}
+                  onClick={handleChangeAdminPassword}
+                  className="px-5 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-2 min-h-[42px] disabled:opacity-50 cursor-pointer"
+                >
+                  <Lock className="w-4 h-4 text-amber-400" />
+                  <span>{isChangingPassword ? "กำลังบันทึก..." : "บันทึกและเปลี่ยนรหัสผ่านทันที"}</span>
+                </button>
               </div>
             </div>
           </div>
