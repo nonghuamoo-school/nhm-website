@@ -6,15 +6,21 @@ import AcademicPerformanceChart from "@/components/academic/AcademicPerformanceC
 import { academicHighlights } from "@/data/academic";
 import { TrendingUp, Award, GraduationCap, BarChart3 } from "lucide-react";
 
-export default function AcademicPerformance() {
+interface AcademicPerformanceProps {
+  showHeader?: boolean;
+}
+
+export default function AcademicPerformance({ showHeader = true }: AcademicPerformanceProps) {
   return (
     <section className="space-y-6">
-      <SectionTitle
-        title="ผลสัมฤทธิ์ทางการเรียนและการทดสอบระดับชาติ"
-        subtitle="รายงานผลการประเมินคุณภาพการศึกษา RT (ป.1), NT (ป.3) และ O-NET (ป.6) ปีการศึกษาล่าสุด"
-        actionText="ดูข้อมูลวิชาการทั้งหมด"
-        actionHref="/academic"
-      />
+      {showHeader && (
+        <SectionTitle
+          title="ผลสัมฤทธิ์ทางการเรียนและการทดสอบระดับชาติ"
+          subtitle="รายงานผลการประเมินคุณภาพการศึกษา RT (ป.1), NT (ป.3) และ O-NET (ป.6) ปีการศึกษาล่าสุด"
+          actionText="ดูข้อมูลวิชาการทั้งหมด"
+          actionHref="/academic"
+        />
+      )}
 
       {/* Top 4 Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">

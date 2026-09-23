@@ -169,8 +169,13 @@ export default function AcademicPerformanceChart({
 
       {/* ================= 3. ULTRA-MODERN CRISP SVG CHART ================= */}
       <div className="p-4 sm:p-8 relative">
-        <div className="w-full overflow-x-auto">
-          <div className="min-w-[680px]">
+        {/* Mobile scroll hint */}
+        <div className="sm:hidden flex items-center justify-center gap-1.5 py-1 px-3 bg-blue-50 border border-blue-100 rounded-full text-[11px] text-blue-700 font-bold mb-3 w-fit mx-auto shadow-2xs">
+          <span>เลื่อนซ้าย-ขวาเพื่อดูกราฟเต็ม</span>
+        </div>
+
+        <div className="w-full overflow-x-auto pb-2">
+          <div className="min-w-[620px] sm:min-w-[680px]">
             <svg
               viewBox={`0 0 ${svgWidth} ${svgHeight}`}
               className="w-full h-auto overflow-visible select-none"
@@ -370,7 +375,10 @@ export default function AcademicPerformanceChart({
       </div>
 
       {/* ================= 4. EXECUTIVE COMPARATIVE DATA TABLE ================= */}
-      <div className="p-5 sm:p-8 pt-0">
+      <div className="p-4 sm:p-8 pt-0">
+        <div className="sm:hidden flex items-center justify-center gap-1.5 py-1 px-3 bg-slate-100 border border-slate-200 rounded-full text-[10px] text-slate-600 font-medium mb-2.5 w-fit mx-auto">
+          <span>เลื่อนตารางไปทางขวาเพื่อดูทุกวิชา</span>
+        </div>
         <div className="bg-slate-50/70 rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
           <div className="overflow-x-auto">
             <table className="w-full text-xs sm:text-sm border-collapse">

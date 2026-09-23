@@ -17,7 +17,7 @@ export default function Hero() {
       <div className="relative z-10 p-5 sm:p-8 lg:p-10 flex items-center">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center w-full">
           
-          {/* Left Column: School Welcome & Identity (7 cols) */}
+          {/* Left Column: School Welcome & Identity (7 cols on desktop) */}
           <div className="lg:col-span-7 space-y-3.5 sm:space-y-4">
             
             {/* Institutional Badge */}
@@ -28,7 +28,7 @@ export default function Hero() {
               </span>
             </div>
 
-            {/* School Title & Code */}
+            {/* School Title & Subtitle */}
             <div>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#0F2942] tracking-tight leading-tight">
                 {settings.name}
@@ -36,6 +36,33 @@ export default function Hero() {
               <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
                 {settings.nameEn}
               </p>
+            </div>
+
+            {/* Mobile-Only Prominent Hero Image (shown right under title on phone screens) */}
+            <div className="lg:hidden space-y-2">
+              <div className="rounded-2xl overflow-hidden border border-slate-200/90 bg-white aspect-[16/9] shadow-md">
+                <img
+                  src={settings.heroImageUrl}
+                  alt={settings.name}
+                  className="w-full h-full object-cover"
+                  loading="eager"
+                />
+              </div>
+
+              {/* Education Level Badge below mobile image */}
+              <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white border border-slate-200 shadow-2xs">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-800 flex items-center justify-center shrink-0 border border-blue-100">
+                  <GraduationCap className="w-4 h-4" />
+                </div>
+                <div className="leading-tight">
+                  <span className="text-[10px] text-slate-400 font-bold block uppercase">
+                    {settings.heroBadge1Label || "ระดับการศึกษา"}
+                  </span>
+                  <span className="text-xs font-bold text-[#0F2942]">
+                    {settings.heroBadge1Value || "อนุบาล 2 – ประถมศึกษาปีที่ 6"}
+                  </span>
+                </div>
+              </div>
             </div>
 
             {/* School Motto Highlight Card */}
@@ -72,18 +99,18 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Right Column: School Image without any floating badges covering the photo (5 cols) */}
-          <div className="lg:col-span-5 flex flex-col mt-2 sm:mt-0">
+          {/* Right Column: Desktop-Only Hero Image (5 cols on lg screens) */}
+          <div className="hidden lg:flex lg:col-span-5 flex-col">
             <div className="rounded-2xl overflow-hidden border border-slate-200/90 bg-white aspect-[16/11] shadow-md">
               <img
                 src={settings.heroImageUrl}
                 alt={settings.name}
                 className="w-full h-full object-cover"
-                loading="lazy"
+                loading="eager"
               />
             </div>
 
-            {/* Placed below the image so it NEVER covers or obscures the photo */}
+            {/* Placed below the image on desktop */}
             <div className="mt-3 flex items-center gap-3 p-3 rounded-2xl bg-white border border-slate-200 shadow-xs">
               <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-800 flex items-center justify-center shrink-0 border border-blue-100">
                 <GraduationCap className="w-5 h-5" />

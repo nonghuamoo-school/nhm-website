@@ -645,16 +645,39 @@ export default function AdminAcademicPage() {
                       </button>
                     </div>
 
-                    {/* URL Input fallback */}
+                    {/* URL Input fallback or File Badge */}
                     <div className="space-y-1">
-                      <span className="text-[11px] text-slate-400">หรือระบุ URL รูปภาพ:</span>
-                      <input
-                        type="text"
-                        value={poster.image}
-                        onChange={(e) => handlePosterFieldChange(pIdx, "image", e.target.value)}
-                        placeholder="เช่น /images/onet-2568.png หรือ https://..."
-                        className="w-full py-1.5 px-3 text-xs bg-slate-50 border border-slate-200 rounded-xl font-mono text-slate-600 focus:outline-hidden focus:ring-1 focus:ring-blue-500"
-                      />
+                      {poster.image?.startsWith("data:") ? (
+                        <div className="p-2.5 rounded-xl bg-white border border-blue-200 flex items-center justify-between gap-2 shadow-2xs">
+                          <div className="min-w-0">
+                            <span className="text-xs font-bold text-blue-950 block truncate">
+                              ไฟล์รูปภาพโปสเตอร์ที่อัปโหลด
+                            </span>
+                            <span className="text-[10px] text-emerald-700 font-semibold flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                              เลือกไฟล์สำเร็จ (พร้อมบันทึกออนไลน์)
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handlePosterFieldChange(pIdx, "image", "")}
+                            className="text-xs font-bold text-rose-600 hover:text-rose-800 p-1 hover:bg-rose-50 rounded-md transition-colors cursor-pointer shrink-0"
+                          >
+                            ลบออก
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <span className="text-[11px] text-slate-400">หรือระบุ URL รูปภาพ:</span>
+                          <input
+                            type="text"
+                            value={poster.image}
+                            onChange={(e) => handlePosterFieldChange(pIdx, "image", e.target.value)}
+                            placeholder="เช่น /images/onet-2568.png หรือ https://..."
+                            className="w-full py-1.5 px-3 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-600 focus:outline-hidden focus:ring-1 focus:ring-blue-500"
+                          />
+                        </>
+                      )}
                     </div>
                   </div>
 

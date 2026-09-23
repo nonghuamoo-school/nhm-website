@@ -26,13 +26,23 @@ export default function NewsListPage() {
     });
   }, [newsList, selectedCat, searchWord]);
 
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
-  const paginatedNews = filtered.slice(
+  // Only show separate featured banner when viewing all categories on page 1 with no search query
+  const showFeaturedBanner = selectedCat === "ทั้งหมด" && !searchWord && currentPage === 1 && filtered.length > 0;
+  const featured = showFeaturedBanner ? (filtered.find((n) => n.isFeatured) || filtered[0]) : null;
+
+  // Grid items: if featured banner is displayed, exclude that item from the grid to eliminate duplicates!
+  const gridSource = useMemo(() => {
+    if (featured) {
+      return filtered.filter((n) => n.id !== featured.id);
+    }
+    return filtered;
+  }, [filtered, featured]);
+
+  const totalPages = Math.ceil(gridSource.length / ITEMS_PER_PAGE) || 1;
+  const paginatedNews = gridSource.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
-
-  const featured = filtered.find((n) => n.isFeatured) || filtered[0];
 
   const toolbar = (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">

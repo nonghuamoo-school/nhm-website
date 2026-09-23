@@ -39,7 +39,7 @@ export default function AcademicPage() {
     >
       <div className="space-y-8 sm:space-y-10">
         {/* 1. Interactive 3-Level Score Comparison (โรงเรียน • เขตพื้นที่ • ประเทศ) */}
-        <AcademicPerformance />
+        <AcademicPerformance showHeader={false} />
 
         {/* 2. Official O-NET Posters Gallery */}
         <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
