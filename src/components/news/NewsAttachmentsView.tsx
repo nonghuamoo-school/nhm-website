@@ -8,7 +8,7 @@ interface Attachment {
   name: string;
   size: string;
   url: string;
-  type?: "PDF" | "XLSX" | "DOCX" | "LINK";
+  type?: "PDF" | "XLSX" | "DOCX" | "LINK" | "IMAGE";
   driveUrl?: string;
 }
 

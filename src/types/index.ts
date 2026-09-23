@@ -84,11 +84,14 @@ export interface NewsItem {
   views: number;
   isFeatured?: boolean;
   status?: 'เผยแพร่แล้ว' | 'ฉบับร่าง';
+  facebookUrl?: string;
+  externalUrl?: string;
+  galleryImages?: string[];
   attachments?: {
     name: string;
     size: string;
     url: string;
-    type?: 'PDF' | 'XLSX' | 'DOCX' | 'LINK';
+    type?: 'PDF' | 'XLSX' | 'DOCX' | 'LINK' | 'IMAGE';
     driveUrl?: string;
   }[];
 }

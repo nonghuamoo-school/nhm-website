@@ -1,6 +1,5 @@
 import React from "react";
-import { notFound } from "next/navigation";
-import NewsEditor from "@/components/news/NewsEditor";
+import EditNewsClientWrapper from "@/components/news/EditNewsClientWrapper";
 import { schoolNews } from "@/data/news";
 
 interface EditNewsPageProps {
@@ -17,11 +16,7 @@ export async function generateStaticParams() {
 
 export default async function EditNewsPage({ params }: EditNewsPageProps) {
   const { id } = await params;
-  const news = schoolNews.find((item) => item.id === id);
+  const initialNews = schoolNews.find((item) => item.id === id) || null;
 
-  if (!news) {
-    notFound();
-  }
-
-  return <NewsEditor initialData={news} isEditMode={true} />;
+  return <EditNewsClientWrapper id={id} initialNews={initialNews} />;
 }

@@ -25,6 +25,9 @@ import {
   ExternalLink,
   Upload,
   Camera,
+  Share2,
+  Loader2,
+  Images,
   X as CloseIcon
 } from "lucide-react";
 import { NewsItem } from "@/types";
@@ -51,37 +54,42 @@ export default function NewsEditor({
     initialData?.imageUrl ||
       "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=800"
   );
+  const [facebookUrl, setFacebookUrl] = useState(initialData?.facebookUrl || "");
+  const [externalUrl, setExternalUrl] = useState(initialData?.externalUrl || "");
+  const [galleryImages, setGalleryImages] = useState<string[]>(
+    initialData?.galleryImages || []
+  );
+  const [newGalleryUrl, setNewGalleryUrl] = useState("");
   const [excerpt, setExcerpt] = useState(initialData?.excerpt || "");
   const [content, setContent] = useState(initialData?.content || "");
   const [publishDate, setPublishDate] = useState(
-    initialData?.date || "22 ก.ย. 2568"
+    initialData?.date || "23 ก.ย. 2568"
   );
   const [status, setStatus] = useState<"เผยแพร่แล้ว" | "ฉบับร่าง">(
     initialData?.status || "เผยแพร่แล้ว"
   );
   const [attachments, setAttachments] = useState<
-    { name: string; size: string; url: string; driveUrl?: string; type?: "PDF" | "XLSX" | "DOCX" | "LINK" }[]
+    { name: string; size: string; url: string; driveUrl?: string; type?: "PDF" | "XLSX" | "DOCX" | "LINK" | "IMAGE" }[]
   >(initialData?.attachments || []);
 
   const [newAttachmentName, setNewAttachmentName] = useState("");
   const [newAttachmentSize, setNewAttachmentSize] = useState("1.2 MB");
-  const [newAttachmentType, setNewAttachmentType] = useState<"PDF" | "XLSX" | "DOCX" | "LINK">("PDF");
+  const [newAttachmentType, setNewAttachmentType] = useState<"PDF" | "XLSX" | "DOCX" | "LINK" | "IMAGE">("PDF");
+  const [newAttachmentUrl, setNewAttachmentUrl] = useState("");
   const [newAttachmentDriveUrl, setNewAttachmentDriveUrl] = useState("");
 
   const [previewTab, setPreviewTab] = useState<"article" | "card" | "seo">("article");
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isProcessingImage, setIsProcessingImage] = useState(false);
+  const [isProcessingGallery, setIsProcessingGallery] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
-  // Compress image to crisp WebP/JPEG under 150KB for zero-host direct embedding
-  const handleFileUpload = async (file: File) => {
-    if (!file.type.startsWith("image/")) {
-      alert("กรุณาเลือกไฟล์รูปภาพ (JPG, PNG, WebP)");
-      return;
-    }
-
-    setIsProcessingImage(true);
-    try {
+  // Compress image helper (target < 120KB WebP/JPEG)
+  const compressImageFile = (file: File, maxDimension = 1200): Promise<string> => {
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const img = new Image();
@@ -89,7 +97,6 @@ export default function NewsEditor({
           const canvas = document.createElement("canvas");
           let width = img.width;
           let height = img.height;
-          const maxDimension = 1200;
 
           if (width > maxDimension || height > maxDimension) {
             if (width > height) {
@@ -107,26 +114,68 @@ export default function NewsEditor({
           if (ctx) {
             ctx.drawImage(img, 0, 0, width, height);
             const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
-            setImageUrl(dataUrl);
+            resolve(dataUrl);
           } else {
-            setImageUrl(e.target?.result as string);
+            resolve(e.target?.result as string);
           }
-          setIsProcessingImage(false);
         };
+        img.onerror = reject;
         img.src = e.target?.result as string;
       };
+      reader.onerror = reject;
       reader.readAsDataURL(file);
+    });
+  };
+
+  // Cover image upload
+  const handleCoverFileUpload = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      alert("กรุณาเลือกไฟล์รูปภาพ (JPG, PNG, WebP)");
+      return;
+    }
+    setIsProcessingImage(true);
+    try {
+      const dataUrl = await compressImageFile(file, 1280);
+      setImageUrl(dataUrl);
     } catch (err) {
-      console.error("Error processing image:", err);
+      console.error("Error processing cover image:", err);
+    } finally {
       setIsProcessingImage(false);
     }
   };
 
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFileUpload(file);
+  // Gallery multi-image upload
+  const handleGalleryFilesUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setIsProcessingGallery(true);
+    try {
+      const newImages: string[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.type.startsWith("image/")) {
+          const dataUrl = await compressImageFile(file, 1000);
+          newImages.push(dataUrl);
+        }
+      }
+      if (newImages.length > 0) {
+        setGalleryImages((prev) => [...prev, ...newImages]);
+      }
+    } catch (err) {
+      console.error("Error processing gallery images:", err);
+    } finally {
+      setIsProcessingGallery(false);
     }
+  };
+
+  const handleAddGalleryUrl = () => {
+    if (newGalleryUrl.trim()) {
+      setGalleryImages((prev) => [...prev, newGalleryUrl.trim()]);
+      setNewGalleryUrl("");
+    }
+  };
+
+  const handleRemoveGalleryImage = (index: number) => {
+    setGalleryImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   // Formatting toolbar helpers
@@ -141,12 +190,13 @@ export default function NewsEditor({
         {
           name: newAttachmentName.trim(),
           size: newAttachmentSize || "1.0 MB",
-          url: "#",
+          url: newAttachmentUrl.trim() || newAttachmentDriveUrl.trim() || "#",
           type: newAttachmentType,
           driveUrl: newAttachmentDriveUrl.trim() || undefined,
         },
       ]);
       setNewAttachmentName("");
+      setNewAttachmentUrl("");
       setNewAttachmentDriveUrl("");
     }
   };
@@ -155,54 +205,91 @@ export default function NewsEditor({
     setAttachments(attachments.filter((_, i) => i !== index));
   };
 
-  const saveCurrentNews = (newStatus: "เผยแพร่แล้ว" | "ฉบับร่าง") => {
-    const newsPayload = {
+  const saveCurrentNews = async (newStatus: "เผยแพร่แล้ว" | "ฉบับร่าง") => {
+    const newsPayload: Omit<NewsItem, "id"> & { id?: string } = {
       title: title.trim() || "ข่าวประชาสัมพันธ์",
       category,
-      imageUrl,
+      imageUrl: imageUrl || "/images/school-emblem-doc.png",
+      galleryImages: galleryImages.filter(Boolean),
+      facebookUrl: facebookUrl.trim() || undefined,
+      externalUrl: externalUrl.trim() || undefined,
       excerpt: excerpt.trim() || title.trim(),
       content: content.trim() || title.trim(),
-      date: publishDate,
+      date: publishDate.trim() || "23 ก.ย. 2568",
       author: "งานประชาสัมพันธ์ โรงเรียนบ้านหนองหัวหมู",
       status: newStatus,
       attachments,
       views: initialData?.views || 1,
-      slug: initialData?.slug || `news-${Date.now()}`
+      slug: initialData?.slug || `news-${Date.now()}`,
     };
 
     if (isEditMode && initialData?.id) {
-      updateNews(initialData.id, newsPayload);
+      await updateNews(initialData.id, newsPayload);
     } else {
-      addNews(newsPayload);
+      await addNews(newsPayload);
     }
   };
 
-  const handleSaveDraft = () => {
-    setStatus("ฉบับร่าง");
-    saveCurrentNews("ฉบับร่าง");
-    setSaveSuccess(true);
-    Swal.fire({
-      icon: "success",
-      title: "บันทึกฉบับร่างสำเร็จ",
-      text: "ข่าวได้รับการบันทึกเป็นฉบับร่างเรียบร้อยแล้ว",
-      timer: 1800,
-      showConfirmButton: false,
-    });
-    setTimeout(() => setSaveSuccess(false), 3000);
+  const handleSaveDraft = async () => {
+    setIsSubmitting(true);
+    try {
+      setStatus("ฉบับร่าง");
+      await saveCurrentNews("ฉบับร่าง");
+      setSaveSuccess(true);
+      await Swal.fire({
+        icon: "success",
+        title: "บันทึกฉบับร่างสำเร็จ",
+        text: "ข่าวได้รับการบันทึกเป็นฉบับร่างและเชื่อมต่อระบบเรียบร้อยแล้ว",
+        timer: 1600,
+        showConfirmButton: false,
+      });
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (err) {
+      console.error("Draft save error:", err);
+      Swal.fire({
+        icon: "error",
+        title: "บันทึกไม่สำเร็จ",
+        text: "เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handlePublish = async () => {
-    setStatus("เผยแพร่แล้ว");
-    saveCurrentNews("เผยแพร่แล้ว");
-    setSaveSuccess(true);
-    await Swal.fire({
-      icon: "success",
-      title: "เผยแพร่ข่าวสำเร็จ!",
-      text: "ข่าวสารได้รับการเผยแพร่ขึ้นสู่หน้าเว็บไซต์เรียบร้อยแล้ว",
-      timer: 1800,
-      showConfirmButton: false,
-    });
-    router.push("/admin/news");
+    if (!title.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "กรุณาระบุหัวข้อข่าว",
+        text: "กรุณาใส่หัวข้อข่าวสารก่อนทำการเผยแพร่",
+        confirmButtonColor: "#0F2942",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      setStatus("เผยแพร่แล้ว");
+      await saveCurrentNews("เผยแพร่แล้ว");
+      setSaveSuccess(true);
+      await Swal.fire({
+        icon: "success",
+        title: "เผยแพร่ข่าวสำเร็จ!",
+        text: "ข่าวสารได้รับการบันทึกและซิงค์ข้อมูล Realtime เรียบร้อยแล้ว",
+        timer: 1600,
+        showConfirmButton: false,
+      });
+      router.push("/admin/news");
+    } catch (err) {
+      console.error("Publish error:", err);
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text: "ไม่สามารถเผยแพร่ข่าวได้ กรุณาลองใหม่อีกครั้ง",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -239,19 +326,25 @@ export default function NewsEditor({
           <button
             type="button"
             onClick={handleSaveDraft}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-[#E5E7EB] bg-white text-slate-700 hover:bg-slate-50 text-xs font-bold transition-colors min-h-[40px]"
+            disabled={isSubmitting}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-[#E5E7EB] bg-white text-slate-700 hover:bg-slate-50 text-xs font-bold transition-colors min-h-[40px] disabled:opacity-50"
           >
             <Save className="w-3.5 h-3.5" />
-            <span>บันทึกฉบับร่าง</span>
+            <span>{isSubmitting ? "กำลังบันทึก..." : "บันทึกฉบับร่าง"}</span>
           </button>
 
           <button
             type="button"
             onClick={handlePublish}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-xs transition-colors min-h-[40px]"
+            disabled={isSubmitting}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-xs transition-colors min-h-[40px] disabled:opacity-50"
           >
-            <Send className="w-3.5 h-3.5 text-amber-400" />
-            <span>เผยแพร่ข่าวสาร</span>
+            {isSubmitting ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
+            ) : (
+              <Send className="w-3.5 h-3.5 text-amber-400" />
+            )}
+            <span>{isSubmitting ? "กำลังเผยแพร่..." : "เผยแพร่ข่าวสาร"}</span>
           </button>
         </div>
       </div>
@@ -261,7 +354,7 @@ export default function NewsEditor({
         {/* LEFT COLUMN: Editor Workspace (7 cols) */}
         <div className="lg:col-span-7 space-y-5">
           <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-5">
-            {/* Title (Notion-style prominent input) */}
+            {/* Title */}
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1">
                 หัวข้อข่าวสาร (Title) *
@@ -308,21 +401,24 @@ export default function NewsEditor({
               </div>
             </div>
 
-            {/* Cover Image Direct Upload */}
-            <div>
+            {/* SECTION 1: Cover Image Direct Upload */}
+            <div className="pt-2 border-t border-slate-100">
               <div className="flex items-center justify-between mb-1.5">
                 <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
                   <ImageIcon className="w-4 h-4 text-blue-600" />
-                  <span>รูปภาพหน้าปกข่าว (Cover Image)</span>
+                  <span>รูปภาพหน้าปกหลัก (Cover Image)</span>
                 </label>
-                <span className="text-[11px] text-slate-400">อัปโหลดจากคอมฯ หรือมือถือได้ทันที ไม่ต้องฝากรูป</span>
+                <span className="text-[11px] text-slate-400">รูปภาพขนาดใหญ่ด้านบนสุดของข่าว</span>
               </div>
 
               {/* Hidden file input */}
               <input
                 type="file"
                 ref={fileInputRef}
-                onChange={handleFileInputChange}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleCoverFileUpload(file);
+                }}
                 accept="image/png, image/jpeg, image/jpg, image/webp"
                 className="hidden"
               />
@@ -359,7 +455,6 @@ export default function NewsEditor({
                   </div>
                 </div>
               ) : (
-                /* Empty Upload Drop Area */
                 <div
                   onClick={() => fileInputRef.current?.click()}
                   className="border-2 border-dashed border-slate-300 hover:border-blue-500 hover:bg-blue-50/40 rounded-2xl p-6 text-center cursor-pointer transition-all duration-200 group"
@@ -368,10 +463,10 @@ export default function NewsEditor({
                     <Upload className="w-6 h-6 text-blue-600" />
                   </div>
                   <p className="text-xs font-bold text-[#0F2942] mb-1">
-                    คลิกเพื่อเลือกไฟล์รูปภาพจากเครื่อง หรือถ่ายรูป
+                    คลิกเพื่อเลือกไฟล์รูปหน้าปกจากเครื่อง หรือถ่ายรูป
                   </p>
                   <p className="text-[11px] text-slate-400">
-                    รองรับ JPG, PNG, WebP (ระบบปรับขนาดและบีบอัดอัตโนมัติ ไม่ต้องฝากเว็บอื่น)
+                    รองรับ JPG, PNG, WebP (ระบบปรับขนาดและบีบอัดอัตโนมัติ)
                   </p>
                 </div>
               )}
@@ -391,13 +486,156 @@ export default function NewsEditor({
                 <div className="flex-1 max-w-xs">
                   <input
                     type="url"
-                    placeholder="หรือวางลิงก์ URL..."
+                    placeholder="หรือวางลิงก์รูปภาพ URL..."
                     value={imageUrl.startsWith("data:") ? "" : imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
                     className="w-full px-2.5 py-1 text-[11px] rounded-lg border border-slate-200 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
               </div>
+            </div>
+
+            {/* SECTION 2: DEDICATED FACEBOOK POST LINK */}
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50/70 to-indigo-50/60 border border-blue-200/80 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-[#1877F2] text-white flex items-center justify-center shadow-xs">
+                    <Share2 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-bold text-[#0F2942]">
+                      แนบลิงก์โพสต์ Facebook ของโรงเรียน
+                    </h3>
+                    <p className="text-[11px] text-slate-500">
+                      ระบบจะสร้างปุ่ม "เปิดดูโพสต์บน Facebook" บนหน้าข่าวให้อัตโนมัติ
+                    </p>
+                  </div>
+                </div>
+
+                {facebookUrl && (
+                  <a
+                    href={facebookUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white text-[#1877F2] hover:bg-blue-50 text-[11px] font-bold border border-blue-200 transition-colors shadow-2xs"
+                  >
+                    <span>เปิดทดสอบลิงก์</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+              </div>
+
+              <div className="relative">
+                <input
+                  type="url"
+                  placeholder="วางลิงก์โพสต์ Facebook เช่น https://www.facebook.com/nonghuamooschool/posts/..."
+                  value={facebookUrl}
+                  onChange={(e) => setFacebookUrl(e.target.value)}
+                  className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-blue-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1877F2]/20 focus:border-[#1877F2]"
+                />
+              </div>
+
+              {facebookUrl && (
+                <div className="text-[11px] text-emerald-700 bg-emerald-50/80 px-2.5 py-1 rounded-lg border border-emerald-200 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>เชื่อมโยงโพสต์ Facebook สำเร็จ ลิงก์จะถูกบันทึกและแสดงบนเว็บไซต์</span>
+                </div>
+              )}
+            </div>
+
+            {/* SECTION 3: PHOTO GALLERY (คลังรูปภาพกิจกรรมเพิ่มเติม) */}
+            <div className="p-4 rounded-2xl bg-amber-50/50 border border-amber-200/70 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-xs">
+                    <Images className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-bold text-[#0F2942] flex items-center gap-2">
+                      <span>รูปภาพกิจกรรมและบรรยากาศเพิ่มเติม (Photo Gallery)</span>
+                      <span className="px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-900 font-bold text-[10px]">
+                        {galleryImages.length} รูป
+                      </span>
+                    </h3>
+                    <p className="text-[11px] text-slate-500">
+                      แนบภาพบรรยากาศหลายๆ รูป เพื่อให้ผู้ปกครองและนักเรียนคลิกดูรูปขนาดเต็มได้
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Hidden Gallery File Input */}
+              <input
+                type="file"
+                ref={galleryInputRef}
+                multiple
+                accept="image/png, image/jpeg, image/jpg, image/webp"
+                onChange={(e) => handleGalleryFilesUpload(e.target.files)}
+                className="hidden"
+              />
+
+              {/* Gallery Upload Controls */}
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => galleryInputRef.current?.click()}
+                  disabled={isProcessingGallery}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold transition-all shadow-xs disabled:opacity-50"
+                >
+                  {isProcessingGallery ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
+                  ) : (
+                    <Upload className="w-3.5 h-3.5 text-amber-400" />
+                  )}
+                  <span>{isProcessingGallery ? "กำลังประมวลผลรูปภาพ..." : "เพิ่มภาพจากเครื่อง (เลือกได้หลายรูป)"}</span>
+                </button>
+
+                <div className="flex-1 flex items-center gap-1 min-w-[200px]">
+                  <input
+                    type="url"
+                    placeholder="หรือวางลิงก์รูปภาพ URL..."
+                    value={newGalleryUrl}
+                    onChange={(e) => setNewGalleryUrl(e.target.value)}
+                    className="flex-1 text-xs px-3 py-2 rounded-xl border border-amber-200 bg-white focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddGalleryUrl}
+                    className="px-3 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors"
+                  >
+                    เพิ่มรูป
+                  </button>
+                </div>
+              </div>
+
+              {/* Gallery Thumbnails Grid */}
+              {galleryImages.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
+                  {galleryImages.map((img, idx) => (
+                    <div
+                      key={idx}
+                      className="relative rounded-xl overflow-hidden aspect-[4/3] bg-slate-100 border border-slate-200 group shadow-2xs"
+                    >
+                      <img
+                        src={img}
+                        alt={`ภาพกิจกรรมที่ ${idx + 1}`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveGalleryImage(idx)}
+                        className="absolute top-1.5 right-1.5 p-1 rounded-lg bg-black/60 hover:bg-rose-600 text-white transition-colors"
+                        title="ลบรูปนี้"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                      <span className="absolute bottom-1 left-1.5 text-[9px] font-bold text-white bg-black/50 px-1.5 py-0.5 rounded backdrop-blur-2xs">
+                        #{idx + 1}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Excerpt / Summary */}
@@ -483,14 +721,14 @@ export default function NewsEditor({
               />
             </div>
 
-            {/* Attachments Section */}
+            {/* SECTION 4: ATTACHMENTS & DOWNLOADS */}
             <div className="pt-3 border-t border-[#E5E7EB] space-y-2">
               <div className="flex items-center justify-between">
                 <label className="block text-xs font-semibold text-slate-700">
-                  เอกสารแนบข่าวและลิงก์ Google Drive
+                  เอกสารดาวน์โหลดแนบข่าว (PDF, Word, Excel, ลิงก์)
                 </label>
                 <span className="text-[10px] text-blue-700 font-semibold bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                  แนะนำ: วางลิงก์ Google Drive เพื่อเปิดอ่านออนไลน์
+                  รองรับเอกสารระเบียบการ / ประกาศ
                 </span>
               </div>
 
@@ -515,6 +753,7 @@ export default function NewsEditor({
                       <option value="PDF">PDF (เอกสาร)</option>
                       <option value="XLSX">XLSX (Excel)</option>
                       <option value="DOCX">DOCX (Word)</option>
+                      <option value="LINK">LINK (ลิงก์ทั่วไป)</option>
                     </select>
                   </div>
                   <div className="sm:col-span-3">
@@ -524,23 +763,22 @@ export default function NewsEditor({
                       value={newAttachmentSize}
                       onChange={(e) => setNewAttachmentSize(e.target.value)}
                       className="w-full text-xs px-3 py-2 rounded-xl border border-[#E5E7EB] bg-white focus:outline-none"
-                    >
-                    </input>
+                    />
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row items-center gap-2">
                   <input
                     type="url"
-                    placeholder="ลิงก์แชร์ Google Drive (เช่น https://drive.google.com/file/d/...)"
+                    placeholder="ลิงก์ไฟล์ หรือ Google Drive (เช่น https://drive.google.com/...)"
                     value={newAttachmentDriveUrl}
                     onChange={(e) => setNewAttachmentDriveUrl(e.target.value)}
-                    className="flex-1 text-xs px-3 py-2 rounded-xl border border-[#E5E7EB] bg-white focus:outline-none"
+                    className="w-full sm:flex-1 text-xs px-3 py-2 rounded-xl border border-[#E5E7EB] bg-white focus:outline-none"
                   />
                   <button
                     type="button"
                     onClick={handleAddAttachment}
-                    className="px-4 py-2 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-xs font-bold text-white transition-colors flex items-center gap-1 shrink-0"
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-xs font-bold text-white transition-colors flex items-center justify-center gap-1 shrink-0"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>เพิ่มเอกสาร</span>
@@ -653,10 +891,11 @@ export default function NewsEditor({
 
             {/* TAB 1: Article Live Preview */}
             {previewTab === "article" && (
-              <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
+              <div className="space-y-3 max-h-[650px] overflow-y-auto pr-1">
+                {/* Cover Image */}
                 <div className="aspect-[16/9] rounded-xl overflow-hidden bg-slate-100 border border-[#E5E7EB]">
                   <img
-                    src={imageUrl}
+                    src={imageUrl || "/images/school-emblem-doc.png"}
                     alt={title || "หน้าปก"}
                     className="w-full h-full object-cover"
                   />
@@ -676,18 +915,54 @@ export default function NewsEditor({
                   </div>
                 </div>
 
+                {/* Excerpt */}
                 {excerpt && (
                   <p className="text-xs font-medium text-slate-700 bg-[#F8FAFC] p-3 rounded-xl border border-[#E5E7EB] leading-relaxed">
                     {excerpt}
                   </p>
                 )}
 
+                {/* Body Content */}
                 <div className="text-xs text-slate-600 whitespace-pre-line leading-relaxed border-t border-slate-100 pt-3">
                   {content || "เริ่มพิมพ์เนื้อหาในช่องด้านซ้ายเพื่อดูตัวอย่างสด..."}
                 </div>
 
-                {attachments.length > 0 && (
+                {/* Facebook Post Button Preview */}
+                {facebookUrl && (
                   <div className="pt-2">
+                    <div className="p-3 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-lg bg-[#1877F2] text-white flex items-center justify-center text-[10px] font-bold">
+                          f
+                        </div>
+                        <span className="text-[11px] font-bold text-[#0F2942]">
+                          ดูโพสต์และภาพเพิ่มเติมบน Facebook
+                        </span>
+                      </div>
+                      <ExternalLink className="w-3.5 h-3.5 text-[#1877F2]" />
+                    </div>
+                  </div>
+                )}
+
+                {/* Gallery Preview */}
+                {galleryImages.length > 0 && (
+                  <div className="pt-2 border-t border-slate-100">
+                    <span className="text-[11px] font-bold text-slate-700 block mb-1.5">
+                      คลังรูปภาพกิจกรรม ({galleryImages.length} ภาพ)
+                    </span>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {galleryImages.slice(0, 6).map((img, i) => (
+                        <div key={i} className="aspect-square rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
+                          <img src={img} alt="ภาพย่อ" className="w-full h-full object-cover" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Attachments Preview */}
+                {attachments.length > 0 && (
+                  <div className="pt-2 border-t border-slate-100">
                     <span className="text-[11px] font-bold text-slate-700 block mb-1.5">
                       เอกสารแนบ ({attachments.length})
                     </span>
@@ -716,7 +991,7 @@ export default function NewsEditor({
                 <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-xs overflow-hidden max-w-sm mx-auto">
                   <div className="aspect-[16/10] bg-slate-100 relative">
                     <img
-                      src={imageUrl}
+                      src={imageUrl || "/images/school-emblem-doc.png"}
                       alt={title}
                       className="w-full h-full object-cover"
                     />
@@ -750,7 +1025,7 @@ export default function NewsEditor({
                     {title || "หัวข้อข่าวสาร"} | โรงเรียนบ้านหนองหัวหมู
                   </span>
                   <span className="text-emerald-700 text-[11px] block">
-                    https://nonghuamu.ac.th/news/...
+                    https://nhm-website-two.vercel.app/news/...
                   </span>
                   <p className="text-slate-600 text-[11px] line-clamp-2">
                     {excerpt || content?.slice(0, 150) || "คำอธิบายเนื้อหาจะปรากฏที่นี่..."}

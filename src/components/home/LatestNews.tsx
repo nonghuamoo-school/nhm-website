@@ -77,7 +77,7 @@ export default function LatestNews() {
           <div className="lg:col-span-7 bg-white rounded-2xl border border-[#E5E7EB] shadow-xs overflow-hidden group hover:border-slate-300 transition-colors flex flex-col">
             <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-100">
               <img
-                src={featured.imageUrl}
+                src={featured.imageUrl || "/images/school-emblem-doc.png"}
                 alt={featured.title}
                 className="w-full h-full object-cover"
               />
@@ -152,7 +152,7 @@ export default function LatestNews() {
                 >
                   <div className="w-24 h-20 sm:w-28 sm:h-20 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-100 relative">
                     <img
-                      src={news.imageUrl}
+                      src={news.imageUrl || "/images/school-emblem-doc.png"}
                       alt={news.title}
                       className="w-full h-full object-cover"
                     />

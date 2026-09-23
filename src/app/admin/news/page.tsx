@@ -11,34 +11,37 @@ import {
   ExternalLink,
   Eye,
   Calendar,
-  Filter
+  Filter,
+  Share2,
+  Images,
+  Paperclip,
+  RotateCcw,
+  Sparkles
 } from "lucide-react";
 import { useNews } from "@/hooks/useNews";
 import { NewsItem } from "@/types";
 import Swal from "sweetalert2";
 
 export default function AdminNewsListPage() {
-  const { newsList, deleteNews } = useNews();
+  const { newsList, deleteNews, resetToDefault, isCloudSynced } = useNews();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("ทั้งหมด");
-  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const categories = ["ทั้งหมด", "ประชาสัมพันธ์", "กิจกรรม", "วิชาการ", "จัดซื้อจัดจ้าง"];
 
   const filteredNews = newsList.filter((item) => {
     const matchesCat =
       selectedCategory === "ทั้งหมด" || item.category === selectedCategory;
-    const matchesSearch =
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCat && matchesSearch;
+    const titleMatch = (item.title || "").toLowerCase().includes(searchQuery.toLowerCase());
+    const excerptMatch = (item.excerpt || "").toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCat && (titleMatch || excerptMatch);
   });
 
   const handleDelete = async (news: NewsItem) => {
     const result = await Swal.fire({
       icon: "warning",
       title: "ยืนยันการลบข่าวประชาสัมพันธ์?",
-      text: `คุณต้องการลบข่าว "${news.title}" หรือไม่? ข่าวจะถูกนำออกจากทุกหน้าทันที`,
+      text: `คุณต้องการลบข่าว "${news.title}" หรือไม่? ข่าวจะถูกนำออกจากทุกหน้าและคลาวด์ทันที`,
       showCancelButton: true,
       confirmButtonText: "ใช่, ลบข่าวนี้",
       cancelButtonText: "ยกเลิก",
@@ -51,7 +54,29 @@ export default function AdminNewsListPage() {
       Swal.fire({
         icon: "success",
         title: "ลบข่าวเรียบร้อยแล้ว",
-        timer: 1800,
+        timer: 1600,
+        showConfirmButton: false,
+      });
+    }
+  };
+
+  const handleResetDefaults = async () => {
+    const res = await Swal.fire({
+      icon: "question",
+      title: "กู้คืนข่าวตัวอย่างเริ่มต้น?",
+      text: "ระบบจะโหลดข่าวประชาสัมพันธ์ตัวอย่างตั้งต้นกลับคืนมา",
+      showCancelButton: true,
+      confirmButtonText: "ตกลง กู้คืน",
+      cancelButtonText: "ยกเลิก",
+      confirmButtonColor: "#0F2942",
+    });
+
+    if (res.isConfirmed) {
+      await resetToDefault();
+      Swal.fire({
+        icon: "success",
+        title: "กู้คืนข้อมูลสำเร็จ",
+        timer: 1500,
         showConfirmButton: false,
       });
     }
@@ -62,24 +87,42 @@ export default function AdminNewsListPage() {
       {/* Header Bar */}
       <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-            ระบบจัดการเนื้อหา (CMS)
-          </span>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#0F2942] mt-0.5">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+              ระบบจัดการเนื้อหา (CMS)
+            </span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Real-time Sync</span>
+            </span>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#0F2942]">
             จัดการข่าวประชาสัมพันธ์และกิจกรรม
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            เผยแพร่ แก้ไข และจัดหมวดหมู่ข่าวสารของสถานศึกษา
+            เผยแพร่ แก้ไข แนบรูปภาพกิจกรรม และเชื่อมโยงโพสต์ Facebook
           </p>
         </div>
 
-        <Link
-          href="/admin/news/new"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white font-bold text-xs shadow-xs transition-colors min-h-[44px]"
-        >
-          <Plus className="w-4 h-4 text-amber-400" />
-          <span>สร้างข่าวประชาสัมพันธ์ใหม่</span>
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleResetDefaults}
+            className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-semibold text-xs shadow-2xs transition-colors min-h-[44px]"
+            title="กู้คืนข่าวตัวอย่างเริ่มต้นหากตารางว่าง"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">กู้คืนข่าวเริ่มต้น</span>
+          </button>
+
+          <Link
+            href="/admin/news/new"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white font-bold text-xs shadow-xs transition-colors min-h-[44px]"
+          >
+            <Plus className="w-4 h-4 text-amber-400" />
+            <span>สร้างข่าวประชาสัมพันธ์ใหม่</span>
+          </Link>
+        </div>
       </div>
 
       {/* Filter & Search Bar */}
@@ -120,7 +163,7 @@ export default function AdminNewsListPage() {
           <table className="w-full text-left text-xs">
             <thead className="bg-[#F8FAFC] border-b border-[#E5E7EB] text-slate-500 font-semibold uppercase">
               <tr>
-                <th className="py-3.5 px-4 sm:px-6">หัวข้อข่าว</th>
+                <th className="py-3.5 px-4 sm:px-6">หัวข้อข่าวและสิ่งที่แนบ</th>
                 <th className="py-3.5 px-4 hidden md:table-cell">หมวดหมู่</th>
                 <th className="py-3.5 px-4 hidden sm:table-cell">วันที่เผยแพร่</th>
                 <th className="py-3.5 px-4 hidden lg:table-cell">ยอดเข้าชม</th>
@@ -132,21 +175,46 @@ export default function AdminNewsListPage() {
               {filteredNews.map((news) => (
                 <tr key={news.id} className="hover:bg-slate-50/70 transition-colors">
                   <td className="py-3.5 px-4 sm:px-6 max-w-xs sm:max-w-md">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-10 rounded-lg overflow-hidden bg-slate-100 shrink-0 border border-slate-100">
+                    <div className="flex items-start gap-3">
+                      <div className="w-14 h-12 rounded-lg overflow-hidden bg-slate-100 shrink-0 border border-slate-200 mt-0.5">
                         <img
-                          src={news.imageUrl}
+                          src={news.imageUrl || "/images/school-emblem-doc.png"}
                           alt={news.title}
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div className="min-w-0">
-                        <span className="font-bold text-slate-900 block truncate">
+                      <div className="min-w-0 space-y-1">
+                        <span className="font-bold text-slate-900 block truncate leading-snug">
                           {news.title}
                         </span>
-                        <span className="text-[11px] text-slate-400 block truncate">
-                          {news.author}
-                        </span>
+                        
+                        {/* Badges for Attachments, Facebook, and Gallery */}
+                        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                          {news.facebookUrl && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#1877F2] bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                              <Share2 className="w-3 h-3" />
+                              <span>มีลิงก์ FB</span>
+                            </span>
+                          )}
+
+                          {news.galleryImages && news.galleryImages.length > 0 && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                              <Images className="w-3 h-3 text-amber-600" />
+                              <span>{news.galleryImages.length} รูปกิจกรรม</span>
+                            </span>
+                          )}
+
+                          {news.attachments && news.attachments.length > 0 && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                              <Paperclip className="w-3 h-3 text-slate-500" />
+                              <span>{news.attachments.length} เอกสาร</span>
+                            </span>
+                          )}
+
+                          <span className="text-[10px] text-slate-400 block truncate">
+                            {news.author}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -162,8 +230,12 @@ export default function AdminNewsListPage() {
                     {news.views} ครั้ง
                   </td>
                   <td className="py-3.5 px-4">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      เผยแพร่แล้ว
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                      news.status === "ฉบับร่าง"
+                        ? "bg-amber-50 text-amber-700 border border-amber-200"
+                        : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                    }`}>
+                      {news.status || "เผยแพร่แล้ว"}
                     </span>
                   </td>
                   <td className="py-3.5 px-4 sm:px-6 text-right">
@@ -199,8 +271,31 @@ export default function AdminNewsListPage() {
         </div>
 
         {filteredNews.length === 0 && (
-          <div className="text-center py-12 text-slate-500 text-xs">
-            ไม่พบข่าวสารที่ตรงกับเงื่อนไข
+          <div className="text-center py-16 px-4 space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+              <Megaphone className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-slate-700">ไม่พบข่าวสารที่ตรงกับเงื่อนไข</p>
+              <p className="text-xs text-slate-400 mt-0.5">
+                ลองเปลี่ยนคำค้นหา หรือกดสร้างข่าวประชาสัมพันธ์ใหม่
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={handleResetDefaults}
+                className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+              >
+                กู้คืนข่าวตัวอย่างเริ่มต้น
+              </button>
+              <Link
+                href="/admin/news/new"
+                className="px-4 py-2 rounded-xl bg-[#0F2942] text-white text-xs font-bold hover:bg-[#163C61] transition-colors"
+              >
+                สร้างข่าวประชาสัมพันธ์ใหม่
+              </Link>
+            </div>
           </div>
         )}
       </div>

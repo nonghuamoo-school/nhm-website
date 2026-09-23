@@ -19,10 +19,9 @@ export default function NewsListPage() {
   const filtered = useMemo(() => {
     return newsList.filter((item) => {
       const matchesCat = selectedCat === "ทั้งหมด" || item.category === selectedCat;
-      const matchesSearch =
-        item.title.toLowerCase().includes(searchWord.toLowerCase()) ||
-        item.excerpt.toLowerCase().includes(searchWord.toLowerCase());
-      return matchesCat && matchesSearch;
+      const titleMatch = (item.title || "").toLowerCase().includes(searchWord.toLowerCase());
+      const excerptMatch = (item.excerpt || "").toLowerCase().includes(searchWord.toLowerCase());
+      return matchesCat && (titleMatch || excerptMatch);
     });
   }, [newsList, selectedCat, searchWord]);
 
@@ -146,13 +145,27 @@ export default function NewsListPage() {
               <div>
                 <div className="relative aspect-[16/10] bg-slate-100">
                   <img
-                    src={news.imageUrl}
+                    src={news.imageUrl || "/images/school-emblem-doc.png"}
                     alt={news.title}
                     className="w-full h-full object-cover"
                   />
                   <span className="absolute top-2.5 left-2.5 text-[10px] font-bold px-2 py-0.5 rounded bg-[#0F2942] text-white">
                     {news.category}
                   </span>
+
+                  <div className="absolute top-2.5 right-2.5 flex items-center gap-1">
+                    {news.facebookUrl && (
+                      <span className="w-5 h-5 rounded-md bg-[#1877F2] text-white flex items-center justify-center font-bold text-[10px] shadow-2xs" title="มีลิงก์โพสต์ Facebook">
+                        f
+                      </span>
+                    )}
+                    {news.galleryImages && news.galleryImages.length > 0 && (
+                      <span className="px-1.5 py-0.5 rounded-md bg-amber-500 text-white font-bold text-[9px] shadow-2xs flex items-center gap-0.5" title={`มีรูปกิจกรรม ${news.galleryImages.length} รูป`}>
+                        <span>📷</span>
+                        <span>{news.galleryImages.length}</span>
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="p-4 sm:p-5">
