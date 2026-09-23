@@ -30,8 +30,8 @@ export const quickLinks: QuickLinkItem[] = [
   },
   {
     id: "academic",
-    title: "ผลการเรียนและผลสอบ",
-    subtitle: "สถิติ O-NET, NT และ RT",
+    title: "ผลการทดสอบระดับชาติ",
+    subtitle: "รายงานผลสอบ O-NET, NT, RT",
     href: "/academic",
     icon: "TrendingUp",
     badge: "วิชาการ",
@@ -79,9 +79,9 @@ export const externalUsefulLinks = [
     category: "ระบบสารสนเทศ"
   },
   {
-    name: "ระบบวัดและประเมินผลการเรียน (SGS)",
-    url: "https://sgs.bopp-obec.info",
-    category: "ระบบวิชาการ"
+    name: "สถาบันทดสอบทางการศึกษาแห่งชาติ (สทศ. NIETS)",
+    url: "https://www.niets.or.th",
+    category: "ระบบทดสอบระดับชาติ"
   },
   {
     name: "มูลนิธิการศึกษาทางไกลผ่านดาวเทียม (DLTV)",

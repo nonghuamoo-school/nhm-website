@@ -11,9 +11,9 @@ export default function AcademicPage() {
 
   return (
     <InnerPageLayout
-      breadcrumbs={[{ label: "ผลการเรียนและวิชาการ" }]}
-      title="ผลการเรียนและผลการทดสอบทางการศึกษา"
-      description="สถิติผลสัมฤทธิ์ทางการเรียน ผลการประเมินคุณภาพผู้เรียนระดับชาติ (O-NET, NT, RT) โรงเรียนบ้านหนองหัวหมู"
+      breadcrumbs={[{ label: "ผลการทดสอบระดับชาติ" }]}
+      title="ผลการทดสอบทางการศึกษาระดับชาติ"
+      description="รายงานผลการประเมินคุณภาพผู้เรียนระดับชาติ (O-NET, NT, RT) โรงเรียนบ้านหนองหัวหมู"
     >
       <div className="space-y-8 sm:space-y-10">
         {/* 1. Interactive 3-Level Score Comparison (โรงเรียน • เขตพื้นที่ • ประเทศ) */}

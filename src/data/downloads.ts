@@ -51,7 +51,7 @@ export const schoolDownloads: DownloadDoc[] = [
     downloadUrl: "https://drive.google.com/uc?export=download&id=1nhm-transcript-request",
     driveUrl: "https://drive.google.com/file/d/1nhm-transcript-request/view?usp=sharing",
     previewUrl: "https://drive.google.com/file/d/1nhm-transcript-request/preview",
-    description: "แบบฟอร์มยื่นคำร้องขอใบรับรองผลการเรียน หนังสือรับรองความเป็นนักเรียน และใบ ปพ.",
+    description: "แบบฟอร์มยื่นคำร้องขอหนังสือรับรองความเป็นนักเรียน และเอกสารหลักฐานทางการศึกษา (ปพ.)",
   },
   {
     id: "doc-05",

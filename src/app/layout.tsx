@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     template: `%s | ${schoolInfo.name}`,
     default: `${schoolInfo.name} - ${schoolInfo.subAffiliation}`,
   },
-  description: `${schoolInfo.name} (${schoolInfo.nameEn}) ${schoolInfo.subAffiliation} ข้อมูลโรงเรียน ข่าวสารประชาสัมพันธ์ ผลการเรียนและผลสอบ บุคลากรทางการศึกษา`,
+  description: `${schoolInfo.name} (${schoolInfo.nameEn}) ${schoolInfo.subAffiliation} ข้อมูลโรงเรียน ข่าวสารประชาสัมพันธ์ ผลการทดสอบระดับชาติ บุคลากรทางการศึกษา`,
 };
 
 export default function RootLayout({

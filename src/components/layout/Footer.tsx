@@ -58,7 +58,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/academic" className="hover:text-amber-400 transition-colors">
-                  ผลการเรียน
+                  ผลการทดสอบระดับชาติ
                 </Link>
               </li>
               <li>
