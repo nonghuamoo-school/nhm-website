@@ -1,17 +1,32 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Eye, Phone } from "lucide-react";
+import { Eye, Calendar } from "lucide-react";
 import { schoolInfo } from "@/data/schoolInfo";
 import { visitorService } from "@/services/visitorService";
 
 export default function TopBar() {
   const [visitorCount, setVisitorCount] = useState<number | null>(null);
+  const [currentDate, setCurrentDate] = useState<string>("");
   const [fontSizeIndex, setFontSizeIndex] = useState<number>(0);
 
   useEffect(() => {
     const count = visitorService.recordVisit();
     setVisitorCount(count);
+
+    // Official Thai Buddhist calendar date (e.g. วันพุธที่ 23 ก.ย. 2568)
+    try {
+      const now = new Date();
+      const formatted = now.toLocaleDateString("th-TH", {
+        weekday: "long",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+      setCurrentDate(formatted);
+    } catch {
+      // Fallback
+    }
   }, []);
 
   const cycleFontSize = () => {
@@ -38,7 +53,7 @@ export default function TopBar() {
           <span className="sm:hidden truncate">สพป. บุรีรัมย์ เขต 3</span>
         </div>
 
-        {/* Right: Visitor Counter & Accessibility */}
+        {/* Right: Visitor Counter, Current Thai Date & Accessibility */}
         <div className="flex items-center gap-2 sm:gap-4 shrink-0">
           {/* Visitor count */}
           <div className="flex items-center gap-1 text-slate-300 font-medium">
@@ -50,12 +65,14 @@ export default function TopBar() {
             <span className="hidden md:inline">ครั้ง</span>
           </div>
 
-          {/* Telephone (Desktop only) */}
-          <div className="hidden lg:flex items-center gap-1.5 text-slate-300">
-            <span className="text-slate-700">|</span>
-            <Phone className="w-3 h-3 text-amber-400 shrink-0" />
-            <span>{schoolInfo.phone}</span>
-          </div>
+          {/* Official Current Thai Date (Replaced Director's personal phone number) */}
+          {currentDate && (
+            <div className="hidden lg:flex items-center gap-1.5 text-slate-300 font-medium">
+              <span className="text-slate-700">|</span>
+              <Calendar className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span>{currentDate}</span>
+            </div>
+          )}
 
           <span className="text-slate-700">|</span>
 
