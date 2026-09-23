@@ -398,9 +398,9 @@ export default function AdminSettingsPage() {
                     </div>
                   </div>
 
-                  {/* Right: Simulated Photo & 2 Floating Badges */}
-                  <div className="lg:col-span-5 relative">
-                    <div className="relative rounded-2xl overflow-hidden border border-slate-200/90 bg-white aspect-[16/11] shadow-md">
+                  {/* Right: School Photo & Education Level Badge Below (Not Floating) */}
+                  <div className="lg:col-span-5 flex flex-col">
+                    <div className="rounded-2xl overflow-hidden border border-slate-200/90 bg-white aspect-[16/11] shadow-md">
                       <img
                         src={formData.heroImageUrl}
                         alt="Hero Preview"
@@ -408,30 +408,17 @@ export default function AdminSettingsPage() {
                       />
                     </div>
 
-                    {/* Floating Badge 1: Education Level (Bottom Left) */}
-                    <div className="absolute -bottom-2.5 left-2.5 bg-white/95 backdrop-blur-xs text-[#0F2942] rounded-xl p-2.5 border border-slate-200 shadow-md flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-800 flex items-center justify-center shrink-0">
+                    {/* Placed below the photo so it never covers the image */}
+                    <div className="mt-3 flex items-center gap-2.5 p-3 rounded-xl bg-white border border-slate-200 shadow-xs">
+                      <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-800 flex items-center justify-center shrink-0">
                         <GraduationCap className="w-4 h-4" />
                       </div>
                       <div className="leading-tight">
-                        <span className="text-[9px] text-slate-400 font-bold block uppercase">
-                          {formData.heroBadge1Label}
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase">
+                          {formData.heroBadge1Label || "ระดับการศึกษา"}
                         </span>
-                        <span className="text-xs font-bold text-[#0F2942]">
-                          {formData.heroBadge1Value}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Floating Badge 2: Academic Excellence (Top Right) */}
-                    <div className="absolute -top-2.5 right-2.5 bg-white/95 backdrop-blur-xs text-[#0F2942] rounded-xl px-3 py-1.5 border border-slate-200 shadow-md flex items-center gap-1.5">
-                      <Award className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                      <div className="leading-tight">
-                        <span className="text-[9px] text-slate-400 font-bold block">
-                          {formData.heroBadge2Label}
-                        </span>
-                        <span className="text-xs font-bold text-emerald-700">
-                          {formData.heroBadge2Value}
+                        <span className="text-xs sm:text-sm font-bold text-[#0F2942]">
+                          {formData.heroBadge1Value || "อนุบาล 2 – ประถมศึกษาปีที่ 6"}
                         </span>
                       </div>
                     </div>
@@ -710,57 +697,32 @@ export default function AdminSettingsPage() {
                 </div>
               </div>
 
-              {/* 2 Floating Badges Configuration */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-slate-100">
-                {/* Floating Badge 1 */}
-                <div className="p-4 rounded-xl bg-blue-50/40 border border-blue-100 space-y-3">
+              {/* Education Level Badge Below Photo Configuration */}
+              <div className="pt-3 border-t border-slate-100">
+                <div className="p-4 rounded-xl bg-blue-50/50 border border-blue-100 space-y-3">
                   <div className="flex items-center gap-2">
                     <GraduationCap className="w-4 h-4 text-blue-700" />
-                    <span className="text-xs font-bold text-blue-950">ป้ายลอยที่ 1 (ล่างซ้ายของภาพ)</span>
+                    <span className="text-xs font-bold text-blue-950">ป้ายข้อมูลระดับการศึกษา (แสดงใต้รูปภาพ ไม่บังรูป)</span>
                   </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 block mb-1">หัวข้อป้าย (ตัวเล็ก)</label>
-                    <input
-                      type="text"
-                      value={formData.heroBadge1Label}
-                      onChange={(e) => setFormData({ ...formData, heroBadge1Label: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 block mb-1">ข้อความเด่น (ตัวใหญ่)</label>
-                    <input
-                      type="text"
-                      value={formData.heroBadge1Value}
-                      onChange={(e) => setFormData({ ...formData, heroBadge1Value: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-bold text-[#0F2942]"
-                    />
-                  </div>
-                </div>
-
-                {/* Floating Badge 2 */}
-                <div className="p-4 rounded-xl bg-emerald-50/40 border border-emerald-100 space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Award className="w-4 h-4 text-emerald-700" />
-                    <span className="text-xs font-bold text-emerald-950">ป้ายลอยที่ 2 (บนขวาของภาพ)</span>
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 block mb-1">หัวข้อป้าย (ตัวเล็ก)</label>
-                    <input
-                      type="text"
-                      value={formData.heroBadge2Label}
-                      onChange={(e) => setFormData({ ...formData, heroBadge2Label: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 block mb-1">ข้อความเด่น (ตัวใหญ่)</label>
-                    <input
-                      type="text"
-                      value={formData.heroBadge2Value}
-                      onChange={(e) => setFormData({ ...formData, heroBadge2Value: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-bold text-emerald-700"
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[11px] text-slate-500 block mb-1">หัวข้อป้าย (เช่น ระดับการศึกษา)</label>
+                      <input
+                        type="text"
+                        value={formData.heroBadge1Label}
+                        onChange={(e) => setFormData({ ...formData, heroBadge1Label: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-slate-500 block mb-1">ข้อความระดับชั้น (เช่น อนุบาล 2 – ประถมศึกษาปีที่ 6)</label>
+                      <input
+                        type="text"
+                        value={formData.heroBadge1Value}
+                        onChange={(e) => setFormData({ ...formData, heroBadge1Value: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-bold text-[#0F2942]"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

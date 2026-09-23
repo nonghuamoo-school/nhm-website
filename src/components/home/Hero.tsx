@@ -72,52 +72,28 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Right Column: School Image with Clean Modern Badges (5 cols) */}
-          <div className="lg:col-span-5 relative mt-2 sm:mt-0">
-            <div className="relative rounded-2xl overflow-hidden border border-slate-200/90 bg-white aspect-[16/11] shadow-md">
+          {/* Right Column: School Image without any floating badges covering the photo (5 cols) */}
+          <div className="lg:col-span-5 flex flex-col mt-2 sm:mt-0">
+            <div className="rounded-2xl overflow-hidden border border-slate-200/90 bg-white aspect-[16/11] shadow-md">
               <img
                 src={settings.heroImageUrl}
                 alt={settings.name}
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent pointer-events-none" />
-
-              {/* On-image Badges on Mobile (Clean overlay) */}
-              <div className="absolute bottom-2 left-2 right-2 flex sm:hidden items-center justify-between gap-1 text-white">
-                <span className="text-[10px] font-bold bg-black/60 backdrop-blur-xs px-2 py-1 rounded-lg">
-                  {settings.heroBadge1Value}
-                </span>
-                <span className="text-[10px] font-bold bg-emerald-600/90 backdrop-blur-xs px-2 py-1 rounded-lg">
-                  {settings.heroBadge2Value}
-                </span>
-              </div>
             </div>
 
-            {/* Floating Badge 1: Education Level (Desktop) */}
-            <div className="hidden sm:flex absolute -bottom-3 left-4 bg-white/95 backdrop-blur-xs text-[#0F2942] rounded-2xl p-2.5 sm:p-3 border border-slate-200 shadow-md items-center gap-3">
+            {/* Placed below the image so it NEVER covers or obscures the photo */}
+            <div className="mt-3 flex items-center gap-3 p-3 rounded-2xl bg-white border border-slate-200 shadow-xs">
               <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-800 flex items-center justify-center shrink-0 border border-blue-100">
                 <GraduationCap className="w-5 h-5" />
               </div>
               <div className="leading-tight">
                 <span className="text-[10px] text-slate-400 font-bold block uppercase">
-                  {settings.heroBadge1Label}
+                  {settings.heroBadge1Label || "ระดับการศึกษา"}
                 </span>
-                <span className="text-xs font-bold text-[#0F2942]">
-                  {settings.heroBadge1Value}
-                </span>
-              </div>
-            </div>
-
-            {/* Floating Badge 2: Academic Excellence (Desktop) */}
-            <div className="hidden sm:flex absolute -top-3 right-4 bg-white/95 backdrop-blur-xs text-[#0F2942] rounded-2xl px-3.5 py-2 border border-slate-200 shadow-md items-center gap-2">
-              <Award className="w-4 h-4 text-emerald-600 shrink-0" />
-              <div className="leading-tight">
-                <span className="text-[10px] text-slate-400 font-bold block">
-                  {settings.heroBadge2Label}
-                </span>
-                <span className="text-xs font-bold text-emerald-700">
-                  {settings.heroBadge2Value}
+                <span className="text-xs sm:text-sm font-bold text-[#0F2942]">
+                  {settings.heroBadge1Value || "อนุบาล 2 – ประถมศึกษาปีที่ 6"}
                 </span>
               </div>
             </div>
