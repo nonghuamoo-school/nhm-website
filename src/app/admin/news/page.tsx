@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useNews } from "@/hooks/useNews";
 import { NewsItem } from "@/types";
+import Swal from "sweetalert2";
 
 export default function AdminNewsListPage() {
   const { newsList, deleteNews } = useNews();
@@ -33,9 +34,27 @@ export default function AdminNewsListPage() {
     return matchesCat && matchesSearch;
   });
 
-  const handleDelete = (id: string) => {
-    deleteNews(id);
-    setDeleteConfirmId(null);
+  const handleDelete = async (news: NewsItem) => {
+    const result = await Swal.fire({
+      icon: "warning",
+      title: "ยืนยันการลบข่าวประชาสัมพันธ์?",
+      text: `คุณต้องการลบข่าว "${news.title}" หรือไม่? ข่าวจะถูกนำออกจากทุกหน้าทันที`,
+      showCancelButton: true,
+      confirmButtonText: "ใช่, ลบข่าวนี้",
+      cancelButtonText: "ยกเลิก",
+      confirmButtonColor: "#DC2626",
+      cancelButtonColor: "#64748B",
+    });
+
+    if (result.isConfirmed) {
+      await deleteNews(news.id);
+      Swal.fire({
+        icon: "success",
+        title: "ลบข่าวเรียบร้อยแล้ว",
+        timer: 1800,
+        showConfirmButton: false,
+      });
+    }
   };
 
   return (
@@ -164,22 +183,13 @@ export default function AdminNewsListPage() {
                       >
                         <ExternalLink className="w-4 h-4" />
                       </Link>
-                      {deleteConfirmId === news.id ? (
-                        <button
-                          onClick={() => handleDelete(news.id)}
-                          className="px-2 py-1 rounded bg-red-600 text-white font-bold text-[10px]"
-                        >
-                          ยืนยันลบ
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => setDeleteConfirmId(news.id)}
-                          className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                          title="ลบข่าว"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
+                      <button
+                        onClick={() => handleDelete(news)}
+                        className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                        title="ลบข่าว"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </td>
                 </tr>

@@ -3,17 +3,20 @@
 import React, { useState } from "react";
 import SectionTitle from "@/components/ui/SectionTitle";
 import NewsCard from "./NewsCard";
-import { schoolNews } from "@/data/news";
+import { useNews } from "@/hooks/useNews";
 
 export default function NewsSection() {
+  const { newsList } = useNews();
   const [selectedCategory, setSelectedCategory] = useState<string>("ทั้งหมด");
 
   const categories = ["ทั้งหมด", "ประชาสัมพันธ์", "กิจกรรม", "วิชาการ", "จัดซื้อจัดจ้าง"];
 
+  const activeNews = newsList.filter((n) => n.status !== "ฉบับร่าง");
+
   const filteredNews =
     selectedCategory === "ทั้งหมด"
-      ? schoolNews
-      : schoolNews.filter((item) => item.category === selectedCategory);
+      ? activeNews
+      : activeNews.filter((item) => item.category === selectedCategory);
 
   const featured = filteredNews.find((n) => n.isFeatured) || filteredNews[0];
   const remainingNews = filteredNews.filter((n) => n.id !== featured?.id).slice(0, 4);

@@ -6,6 +6,7 @@ import { NewsItem } from "@/types";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 const STORAGE_KEY = "nhm_school_news";
+const DELETED_KEY = "nhm_deleted_news_ids";
 const UPDATE_EVENT = "nhm_news_updated";
 
 function rowToNews(row: any): NewsItem {
@@ -53,15 +54,21 @@ export function useNews() {
   const loadFromStorage = useCallback(() => {
     if (typeof window === "undefined") return;
     try {
+      const rawDeleted = localStorage.getItem(DELETED_KEY);
+      const deletedIds = new Set<string>(rawDeleted ? JSON.parse(rawDeleted) : []);
+
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
+      if (saved !== null) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setNewsList(parsed);
+        if (Array.isArray(parsed)) {
+          const cleaned = parsed.filter((n) => !deletedIds.has(n.id));
+          setNewsList(cleaned);
           return;
         }
       }
-      setNewsList(schoolNews);
+
+      const initialCleaned = schoolNews.filter((n) => !deletedIds.has(n.id));
+      setNewsList(initialCleaned);
     } catch (err) {
       console.error("Error reading nhm_school_news from localStorage", err);
       setNewsList(schoolNews);
@@ -80,7 +87,12 @@ export function useNews() {
         .order("date", { ascending: false })
         .then(({ data, error }) => {
           if (!error && data && data.length > 0) {
-            const fromCloud: NewsItem[] = data.map(rowToNews);
+            const rawDeleted = typeof window !== "undefined" ? localStorage.getItem(DELETED_KEY) : null;
+            const deletedIds = new Set<string>(rawDeleted ? JSON.parse(rawDeleted) : []);
+            const fromCloud: NewsItem[] = data
+              .map(rowToNews)
+              .filter((n) => !deletedIds.has(n.id));
+
             setNewsList(fromCloud);
             setIsCloudSynced(true);
             if (typeof window !== "undefined") {
@@ -145,9 +157,23 @@ export function useNews() {
   };
 
   const deleteNews = async (id: string) => {
+    // 1. Mark ID in deleted persistent list so it never resurrects
+    if (typeof window !== "undefined") {
+      try {
+        const rawDeleted = localStorage.getItem(DELETED_KEY);
+        const set = new Set<string>(rawDeleted ? JSON.parse(rawDeleted) : []);
+        set.add(id);
+        localStorage.setItem(DELETED_KEY, JSON.stringify(Array.from(set)));
+      } catch (err) {
+        console.error("Error updating deleted news IDs", err);
+      }
+    }
+
+    // 2. Filter out from newsList and save to local storage
     const updated = newsList.filter((item) => item.id !== id);
     await persist(updated);
 
+    // 3. Delete from Supabase cloud database
     if (isSupabaseConfigured() && supabase) {
       try {
         await supabase.from("news").delete().eq("id", id);
@@ -160,6 +186,7 @@ export function useNews() {
   const resetToDefault = () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(DELETED_KEY);
       window.dispatchEvent(new Event(UPDATE_EVENT));
     }
     setNewsList(schoolNews);
