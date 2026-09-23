@@ -43,10 +43,10 @@ export default function SchoolAnalyticsDashboard() {
             <span>สถิติจำนวนนักเรียนและโครงสร้างชั้นเรียน</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-[#0F2942] tracking-tight">
-            โครงสร้างประชากรนักเรียนและการกระจายตัวชั้นเรียน (Student Demographics)
+            ข้อมูลนักเรียน
           </h2>
           <p className="text-xs sm:text-sm text-slate-500">
-            แผนภูมิแสดงการกระจายตัวของนักเรียนรายระดับชั้นและสัดส่วนเพศ ประจำปีการศึกษา {selectedYear} (รวม {total} คน)
+            สถิติจำนวนนักเรียนรายระดับชั้นและสัดส่วนเพศ ประจำปีการศึกษา {selectedYear} (รวม {total} คน)
           </p>
         </div>
 
@@ -153,75 +153,119 @@ export default function SchoolAnalyticsDashboard() {
 
       </div>
 
-      {/* ================= CHARTS SECTION: CAPSULE BARS + DONUT CHART ================= */}
+      {/* ================= CHARTS SECTION: MODERN BAR CHART + DONUT CHART ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* Left: 8 Capsule "แท่งไฟ" Bars (7 cols) */}
-        <div className="lg:col-span-7 bg-white rounded-3xl p-5 sm:p-7 border border-slate-200/90 shadow-sm space-y-4">
+        {/* Left: Modern Column Chart (7 cols) */}
+        <div className="lg:col-span-7 bg-white rounded-3xl p-5 sm:p-7 border border-slate-200/90 shadow-sm flex flex-col justify-between space-y-4">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-bold text-[#0F2942] flex items-center gap-1.5">
-              <BarChart3 className="w-4 h-4 text-blue-600" />
-              <span>จำนวนนักเรียนแยกตามระดับชั้น (คน)</span>
-            </span>
-            <span className="text-[11px] text-slate-400">เฉลี่ย 13.1 คน / ห้อง</span>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                <BarChart3 className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="font-bold text-[#0F2942] text-sm">จำนวนนักเรียนแยกตามระดับชั้น</h3>
+                <p className="text-[11px] text-slate-400">เปรียบเทียบขนาดห้องเรียน (เฉลี่ย 13.1 คน/ห้อง)</p>
+              </div>
+            </div>
+            <div className="hidden sm:flex items-center gap-3 text-[11px] text-slate-500 font-medium">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500" /> ปฐมวัย
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-sm bg-blue-600" /> ประถมศึกษา
+              </span>
+            </div>
           </div>
 
-          <div className="h-60 pt-6 pb-2 flex items-end justify-between gap-1.5 sm:gap-2.5 bg-slate-50/70 p-3 sm:p-4 rounded-2xl border border-slate-200">
-            {studentData.grades.map((grade) => {
-              const maxStudentCount = 15;
-              const heightPercent = Math.round((grade.total / maxStudentCount) * 85) + 15;
+          {/* Chart Canvas with Guide Lines */}
+          <div className="relative pt-6 pb-2 px-2 sm:px-4 bg-gradient-to-b from-slate-50/50 to-slate-100/50 rounded-2xl border border-slate-200/80">
+            {/* Horizontal Grid lines */}
+            <div className="absolute inset-x-4 top-6 bottom-10 flex flex-col justify-between pointer-events-none opacity-40">
+              <div className="border-b border-dashed border-slate-300 w-full" />
+              <div className="border-b border-dashed border-slate-300 w-full" />
+              <div className="border-b border-dashed border-slate-300 w-full" />
+              <div className="border-b border-slate-300 w-full" />
+            </div>
 
-              return (
-                <div
-                  key={grade.grade}
-                  className="flex-1 flex flex-col items-center h-full justify-end group cursor-pointer"
-                  title={`${grade.grade}: รวม ${grade.total} คน (ชาย ${grade.male}, หญิง ${grade.female})`}
-                >
-                  <span className="text-[11px] font-bold font-mono text-[#0F2942] mb-1.5 group-hover:scale-110 transition-all">
-                    {grade.total}
-                  </span>
+            <div className="h-56 flex items-end justify-between gap-2 sm:gap-3 relative z-10">
+              {studentData.grades.map((grade, idx) => {
+                const isKindergarten = idx < 2;
+                const maxStudentCount = 16;
+                const heightPercent = Math.round((grade.total / maxStudentCount) * 100);
 
-                  <div className="w-full max-w-[34px] h-full flex items-end justify-center bg-slate-200/70 rounded-full p-1 overflow-hidden">
-                    <div
-                      style={{ height: `${heightPercent}%` }}
-                      className="w-full bg-gradient-to-t from-blue-700 via-sky-500 to-cyan-400 rounded-full group-hover:from-blue-600 group-hover:to-emerald-400 transition-all duration-500 shadow-sm relative"
-                    >
-                      <div className="absolute top-1 left-0.5 right-0.5 h-1.5 bg-white/40 rounded-full" />
+                return (
+                  <div
+                    key={grade.grade}
+                    className="flex-1 flex flex-col items-center h-full justify-end group cursor-pointer"
+                    title={`${grade.grade}: รวม ${grade.total} คน (ชาย ${grade.male}, หญิง ${grade.female})`}
+                  >
+                    {/* Floating Count Badge */}
+                    <div className="mb-2 px-1.5 py-0.5 rounded-md bg-white border border-slate-200 shadow-2xs group-hover:bg-[#0F2942] group-hover:text-white group-hover:border-[#0F2942] transition-all duration-200">
+                      <span className="text-[11px] font-black text-[#0F2942] group-hover:text-white">
+                        {grade.total}
+                      </span>
                     </div>
-                  </div>
 
-                  <span className="text-[10px] font-bold text-slate-600 mt-2 truncate w-full text-center">
-                    {grade.grade.replace("ประถมศึกษาปีที่ ", "ป.").replace("อนุบาล ", "อ.")}
-                  </span>
-                </div>
-              );
-            })}
+                    {/* Bar Column */}
+                    <div className="w-full max-w-[32px] sm:max-w-[38px] h-full flex items-end justify-center">
+                      <div
+                        style={{ height: `${heightPercent}%` }}
+                        className={`w-full rounded-t-lg transition-all duration-500 relative group-hover:scale-y-105 origin-bottom shadow-sm ${
+                          isKindergarten
+                            ? "bg-gradient-to-t from-emerald-600 to-teal-400 group-hover:from-emerald-500 group-hover:to-teal-300"
+                            : "bg-gradient-to-t from-[#0F2942] via-blue-700 to-sky-400 group-hover:from-blue-800 group-hover:to-sky-300"
+                        }`}
+                      >
+                        {/* Subtle Glass Highlight */}
+                        <div className="absolute inset-x-0 top-0 h-1 bg-white/40 rounded-t-lg" />
+                      </div>
+                    </div>
+
+                    {/* Grade Label */}
+                    <span className="text-[11px] font-bold text-slate-700 mt-2.5 truncate w-full text-center group-hover:text-blue-700 transition-colors">
+                      {grade.grade.replace("ประถมศึกษาปีที่ ", "ป.").replace("อนุบาล ", "อ.")}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
-            <span>อนุบาล 2 - ประถมศึกษาปีที่ 6 (รวม 8 ห้องเรียน)</span>
-            <span className="font-bold text-blue-700">รวม 105 คน</span>
+          <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-100">
+            <span>ระดับชั้น อ.2 ถึง ป.6 (รวม 8 ห้องเรียน)</span>
+            <span className="font-bold text-[#0F2942] bg-slate-100 px-2.5 py-1 rounded-lg">
+              ยอดรวมทั้งโรงเรียน: <strong className="text-blue-600">105</strong> คน
+            </span>
           </div>
         </div>
 
-        {/* Right: Donut Chart for Male/Female ratio (5 cols) */}
-        <div className="lg:col-span-5 bg-white rounded-3xl p-5 sm:p-7 border border-slate-200/90 shadow-sm flex flex-col items-center justify-between space-y-4">
+        {/* Right: Modern Donut Chart (5 cols) */}
+        <div className="lg:col-span-5 bg-white rounded-3xl p-5 sm:p-7 border border-slate-200/90 shadow-sm flex flex-col justify-between space-y-4">
           <div className="w-full flex items-center justify-between text-xs">
-            <span className="font-bold text-[#0F2942]">สัดส่วนนักเรียนตามเพศ</span>
-            <span className="text-slate-400">ปีการศึกษา {selectedYear}</span>
+            <div>
+              <h3 className="font-bold text-[#0F2942] text-sm">สัดส่วนนักเรียนตามเพศ</h3>
+              <p className="text-[11px] text-slate-400">ปีการศึกษา {selectedYear}</p>
+            </div>
+            <span className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-bold text-[11px] border border-blue-200/70">
+              สมดุล 51:49
+            </span>
           </div>
 
           {/* SVG Donut */}
-          <div className="relative flex items-center justify-center my-2">
-            <svg width={donutSize} height={donutSize} className="-rotate-90">
+          <div className="relative flex items-center justify-center my-3">
+            <svg width={donutSize} height={donutSize} className="-rotate-90 drop-shadow-xs">
+              {/* Female Track */}
               <circle
                 cx={donutSize / 2}
                 cy={donutSize / 2}
                 r={radius}
                 fill="none"
-                stroke="#C7D2FE"
+                stroke="#EC4899"
                 strokeWidth={strokeWidth}
+                opacity={0.85}
               />
+              {/* Male Segment */}
               <circle
                 cx={donutSize / 2}
                 cy={donutSize / 2}
@@ -238,20 +282,33 @@ export default function SchoolAnalyticsDashboard() {
 
             {/* Donut Center Count */}
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-              <span className="text-3xl font-black text-[#0F2942] tracking-tight">{total}</span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase">นักเรียนทั้งหมด</span>
+              <span className="text-3xl sm:text-4xl font-black text-[#0F2942] tracking-tight">{total}</span>
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">คนทั้งหมด</span>
             </div>
           </div>
 
-          {/* Ratio Breakdown */}
-          <div className="w-full grid grid-cols-2 gap-3 pt-2 border-t border-slate-100 text-xs">
-            <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-200/80 text-center">
-              <span className="text-[11px] font-bold text-blue-800 block">นักเรียนชาย</span>
-              <span className="text-base font-black text-blue-900">{studentData.summary.totalMale} คน ({malePercent}%)</span>
+          {/* Ratio Breakdown Cards */}
+          <div className="w-full grid grid-cols-2 gap-3 pt-3 border-t border-slate-100 text-xs">
+            <div className="p-3 rounded-2xl bg-blue-50/80 border border-blue-200/80 flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[11px] font-bold text-blue-900">นักเรียนชาย</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+              </div>
+              <div className="flex items-baseline justify-between">
+                <span className="text-lg font-black text-[#0F2942]">{studentData.summary.totalMale} <span className="text-xs font-normal text-slate-500">คน</span></span>
+                <span className="text-xs font-bold text-blue-700 bg-white px-2 py-0.5 rounded-md border border-blue-200">{malePercent}%</span>
+              </div>
             </div>
-            <div className="p-2.5 rounded-xl bg-indigo-50 border border-indigo-200/80 text-center">
-              <span className="text-[11px] font-bold text-indigo-800 block">นักเรียนหญิง</span>
-              <span className="text-base font-black text-indigo-900">{studentData.summary.totalFemale} คน ({femalePercent}%)</span>
+
+            <div className="p-3 rounded-2xl bg-pink-50/80 border border-pink-200/80 flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[11px] font-bold text-pink-900">นักเรียนหญิง</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-pink-500" />
+              </div>
+              <div className="flex items-baseline justify-between">
+                <span className="text-lg font-black text-[#0F2942]">{studentData.summary.totalFemale} <span className="text-xs font-normal text-slate-500">คน</span></span>
+                <span className="text-xs font-bold text-pink-700 bg-white px-2 py-0.5 rounded-md border border-pink-200">{femalePercent}%</span>
+              </div>
             </div>
           </div>
         </div>

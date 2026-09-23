@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Users,
   Plus,
@@ -22,7 +22,9 @@ import {
   ChevronDown,
   ArrowUpDown,
   MoveUp,
-  MoveDown
+  MoveDown,
+  Upload,
+  Camera
 } from "lucide-react";
 import { usePersonnel } from "@/hooks/usePersonnel";
 import { PersonnelMember } from "@/types";
@@ -95,9 +97,55 @@ export default function AdminPersonnelPage() {
 
   const [newRoleInput, setNewRoleInput] = useState("");
 
-  // Delete Confirm State
   const [deleteConfirmTarget, setDeleteConfirmTarget] = useState<PersonnelMember | null>(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [isProcessingAvatar, setIsProcessingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      alert("กรุณาเลือกไฟล์รูปภาพ");
+      return;
+    }
+
+    setIsProcessingAvatar(true);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+        const maxDimension = 800;
+
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+          setFormData((prev) => ({ ...prev, imageUrl: dataUrl }));
+        } else {
+          setFormData((prev) => ({ ...prev, imageUrl: event.target?.result as string }));
+        }
+        setIsProcessingAvatar(false);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -610,24 +658,52 @@ export default function AdminPersonnelPage() {
 
               {/* Image URL & Preset Selection */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  รูปถ่ายบุคลากร
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-bold text-slate-700">
+                    รูปถ่ายบุคลากร
+                  </label>
+                  <span className="text-[11px] text-slate-400">อัปโหลดจากเครื่องได้โดยตรง ไม่ต้องฝากรูป</span>
+                </div>
+
+                {/* Hidden file input */}
+                <input
+                  type="file"
+                  ref={avatarInputRef}
+                  onChange={handleAvatarUpload}
+                  accept="image/png, image/jpeg, image/jpg, image/webp"
+                  className="hidden"
+                />
+
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-14 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                  <div className="w-14 h-16 rounded-xl overflow-hidden bg-slate-100 border-2 border-slate-200 shrink-0 shadow-xs relative group cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
                     <img
                       src={formData.imageUrl}
                       alt="Preview"
                       className="w-full h-full object-cover"
                     />
+                    <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                      <Camera className="w-4 h-4" />
+                    </div>
                   </div>
-                  <input
-                    type="url"
-                    placeholder="URL รูปภาพ (เช่น https://...)"
-                    value={formData.imageUrl}
-                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                    className="flex-1 px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
-                  />
+
+                  <div className="flex-1 space-y-1.5">
+                    <button
+                      type="button"
+                      onClick={() => avatarInputRef.current?.click()}
+                      disabled={isProcessingAvatar}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs transition-colors border border-amber-200"
+                    >
+                      <Upload className="w-3.5 h-3.5 text-amber-600" />
+                      <span>{isProcessingAvatar ? "กำลังประมวลผลรูป..." : "เลือกรูปถ่ายจากเครื่อง"}</span>
+                    </button>
+                    <input
+                      type="url"
+                      placeholder="หรือใส่ URL รูปภาพ..."
+                      value={formData.imageUrl.startsWith("data:") ? "" : formData.imageUrl}
+                      onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                      className="w-full px-2.5 py-1 text-[11px] rounded-lg border border-slate-200 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    />
+                  </div>
                 </div>
 
                 {/* Preset Avatars */}

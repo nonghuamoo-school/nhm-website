@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -22,7 +22,10 @@ import {
   Heading3,
   List,
   Quote,
-  ExternalLink
+  ExternalLink,
+  Upload,
+  Camera,
+  X as CloseIcon
 } from "lucide-react";
 import { NewsItem } from "@/types";
 import { useNews } from "@/hooks/useNews";
@@ -66,6 +69,64 @@ export default function NewsEditor({
 
   const [previewTab, setPreviewTab] = useState<"article" | "card" | "seo">("article");
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Compress image to crisp WebP/JPEG under 150KB for zero-host direct embedding
+  const handleFileUpload = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      alert("กรุณาเลือกไฟล์รูปภาพ (JPG, PNG, WebP)");
+      return;
+    }
+
+    setIsProcessingImage(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+          const maxDimension = 1200;
+
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            } else {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+            setImageUrl(dataUrl);
+          } else {
+            setImageUrl(e.target?.result as string);
+          }
+          setIsProcessingImage(false);
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error("Error processing image:", err);
+      setIsProcessingImage(false);
+    }
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+  };
 
   // Formatting toolbar helpers
   const insertFormatting = (prefix: string, suffix = "") => {
@@ -235,32 +296,96 @@ export default function NewsEditor({
               </div>
             </div>
 
-            {/* Cover Image Upload / URL */}
+            {/* Cover Image Direct Upload */}
             <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">
-                รูปภาพหน้าปกข่าว (Cover Image)
-              </label>
-              <div className="flex items-center gap-2">
-                <div className="relative flex-1">
-                  <ImageIcon className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                  <ImageIcon className="w-4 h-4 text-blue-600" />
+                  <span>รูปภาพหน้าปกข่าว (Cover Image)</span>
+                </label>
+                <span className="text-[11px] text-slate-400">อัปโหลดจากคอมฯ หรือมือถือได้ทันที ไม่ต้องฝากรูป</span>
+              </div>
+
+              {/* Hidden file input */}
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileInputChange}
+                accept="image/png, image/jpeg, image/jpg, image/webp"
+                className="hidden"
+              />
+
+              {imageUrl ? (
+                <div className="relative rounded-2xl overflow-hidden border-2 border-slate-200 bg-slate-100 group shadow-xs">
+                  <div className="aspect-[16/9] w-full max-h-56 overflow-hidden">
+                    <img
+                      src={imageUrl}
+                      alt="ตัวอย่างรูปหน้าปก"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+
+                  {/* Overlay Controls */}
+                  <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-4 backdrop-blur-2xs">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isProcessingImage}
+                      className="px-3.5 py-2 rounded-xl bg-white text-slate-800 font-bold text-xs hover:bg-slate-100 shadow-md flex items-center gap-1.5 transition-all"
+                    >
+                      <Upload className="w-3.5 h-3.5 text-blue-600" />
+                      <span>{isProcessingImage ? "กำลังประมวลผล..." : "เปลี่ยนรูปภาพ"}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setImageUrl("")}
+                      className="px-3.5 py-2 rounded-xl bg-rose-600 text-white font-bold text-xs hover:bg-rose-700 shadow-md flex items-center gap-1.5 transition-all"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>ลบรูป</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* Empty Upload Drop Area */
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-slate-300 hover:border-blue-500 hover:bg-blue-50/40 rounded-2xl p-6 text-center cursor-pointer transition-all duration-200 group"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-blue-100/70 text-blue-600 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                    <Upload className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <p className="text-xs font-bold text-[#0F2942] mb-1">
+                    คลิกเพื่อเลือกไฟล์รูปภาพจากเครื่อง หรือถ่ายรูป
+                  </p>
+                  <p className="text-[11px] text-slate-400">
+                    รองรับ JPG, PNG, WebP (ระบบปรับขนาดและบีบอัดอัตโนมัติ ไม่ต้องฝากเว็บอื่น)
+                  </p>
+                </div>
+              )}
+
+              {/* Direct File Browse Button + Manual URL Toggle */}
+              <div className="flex flex-wrap items-center justify-between gap-2 mt-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isProcessingImage}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition-colors"
+                >
+                  <Camera className="w-3.5 h-3.5 text-blue-600" />
+                  <span>{isProcessingImage ? "กำลังประมวลผลรูป..." : "เลือกไฟล์จากเครื่อง / ถ่ายภาพ"}</span>
+                </button>
+
+                <div className="flex-1 max-w-xs">
                   <input
                     type="url"
-                    placeholder="URL รูปภาพหน้าปก..."
-                    value={imageUrl}
+                    placeholder="หรือวางลิงก์ URL..."
+                    value={imageUrl.startsWith("data:") ? "" : imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20 focus:border-[#0F2942] min-h-[38px]"
+                    className="w-full px-2.5 py-1 text-[11px] rounded-lg border border-slate-200 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
               </div>
-              {imageUrl && (
-                <div className="mt-2.5 w-full h-32 rounded-xl overflow-hidden border border-[#E5E7EB] bg-slate-100 relative">
-                  <img
-                    src={imageUrl}
-                    alt="ตัวอย่างหน้าปก"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
             </div>
 
             {/* Excerpt / Summary */}
