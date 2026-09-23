@@ -1665,15 +1665,32 @@ export default function AdminSettingsPage() {
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block font-bold text-slate-700 mb-1">
-                  Facebook Fanpage URL
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block font-bold text-slate-700">
+                    Facebook Fanpage URL (ลิงก์เพจเฟซบุ๊กโรงเรียน)
+                  </label>
+                  {formData.facebook && formData.facebook.startsWith("http") && (
+                    <a
+                      href={formData.facebook}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-800 font-semibold"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      <span>ทดสอบเปิดลิงก์ Facebook</span>
+                    </a>
+                  )}
+                </div>
                 <input
                   type="url"
                   value={formData.facebook}
                   onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
+                  placeholder="https://www.facebook.com/profile.php?id=100071517975903"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none text-xs sm:text-sm font-mono"
                 />
+                <span className="text-[11px] text-slate-400 mt-1 block">
+                  ลิงก์นี้จะนำไปแสดงบนหน้าแรก หน้าติดต่อ และตารางข้อมูลทั่วไปโรงเรียน
+                </span>
               </div>
 
               <div className="md:col-span-2 pt-2 border-t border-slate-100">

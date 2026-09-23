@@ -290,7 +290,7 @@ export default function GrandPortalLayout() {
               </div>
 
               <a
-                href="https://www.facebook.com"
+                href={settings.facebook || "https://www.facebook.com/profile.php?id=100071517975903"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1877F2] text-white text-xs font-bold shadow-xs hover:bg-[#166FE5] transition-colors"

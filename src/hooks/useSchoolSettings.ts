@@ -77,7 +77,7 @@ export const defaultSchoolSettings: SchoolSettingsData = {
   postalCode: "31210",
   phone: "081-743-2407",
   email: "31030078@brm3.go.th",
-  facebook: "โรงเรียนบ้านหนองหัวหมู",
+  facebook: "https://www.facebook.com/profile.php?id=100071517975903",
   lineOfficial: "@nhmschool",
   mapsUrl: "https://maps.google.com/?q=โรงเรียนบ้านหนองหัวหมู+ทุ่งกระเต็น+หนองกี่+บุรีรัมย์",
   schoolLevels: "อนุบาล-ประถมศึกษา (อนุบาล 2 – ประถมศึกษาปีที่ 6)",
@@ -130,6 +130,9 @@ export function useSchoolSettings() {
         const saved = localStorage.getItem("nhm_school_settings");
         if (saved) {
           const parsed = JSON.parse(saved);
+          if (parsed.facebook === "โรงเรียนบ้านหนองหัวหมู" || !parsed.facebook) {
+            parsed.facebook = "https://www.facebook.com/profile.php?id=100071517975903";
+          }
           setSettings((prev) => ({ ...prev, ...parsed }));
         }
       } catch (err) {

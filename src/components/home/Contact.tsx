@@ -76,18 +76,37 @@ export default function Contact() {
 
               {/* Facebook */}
               {settings.facebook && (
-                <div className="flex items-start gap-3 p-3 rounded-xl bg-[#F8FAFC] border border-[#E5E7EB]">
+                <a
+                  href={
+                    settings.facebook.startsWith("http")
+                      ? settings.facebook
+                      : "https://www.facebook.com/profile.php?id=100071517975903"
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-3 p-3 rounded-xl bg-[#F8FAFC] hover:bg-blue-50/70 border border-[#E5E7EB] hover:border-blue-300 transition-all group cursor-pointer"
+                >
                   <svg
-                    className="w-4 h-4 text-blue-600 shrink-0 mt-0.5 fill-current"
+                    className="w-4 h-4 text-blue-600 shrink-0 mt-0.5 fill-current group-hover:scale-110 transition-transform"
                     viewBox="0 0 24 24"
                   >
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                   </svg>
-                  <div className="text-xs leading-relaxed">
-                    <span className="font-bold text-slate-800 block mb-0.5">เฟซบุ๊กแฟนเพจ</span>
-                    <span className="text-slate-600">{settings.facebook}</span>
+                  <div className="text-xs leading-relaxed min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-slate-800 group-hover:text-blue-700 transition-colors">
+                        Facebook
+                      </span>
+                      <ExternalLink className="w-3 h-3 text-slate-400 group-hover:text-blue-600" />
+                    </div>
+                    <span className="text-slate-600 group-hover:text-blue-800 font-medium block truncate">
+                      โรงเรียนบ้านหนองหัวหมู
+                    </span>
+                    <span className="text-[10px] text-blue-600 font-semibold block mt-0.5 group-hover:underline">
+                      คลิกเพื่อเปิดหน้าเพจ Facebook
+                    </span>
                   </div>
-                </div>
+                </a>
               )}
             </div>
           </div>

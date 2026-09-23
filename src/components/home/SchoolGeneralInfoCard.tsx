@@ -36,20 +36,29 @@ export default function SchoolGeneralInfoCard() {
     .join(" ") || `ตำบลท่าโพธิ์ชัย อำเภอหนองกี่ จังหวัดบุรีรัมย์ 31210`;
 
   const infoRows = [
-    { label: "รหัส Smis 8 หลัก", value: settings.smisCode8 || "31030074", icon: "#" },
-    { label: "รหัส Obec 6 หลัก", value: settings.obecCode6 || "260609", icon: "#" },
+    { label: "รหัส Smis 8 หลัก", value: settings.smisCode8 || "31030078", icon: "#" },
+    { label: "รหัส Obec 6 หลัก", value: settings.obecCode6 || "260613", icon: "#" },
     { label: "ชื่อสถานศึกษา (ไทย)", value: settings.name, icon: "📖" },
     { label: "ชื่อสถานศึกษา (อังกฤษ)", value: settings.nameEn, icon: "📖" },
     { label: "ที่อยู่", value: formattedAddress, icon: "📍" },
-    { label: "โทรศัพท์", value: settings.phone || "[รอข้อมูลจริง]", icon: "📞" },
+    { label: "โทรศัพท์", value: settings.phone || "081-743-2407", icon: "📞" },
     { label: "ระดับที่เปิดสอน", value: settings.schoolLevels || "อนุบาล 2 – ประถมศึกษาปีที่ 6", icon: "🎓" },
-    { label: "วัน-เดือน-ปี ก่อตั้ง", value: `พ.ศ. ${settings.establishedYear || "2508"}`, icon: "📅" },
-    { label: "อีเมล", value: settings.email || "31030074@brm3.go.th", icon: "✉️" },
+    { label: "วัน-เดือน-ปี ก่อตั้ง", value: `พ.ศ. ${settings.establishedYear || "2517"}`, icon: "📅" },
+    { label: "อีเมล", value: settings.email || "31030078@brm3.go.th", icon: "✉️" },
+    {
+      label: "Facebook",
+      value: settings.facebook && settings.facebook.startsWith("http")
+        ? settings.facebook
+        : "https://www.facebook.com/profile.php?id=100071517975903",
+      displayValue: "โรงเรียนบ้านหนองหัวหมู (Facebook Page)",
+      isLink: true,
+      icon: "🌐",
+    },
     { label: "หน่วยงานต้นสังกัด", value: settings.subAffiliation, icon: "🏢" },
-    { label: "กลุ่มโรงเรียน", value: settings.schoolGroup || "เมืองไผ่โพธิ์ชัย", icon: "👥" },
-    { label: "อปท.", value: settings.localGov || "องค์การบริหารส่วนตำบลท่าโพธิ์ชัย", icon: "🏛️" },
-    { label: "ระยะทางจาก รร. ถึง สพท.", value: settings.distanceFromOffice || "28 กม.", icon: "🚗" },
-    { label: "ระยะทางจาก รร. ถึง อำเภอ", value: settings.distanceFromDistrict || "16 กม.", icon: "🚗" },
+    { label: "กลุ่มโรงเรียน", value: settings.schoolGroup || "ดอนอะรางทุ่งกระเต็น", icon: "👥" },
+    { label: "อปท.", value: settings.localGov || "องค์การบริหารส่วนตำบลทุ่งกระเต็น", icon: "🏛️" },
+    { label: "ระยะทางจาก รร. ถึง สพท.", value: settings.distanceFromOffice || "26 กม.", icon: "🚗" },
+    { label: "ระยะทางจาก รร. ถึง อำเภอ", value: settings.distanceFromDistrict || "12 กม.", icon: "🚗" },
   ];
 
   return (
@@ -110,7 +119,19 @@ export default function SchoolGeneralInfoCard() {
                       {row.label}
                     </td>
                     <td className="py-2.5 px-3 sm:px-4 text-slate-800 font-medium">
-                      {row.value}
+                      {row.isLink ? (
+                        <a
+                          href={row.value}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 hover:underline font-semibold"
+                        >
+                          <span>{row.displayValue || row.value}</span>
+                          <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                        </a>
+                      ) : (
+                        row.value
+                      )}
                     </td>
                   </tr>
                 ))}

@@ -12,7 +12,7 @@ export const schoolInfo: SchoolInfo = {
   postalCode: "31210",
   phone: "081-743-2407",
   email: "31030078@brm3.go.th",
-  facebook: "โรงเรียนบ้านหนองหัวหมู",
+  facebook: "https://www.facebook.com/profile.php?id=100071517975903",
   schoolCode: "1031260613",
   schoolCode10: "1031260613",
   smisCode8: "31030078",
