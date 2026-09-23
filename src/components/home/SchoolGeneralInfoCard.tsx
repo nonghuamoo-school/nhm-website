@@ -130,22 +130,22 @@ export default function SchoolGeneralInfoCard() {
             ))}
           </div>
 
-          {/* Desktop View: Official Specification Table */}
-          <div className="hidden sm:block overflow-x-auto">
+          {/* Desktop View: Official Specification Table (Balanced max-width & clean layout on PC) */}
+          <div className="hidden sm:block max-w-4xl mx-auto overflow-hidden rounded-2xl border border-slate-200 shadow-2xs">
             <table className="w-full text-xs sm:text-sm border-collapse">
               <tbody className="divide-y divide-slate-100">
                 {infoRows.map((row, idx) => (
                   <tr
                     key={row.label}
                     className={`transition-colors ${
-                      idx % 2 === 0 ? "bg-white" : "bg-slate-50/50"
+                      idx % 2 === 0 ? "bg-white" : "bg-slate-50/40"
                     } hover:bg-blue-50/40`}
                   >
-                    <td className="py-2.5 px-4 font-semibold text-slate-600 w-1/3 whitespace-nowrap">
-                      <span className="mr-2 opacity-70">{row.icon}</span>
+                    <td className="py-2.5 px-5 font-semibold text-slate-600 w-64 sm:w-72 whitespace-nowrap bg-slate-50/80 border-r border-slate-100">
+                      <span className="mr-2.5 opacity-70">{row.icon}</span>
                       {row.label}
                     </td>
-                    <td className="py-2.5 px-4 text-slate-800 font-medium thai-wrap">
+                    <td className="py-2.5 px-5 text-slate-800 font-medium thai-wrap">
                       {row.isLink ? (
                         <a
                           href={row.value}

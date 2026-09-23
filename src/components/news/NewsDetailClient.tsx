@@ -131,13 +131,13 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
 
           {/* Excerpt Callout */}
           {news.excerpt && (
-            <p className="font-medium text-slate-800 bg-[#F8FAFC] p-4 sm:p-5 rounded-xl border border-[#E5E7EB] leading-relaxed text-sm sm:text-base">
+            <p className="font-medium text-slate-800 bg-[#F8FAFC] p-4 sm:p-5 rounded-xl border border-[#E5E7EB] leading-relaxed text-sm sm:text-base thai-wrap">
               {news.excerpt}
             </p>
           )}
 
           {/* Article Body Content */}
-          <div className="text-sm sm:text-base text-slate-700 leading-relaxed whitespace-pre-line space-y-4">
+          <div className="text-sm sm:text-base text-slate-700 leading-relaxed whitespace-pre-line space-y-4 thai-wrap">
             {news.content}
           </div>
 
@@ -265,7 +265,7 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
                     <span className="text-[10px] font-bold text-slate-500 block mb-1">
                       {item.category} • {item.date}
                     </span>
-                    <h4 className="text-xs font-bold text-[#0F2942] group-hover:text-blue-900 transition-colors line-clamp-2 leading-snug">
+                    <h4 className="text-xs font-bold text-[#0F2942] group-hover:text-blue-900 transition-colors line-clamp-2 leading-snug thai-wrap">
                       {item.title}
                     </h4>
                   </div>

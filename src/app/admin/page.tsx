@@ -36,46 +36,46 @@ import AcademicPerformanceChart from "@/components/academic/AcademicPerformanceC
 
 export default function AdminDashboardPage() {
   const visitorStats = visitorService.getVisitorStats();
-  const currentStudentStats = schoolStudentStats["2568"];
+  const currentStudentStats = schoolStudentStats["2569"] || schoolStudentStats["2568"];
   const recentNews = schoolNews.slice(0, 4);
 
   // Recent operational tracking items
   const recentOperations = [
     {
-      id: "OP-2568-01",
-      title: "ประกาศรับสมัครนักเรียนใหม่ ปีการศึกษา 2568 (อ.2 และ ป.1)",
+      id: "OP-2569-01",
+      title: "ประกาศรับสมัครนักเรียนใหม่ ปีการศึกษา 2569 (อ.2 และ ป.1)",
       category: "งานวิชาการและรับสมัคร",
-      date: "18 มี.ค. 2568",
+      date: "18 มี.ค. 2569",
       status: "เผยแพร่แล้ว",
       statusColor: "emerald",
       responsible: "ฝ่ายวิชาการ",
       actionUrl: "/news/news-01",
     },
     {
-      id: "OP-2568-02",
-      title: "รายงานการประเมินตนเองของสถานศึกษา (SAR) ปีการศึกษา 2566",
+      id: "OP-2569-02",
+      title: "รายงานการประเมินตนเองของสถานศึกษา (SAR) ปีการศึกษา 2567",
       category: "งานประกันคุณภาพ",
-      date: "15 มี.ค. 2568",
+      date: "15 มี.ค. 2569",
       status: "เชื่อมต่อ Google Drive",
       statusColor: "blue",
       responsible: "ฝ่ายบริหารงานทั่วไป",
       actionUrl: "/downloads",
     },
     {
-      id: "OP-2568-03",
+      id: "OP-2569-03",
       title: "การตรวจสอบและบำรุงรักษาเครื่องคอมพิวเตอร์และ Smart TV",
       category: "งานพัสดุและครุภัณฑ์",
-      date: "10 มี.ค. 2568",
+      date: "10 มี.ค. 2569",
       status: "กำลังดำเนินการ",
       statusColor: "amber",
       responsible: "ครูผู้ดูแลระบบสารสนเทศ",
       actionUrl: "/downloads",
     },
     {
-      id: "OP-2568-04",
+      id: "OP-2569-04",
       title: "การประชุมเตรียมความพร้อมสอบระดับชาติ O-NET และ NT",
       category: "งานวัดและประเมินผล",
-      date: "05 มี.ค. 2568",
+      date: "05 มี.ค. 2569",
       status: "เสร็จสิ้น",
       statusColor: "slate",
       responsible: "ฝ่ายวิชาการ",
@@ -116,7 +116,7 @@ export default function AdminDashboardPage() {
           <div className="flex flex-wrap lg:flex-col items-start lg:items-end gap-2 text-xs text-slate-300 bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/15 shrink-0">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-amber-300" />
-              <span className="font-semibold text-white">ระบบอัปเดตอัตโนมัติ 2568</span>
+              <span className="font-semibold text-white">ระบบอัปเดตอัตโนมัติ ปีการศึกษา 2569</span>
             </div>
             <div className="flex items-center gap-2 text-[11px] text-slate-300">
               <CloudSun className="w-4 h-4 text-amber-300" />

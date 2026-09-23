@@ -113,11 +113,11 @@ export default function NewsListPage() {
                   <span>{featured.author}</span>
                 </div>
 
-                <h2 className="text-lg sm:text-xl font-bold text-[#0F2942] group-hover:text-blue-900 transition-colors leading-snug">
+                <h2 className="text-lg sm:text-xl font-bold text-[#0F2942] group-hover:text-blue-900 transition-colors leading-snug thai-wrap">
                   <Link href={`/news/${featured.id}`}>{featured.title}</Link>
                 </h2>
 
-                <p className="text-xs sm:text-sm text-slate-600 mt-2.5 line-clamp-3 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 mt-2.5 line-clamp-3 leading-relaxed thai-wrap">
                   {featured.excerpt}
                 </p>
               </div>
@@ -174,11 +174,11 @@ export default function NewsListPage() {
                     <span>{news.date}</span>
                   </div>
 
-                  <h3 className="font-bold text-sm text-[#0F2942] group-hover:text-blue-900 transition-colors line-clamp-2 leading-snug">
+                  <h3 className="font-bold text-sm text-[#0F2942] group-hover:text-blue-900 transition-colors line-clamp-2 leading-snug thai-wrap">
                     <Link href={`/news/${news.id}`}>{news.title}</Link>
                   </h3>
 
-                  <p className="mt-2 text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                  <p className="mt-2 text-xs text-slate-500 line-clamp-2 leading-relaxed thai-wrap">
                     {news.excerpt}
                   </p>
                 </div>

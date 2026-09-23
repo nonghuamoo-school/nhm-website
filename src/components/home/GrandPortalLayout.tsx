@@ -370,7 +370,7 @@ export default function GrandPortalLayout() {
                         </span>
                         <span>• {item.date}</span>
                       </div>
-                      <h4 className="text-xs sm:text-sm font-bold text-[#0F2942] group-hover:text-blue-800 transition-colors line-clamp-2">
+                      <h4 className="text-xs sm:text-sm font-bold text-[#0F2942] group-hover:text-blue-800 transition-colors line-clamp-2 leading-snug thai-wrap">
                         {item.title}
                       </h4>
                     </div>

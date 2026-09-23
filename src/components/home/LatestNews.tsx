@@ -109,11 +109,11 @@ export default function LatestNews() {
                   <span>โดย {featured.author}</span>
                 </div>
 
-                <h3 className="text-base sm:text-lg font-bold text-[#0F2942] group-hover:text-blue-900 transition-colors leading-snug">
+                <h3 className="text-base sm:text-lg font-bold text-[#0F2942] group-hover:text-blue-900 transition-colors leading-snug thai-wrap">
                   <Link href={`/news/${featured.id}`}>{featured.title}</Link>
                 </h3>
 
-                <p className="text-xs sm:text-sm text-slate-600 mt-2 line-clamp-2 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 mt-2 line-clamp-2 sm:line-clamp-3 leading-relaxed thai-wrap">
                   {featured.excerpt}
                 </p>
 
@@ -181,7 +181,7 @@ export default function LatestNews() {
                       <span className="text-slate-400">• {news.date}</span>
                     </div>
 
-                    <h4 className="text-xs sm:text-[13px] font-bold text-[#0F2942] group-hover:text-blue-900 transition-colors line-clamp-2 leading-snug">
+                    <h4 className="text-xs sm:text-[13px] font-bold text-[#0F2942] group-hover:text-blue-900 transition-colors line-clamp-2 leading-snug thai-wrap">
                       {news.title}
                     </h4>
 

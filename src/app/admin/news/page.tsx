@@ -174,7 +174,7 @@ export default function AdminNewsListPage() {
             <tbody className="divide-y divide-slate-100">
               {filteredNews.map((news) => (
                 <tr key={news.id} className="hover:bg-slate-50/70 transition-colors">
-                  <td className="py-3.5 px-4 sm:px-6 max-w-xs sm:max-w-md">
+                  <td className="py-3.5 px-4 sm:px-6 max-w-sm sm:max-w-xl">
                     <div className="flex items-start gap-3">
                       <div className="w-14 h-12 rounded-lg overflow-hidden bg-slate-100 shrink-0 border border-slate-200 mt-0.5">
                         <img
@@ -184,7 +184,7 @@ export default function AdminNewsListPage() {
                         />
                       </div>
                       <div className="min-w-0 space-y-1">
-                        <span className="font-bold text-slate-900 block truncate leading-snug">
+                        <span className="font-bold text-slate-900 block leading-snug line-clamp-2 thai-wrap">
                           {news.title}
                         </span>
                         

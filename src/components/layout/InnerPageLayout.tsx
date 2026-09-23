@@ -64,11 +64,11 @@ export default function InnerPageLayout({
         {/* Title and Short Description */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#0F2942] tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-[#0F2942] tracking-tight leading-snug thai-wrap">
               {title}
             </h1>
             {description && (
-              <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed thai-wrap">
                 {description}
               </p>
             )}
