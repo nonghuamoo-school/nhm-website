@@ -3,13 +3,44 @@
 import { useState, useEffect, useCallback } from "react";
 import { schoolPersonnel } from "@/data/personnel";
 import { PersonnelMember } from "@/types";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 const STORAGE_KEY = "nhm_school_personnel";
 const UPDATE_EVENT = "nhm_personnel_updated";
 
+function rowToMember(row: any): PersonnelMember {
+  return {
+    id: row.id,
+    name: row.name,
+    position: row.position,
+    academicDegree: row.academic_degree || "",
+    subjectGroup: row.subject_group || "",
+    department: row.department || "",
+    roles: Array.isArray(row.roles) ? row.roles : (row.roles ? JSON.parse(row.roles) : []),
+    imageUrl: row.image_url || "/images/school-emblem-doc.png",
+    order: Number(row.order_index) || 999
+  };
+}
+
+function memberToRow(member: PersonnelMember) {
+  return {
+    id: member.id,
+    name: member.name,
+    position: member.position,
+    academic_degree: member.academicDegree || "",
+    subject_group: member.subjectGroup || "",
+    department: member.department || "",
+    roles: member.roles || [],
+    image_url: member.imageUrl || "/images/school-emblem-doc.png",
+    order_index: member.order || 999,
+    updated_at: new Date().toISOString()
+  };
+}
+
 export function usePersonnel() {
   const [personnelList, setPersonnelList] = useState<PersonnelMember[]>(schoolPersonnel);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isCloudSynced, setIsCloudSynced] = useState(false);
 
   const loadFromStorage = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -54,7 +85,6 @@ export function usePersonnel() {
           return;
         }
       }
-      // If none in storage, set initial default sorted by order
       const initialSorted = [...schoolPersonnel].sort((a, b) => (a.order || 0) - (b.order || 0));
       setPersonnelList(initialSorted);
     } catch (err) {
@@ -68,6 +98,23 @@ export function usePersonnel() {
   useEffect(() => {
     loadFromStorage();
 
+    if (isSupabaseConfigured() && supabase) {
+      supabase
+        .from("personnel")
+        .select("*")
+        .order("order_index", { ascending: true })
+        .then(({ data, error }) => {
+          if (!error && data && data.length > 0) {
+            const fromCloud: PersonnelMember[] = data.map(rowToMember);
+            setPersonnelList(fromCloud);
+            setIsCloudSynced(true);
+            if (typeof window !== "undefined") {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(fromCloud));
+            }
+          }
+        });
+    }
+
     const handleStorageChange = () => loadFromStorage();
     window.addEventListener("storage", handleStorageChange);
     window.addEventListener(UPDATE_EVENT, handleStorageChange);
@@ -78,7 +125,7 @@ export function usePersonnel() {
     };
   }, [loadFromStorage]);
 
-  const persist = (newList: PersonnelMember[]) => {
+  const persist = async (newList: PersonnelMember[]) => {
     setPersonnelList(newList);
     if (typeof window !== "undefined") {
       try {
@@ -88,9 +135,18 @@ export function usePersonnel() {
         console.error("Error saving nhm_school_personnel to localStorage", err);
       }
     }
+
+    if (isSupabaseConfigured() && supabase) {
+      try {
+        const rows = newList.map(memberToRow);
+        await supabase.from("personnel").upsert(rows);
+      } catch (cloudErr) {
+        console.warn("Could not sync personnel changes to Supabase cloud:", cloudErr);
+      }
+    }
   };
 
-  const addMember = (data: Omit<PersonnelMember, "id"> & { id?: string }) => {
+  const addMember = async (data: Omit<PersonnelMember, "id"> & { id?: string }) => {
     const newId = data.id || `p-${Date.now()}`;
     const newMember: PersonnelMember = {
       ...data,
@@ -99,61 +155,65 @@ export function usePersonnel() {
       roles: data.roles || (data.position ? [data.position] : [])
     };
     const updated = [...personnelList, newMember].sort((a, b) => (a.order || 0) - (b.order || 0));
-    // Normalize order 1..N
     const reindexed = updated.map((m, idx) => ({ ...m, order: idx + 1 }));
-    persist(reindexed);
+    await persist(reindexed);
     return newMember;
   };
 
-  const updateMember = (id: string, updatedData: Partial<PersonnelMember>) => {
+  const updateMember = async (id: string, updatedData: Partial<PersonnelMember>) => {
     const updated = personnelList.map((item) => {
       if (item.id === id) {
         return { ...item, ...updatedData };
       }
       return item;
     });
-    // Sort and re-index
     const sorted = [...updated].sort((a, b) => (a.order || 0) - (b.order || 0));
     const reindexed = sorted.map((m, idx) => ({ ...m, order: idx + 1 }));
-    persist(reindexed);
+    await persist(reindexed);
   };
 
-  const deleteMember = (id: string) => {
+  const deleteMember = async (id: string) => {
     const updated = personnelList.filter((item) => item.id !== id);
     const reindexed = updated.map((m, idx) => ({ ...m, order: idx + 1 }));
-    persist(reindexed);
+    await persist(reindexed);
+
+    if (isSupabaseConfigured() && supabase) {
+      try {
+        await supabase.from("personnel").delete().eq("id", id);
+      } catch (e) {
+        console.warn("Error deleting from cloud:", e);
+      }
+    }
   };
 
-  const moveUp = (id: string) => {
+  const moveUp = async (id: string) => {
     const idx = personnelList.findIndex((p) => p.id === id);
-    if (idx <= 0) return; // Already at the top
+    if (idx <= 0) return;
     const newList = [...personnelList];
     const current = newList[idx];
     newList[idx] = newList[idx - 1];
     newList[idx - 1] = current;
     
-    // Reassign orders 1..N
     const reindexed = newList.map((item, index) => ({
       ...item,
       order: index + 1
     }));
-    persist(reindexed);
+    await persist(reindexed);
   };
 
-  const moveDown = (id: string) => {
+  const moveDown = async (id: string) => {
     const idx = personnelList.findIndex((p) => p.id === id);
-    if (idx < 0 || idx >= personnelList.length - 1) return; // Already at the bottom
+    if (idx < 0 || idx >= personnelList.length - 1) return;
     const newList = [...personnelList];
     const current = newList[idx];
     newList[idx] = newList[idx + 1];
     newList[idx + 1] = current;
 
-    // Reassign orders 1..N
     const reindexed = newList.map((item, index) => ({
       ...item,
       order: index + 1
     }));
-    persist(reindexed);
+    await persist(reindexed);
   };
 
   const resetToDefault = () => {
@@ -168,6 +228,7 @@ export function usePersonnel() {
   return {
     personnelList,
     isLoaded,
+    isCloudSynced,
     addMember,
     updateMember,
     deleteMember,
