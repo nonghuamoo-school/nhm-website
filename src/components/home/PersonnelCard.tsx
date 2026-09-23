@@ -13,13 +13,22 @@ export default function PersonnelCard({ person }: PersonnelCardProps) {
       <div>
         {/* Profile Image */}
         <div className="relative mb-3.5 flex justify-center">
-          <div className="w-20 h-24 sm:w-24 sm:h-28 rounded-xl overflow-hidden border-2 border-slate-200 group-hover:border-amber-500 transition-colors shadow-xs bg-slate-100">
-            <img
-              src={person.imageUrl}
-              alt={person.name}
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
+          <div className="w-20 h-24 sm:w-24 sm:h-28 rounded-xl overflow-hidden border-2 border-slate-200 group-hover:border-blue-600 transition-colors shadow-xs bg-slate-100 relative">
+            {person.imageUrl && !person.imageUrl.includes("school-emblem-doc") ? (
+              <img
+                src={person.imageUrl}
+                alt={person.name}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-b from-slate-100 to-slate-200/80 flex flex-col items-center justify-center p-2 text-slate-400 group-hover:text-blue-600 transition-colors">
+                <svg className="w-10 h-10 stroke-current fill-none" viewBox="0 0 24 24" strokeWidth="1.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                </svg>
+                <span className="text-[9px] font-bold text-slate-400 mt-1">รูปถ่าย</span>
+              </div>
+            )}
           </div>
         </div>
 

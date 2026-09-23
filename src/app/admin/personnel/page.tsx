@@ -147,6 +147,59 @@ export default function AdminPersonnelPage() {
     reader.readAsDataURL(file);
   };
 
+  // Direct Row-level instant photo upload (no modal needed!)
+  const [uploadingMemberId, setUploadingMemberId] = useState<string | null>(null);
+  const rowFileInputRef = useRef<HTMLInputElement>(null);
+
+  const triggerRowUpload = (memberId: string) => {
+    setUploadingMemberId(memberId);
+    rowFileInputRef.current?.click();
+  };
+
+  const handleRowFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !uploadingMemberId) return;
+    if (!file.type.startsWith("image/")) {
+      alert("กรุณาเลือกไฟล์รูปภาพ (JPG, PNG, WebP)");
+      return;
+    }
+
+    const target = personnelList.find((p) => p.id === uploadingMemberId);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+        const maxDimension = 800;
+
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+          updateMember(uploadingMemberId, { imageUrl: dataUrl });
+          showToast(`อัปโหลดและบันทึกรูปถ่ายของ "${target?.name || 'บุคลากร'}" เรียบร้อยแล้ว`);
+        }
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
@@ -266,6 +319,15 @@ export default function AdminPersonnelPage() {
 
   return (
     <div className="space-y-6">
+      {/* Hidden File Input for 1-Click Row Upload */}
+      <input
+        type="file"
+        ref={rowFileInputRef}
+        onChange={handleRowFileSelected}
+        accept="image/png, image/jpeg, image/jpg, image/webp"
+        className="hidden"
+      />
+
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed top-6 right-6 z-50 bg-[#0F2942] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-amber-400/40 animate-in fade-in slide-in-from-top-4">
@@ -432,18 +494,49 @@ export default function AdminPersonnelPage() {
                     {/* Personnel Info */}
                     <td className="py-3.5 px-4 sm:px-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-11 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
-                          <img
-                            src={p.imageUrl}
-                            alt={p.name}
-                            className="w-full h-full object-cover"
-                          />
+                        {/* Clickable Avatar to Upload */}
+                        <div
+                          onClick={() => triggerRowUpload(p.id)}
+                          className="w-12 h-14 rounded-xl overflow-hidden bg-slate-100 border-2 border-slate-200 shrink-0 shadow-xs relative group cursor-pointer hover:border-blue-600 transition-all"
+                          title="คลิกเพื่ออัปโหลด/เปลี่ยนรูปถ่ายครูท่านนี้"
+                        >
+                          {p.imageUrl && !p.imageUrl.includes("school-emblem-doc") ? (
+                            <img
+                              src={p.imageUrl}
+                              alt={p.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-blue-50/70 border-2 border-dashed border-blue-300 rounded-xl flex flex-col items-center justify-center p-1 text-blue-600 group-hover:bg-blue-100/70 transition-colors">
+                              <Camera className="w-4 h-4 text-blue-600" />
+                              <span className="text-[9px] font-bold mt-0.5">+รูป</span>
+                            </div>
+                          )}
+
+                          {/* Hover Overlay */}
+                          <div className="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
+                            <Camera className="w-4 h-4" />
+                          </div>
                         </div>
+
                         <div>
                           <div className="font-bold text-sm text-[#0F2942]">{p.name}</div>
                           <div className="text-[11px] text-slate-500 font-medium">
                             {p.position}
                           </div>
+                          {/* 1-click Upload / Change Photo Button */}
+                          <button
+                            type="button"
+                            onClick={() => triggerRowUpload(p.id)}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 mt-1 rounded-md bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[10.5px] border border-blue-200/80 transition-colors shadow-2xs cursor-pointer"
+                          >
+                            <Camera className="w-3 h-3 text-blue-600" />
+                            <span>
+                              {p.imageUrl && !p.imageUrl.includes("school-emblem-doc")
+                                ? "เปลี่ยนรูป"
+                                : "อัปโหลดรูปถ่าย"}
+                            </span>
+                          </button>
                         </div>
                       </div>
                     </td>
