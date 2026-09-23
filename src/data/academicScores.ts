@@ -22,6 +22,21 @@ export type AllAcademicScores = Record<string, Record<string, ExamDataset>>;
 
 export const defaultAcademicScores: AllAcademicScores = {
   "O-NET": {
+    "2568": {
+      id: "O-NET",
+      title: "ค่าเฉลี่ยคะแนน O-NET ป.6",
+      grade: "ชั้นประถมศึกษาปีที่ 6",
+      year: "2568",
+      source: "สทศ.",
+      posterImageUrl: "/images/onet-2567.png",
+      subjects: [
+        { name: "ภาษาไทย", school: 0, area: 0, national: 0 },
+        { name: "คณิตศาสตร์", school: 0, area: 0, national: 0 },
+        { name: "วิทยาศาสตร์", school: 0, area: 0, national: 0 },
+        { name: "ภาษาอังกฤษ", school: 0, area: 0, national: 0 },
+        { name: "รวมเฉลี่ย 4 วิชา", school: 0, area: 0, national: 0 },
+      ],
+    },
     "2567": {
       id: "O-NET",
       title: "ค่าเฉลี่ยคะแนน O-NET ป.6",
@@ -54,6 +69,18 @@ export const defaultAcademicScores: AllAcademicScores = {
     },
   },
   "RT": {
+    "2568": {
+      id: "RT",
+      title: "ค่าเฉลี่ยคะแนน RT ป.1",
+      grade: "ชั้นประถมศึกษาปีที่ 1",
+      year: "2568",
+      source: "สพฐ.",
+      subjects: [
+        { name: "RT1 (อ่านออกเสียง)", school: 0, area: 0, national: 0 },
+        { name: "RT2 (อ่านรู้เรื่อง)", school: 0, area: 0, national: 0 },
+        { name: "รวมเฉลี่ย", school: 0, area: 0, national: 0 },
+      ],
+    },
     "2567": {
       id: "RT",
       title: "ค่าเฉลี่ยคะแนน RT ป.1",
@@ -80,6 +107,18 @@ export const defaultAcademicScores: AllAcademicScores = {
     },
   },
   "NT": {
+    "2568": {
+      id: "NT",
+      title: "ค่าเฉลี่ยคะแนน NT ป.3",
+      grade: "ชั้นประถมศึกษาปีที่ 3",
+      year: "2568",
+      source: "สพฐ.",
+      subjects: [
+        { name: "คณิตศาสตร์", school: 0, area: 0, national: 0 },
+        { name: "ภาษาไทย", school: 0, area: 0, national: 0 },
+        { name: "รวมเฉลี่ย", school: 0, area: 0, national: 0 },
+      ],
+    },
     "2567": {
       id: "NT",
       title: "ค่าเฉลี่ยคะแนน NT ป.3",
@@ -170,6 +209,18 @@ export interface OnetPosterItem {
 
 export const defaultHistoricalOnetScores: OnetPosterItem[] = [
   {
+    year: "2568",
+    title: "ผลการทดสอบ O-NET ป.6 ปีการศึกษา 2568",
+    image: "/images/onet-2567.png",
+    highlight: "ผลการทดสอบระดับชาติ",
+    subjects: [
+      { name: "ภาษาไทย", school: 0, national: 0, diff: "0.00", higher: true },
+      { name: "คณิตศาสตร์", school: 0, national: 0, diff: "0.00", higher: true },
+      { name: "วิทยาศาสตร์", school: 0, national: 0, diff: "0.00", higher: true },
+      { name: "ภาษาอังกฤษ", school: 0, national: 0, diff: "0.00", higher: true },
+    ],
+  },
+  {
     year: "2567",
     title: "ผลการทดสอบ O-NET ป.6 ปีการศึกษา 2567 (สูงกว่าระดับประเทศทุกวิชา)",
     image: "/images/onet-2567.png",
@@ -240,6 +291,12 @@ function normalizeAcademicScores(parsed: any): AllAcademicScores {
         for (const yr of years) {
           if (val[yr] && Array.isArray(val[yr].subjects)) {
             result[key][yr] = val[yr];
+          }
+        }
+        // Ensure default baseline years (2568, 2567, 2566) are merged if missing in existing storage
+        for (const defYear of Object.keys(defaultAcademicScores[key])) {
+          if (!result[key][defYear]) {
+            result[key][defYear] = defaultAcademicScores[key][defYear];
           }
         }
         if (Object.keys(result[key]).length === 0) {
@@ -345,6 +402,11 @@ export function getStoredOnetPosters(): OnetPosterItem[] {
     if (!raw) return defaultHistoricalOnetScores;
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
+      // Ensure 2568 template is present if missing
+      const has2568 = parsed.some(p => p.year === "2568");
+      if (!has2568 && defaultHistoricalOnetScores.length > 0) {
+        return [defaultHistoricalOnetScores[0], ...parsed];
+      }
       return parsed;
     }
     return defaultHistoricalOnetScores;

@@ -71,9 +71,15 @@ export default function AcademicPerformanceChart({
   const examMap = datasets[activeTab] || defaultAcademicScores[activeTab] || {};
   const availableYears = Object.keys(examMap).sort((a, b) => b.localeCompare(a));
   
+  // Find the latest year with actual scores entered, or fallback to availableYears[0]
+  const latestYearWithScores = availableYears.find((yr) => {
+    const dataset = examMap[yr];
+    return dataset?.subjects?.some((s) => s.school > 0);
+  });
+
   const currentYear = (selectedYear && examMap[selectedYear])
     ? selectedYear
-    : (availableYears[0] || "2567");
+    : (latestYearWithScores || availableYears[0] || "2567");
 
   const currentDataset: ExamDataset = examMap[currentYear] || {
     id: activeTab,

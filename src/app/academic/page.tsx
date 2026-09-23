@@ -31,6 +31,12 @@ export default function AcademicPage() {
     };
   }, []);
 
+  // Display posters that have entered scores or uploaded images
+  const activePosters = posters.filter(
+    (p) => p.subjects.some((s) => s.school > 0) || p.image.startsWith("data:")
+  );
+  const displayPosters = activePosters.length > 0 ? activePosters : posters;
+
   return (
     <InnerPageLayout
       breadcrumbs={[{ label: "ผลการทดสอบระดับชาติ" }]}
@@ -50,7 +56,7 @@ export default function AcademicPage() {
                 <span>รายงานประกาศผลสอบอย่างเป็นทางการ สทศ.</span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-[#0F2942] tracking-tight">
-                ประกาศผลการทดสอบระดับชาติ O-NET ป.6 ย้อนหลัง {posters.length} ปีการศึกษา
+                ประกาศผลการทดสอบระดับชาติ O-NET ป.6 ย้อนหลัง {displayPosters.length} ปีการศึกษา
               </h2>
               <p className="text-xs sm:text-sm text-slate-500">
                 ข้อมูลเปรียบเทียบระดับโรงเรียนบ้านหนองหัวหมู กับ ค่าเฉลี่ยระดับประเทศ
@@ -67,7 +73,7 @@ export default function AcademicPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {posters.map((poster) => (
+            {displayPosters.map((poster) => (
               <div
                 key={poster.year}
                 className="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between"

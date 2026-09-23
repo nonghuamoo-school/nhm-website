@@ -191,10 +191,10 @@ export default function AdminAcademicPage() {
   };
 
   // Add a new Academic Year for the active exam
-  const handleCreateNewExamYear = () => {
-    const trimmed = newYearInput.trim();
+  const handleCreateNewExamYear = async (targetYear?: string) => {
+    const trimmed = (targetYear || newYearInput).trim();
     if (!trimmed || !/^\d{4}$/.test(trimmed)) {
-      alert("กรุณาระบุปีการศึกษาเป็นตัวเลข 4 หลัก เช่น 2569 หรือ 2570");
+      alert("กรุณาระบุปีการศึกษาเป็นตัวเลข 4 หลัก เช่น 2566, 2567, 2568, 2569 หรือ 2570");
       return;
     }
 
@@ -217,13 +217,16 @@ export default function AdminAcademicPage() {
       newEntry = createDefaultExamYear(activeExam, trimmed);
     }
 
-    setDatasets((prev) => ({
-      ...prev,
+    const updatedDatasets = {
+      ...datasets,
       [activeExam]: {
-        ...(prev[activeExam] || {}),
+        ...(datasets[activeExam] || {}),
         [trimmed]: newEntry,
       },
-    }));
+    };
+
+    setDatasets(updatedDatasets);
+    await saveStoredAcademicScores(updatedDatasets);
 
     setSelectedYear(trimmed);
     setIsAddingNewYear(false);
@@ -234,7 +237,7 @@ export default function AdminAcademicPage() {
   };
 
   // Delete an Academic Year
-  const handleDeleteExamYear = (yearToDelete: string) => {
+  const handleDeleteExamYear = async (yearToDelete: string) => {
     if (availableYears.length <= 1) {
       alert(`ไม่สามารถลบปีการศึกษาได้ เนื่องจากต้องมีข้อมูลอย่างน้อย 1 ปีสำหรับ ${activeExam}`);
       return;
@@ -244,10 +247,13 @@ export default function AdminAcademicPage() {
       const updatedExamMap = { ...examMap };
       delete updatedExamMap[yearToDelete];
 
-      setDatasets((prev) => ({
-        ...prev,
+      const updatedDatasets = {
+        ...datasets,
         [activeExam]: updatedExamMap,
-      }));
+      };
+
+      setDatasets(updatedDatasets);
+      await saveStoredAcademicScores(updatedDatasets);
 
       const remainingYears = Object.keys(updatedExamMap).sort((a, b) => b.localeCompare(a));
       setSelectedYear(remainingYears[0] || "");
@@ -258,8 +264,8 @@ export default function AdminAcademicPage() {
   };
 
   // ================= 2. POSTERS TAB LOGIC =================
-  const handleAddPoster = (targetYear?: string) => {
-    const newYear = targetYear || (posters.length > 0 ? (parseInt(posters[0].year) + 1).toString() : "2569");
+  const handleAddPoster = async (targetYear?: string) => {
+    const newYear = targetYear || (posters.length > 0 ? (parseInt(posters[0].year) + 1).toString() : "2568");
     const newPoster: OnetPosterItem = {
       year: newYear,
       title: `ผลการทดสอบ O-NET ป.6 ปีการศึกษา ${newYear}`,
@@ -272,13 +278,19 @@ export default function AdminAcademicPage() {
         { name: "ภาษาอังกฤษ", school: 30.0, national: 32.0, diff: "-2.00", higher: false },
       ],
     };
-    setPosters([newPoster, ...posters]);
+    const updated = [newPoster, ...posters];
+    setPosters(updated);
+    await saveStoredOnetPosters(updated);
+    setSavedMessage(`เพิ่มประกาศผลสอบ O-NET ปีการศึกษา ${newYear} เรียบร้อยแล้ว`);
+    setSavedSuccess(true);
+    setTimeout(() => setSavedSuccess(false), 3500);
   };
 
-  const handleDeletePoster = (index: number) => {
+  const handleDeletePoster = async (index: number) => {
     if (confirm(`คุณต้องการลบภาพประกาศผลสอบปีการศึกษา ${posters[index].year} หรือไม่?`)) {
       const updated = posters.filter((_, i) => i !== index);
       setPosters(updated);
+      await saveStoredOnetPosters(updated);
     }
   };
 
@@ -552,8 +564,8 @@ export default function AdminAcademicPage() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-slate-600">กดเลือกปีด่วน:</span>
-                  {(["2569", "2570", "2571", "2568"] as const).map((preset) => (
+                  <span className="text-xs font-bold text-slate-700">กดเลือกปีด่วน:</span>
+                  {(["2568", "2569", "2570", "2567", "2566", "2565"] as const).map((preset) => (
                     <button
                       key={preset}
                       type="button"
@@ -575,7 +587,7 @@ export default function AdminAcademicPage() {
                       type="text"
                       value={newYearInput}
                       onChange={(e) => setNewYearInput(e.target.value)}
-                      placeholder="ระบุปี พ.ศ. เช่น 2569 หรือ 2570"
+                      placeholder="ระบุปี พ.ศ. เช่น 2568, 2569 หรือ 2565"
                       maxLength={4}
                       className="w-full text-xs py-2 px-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-hidden font-bold"
                     />
@@ -593,7 +605,7 @@ export default function AdminAcademicPage() {
 
                   <button
                     type="button"
-                    onClick={handleCreateNewExamYear}
+                    onClick={() => handleCreateNewExamYear()}
                     className="px-4 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold shadow-xs transition-colors"
                   >
                     ยืนยันเพิ่มปีการศึกษา
@@ -767,12 +779,12 @@ export default function AdminAcademicPage() {
 
             <div className="flex flex-wrap items-center gap-2 shrink-0">
               <button
-                onClick={() => handleAddPoster("2569")}
+                onClick={() => handleAddPoster("2568")}
                 type="button"
                 className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-900 text-xs font-bold transition-all shadow-2xs"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>+ เพิ่มปี 2569</span>
+                <span>+ เพิ่มปี 2568</span>
               </button>
               <button
                 onClick={() => handleAddPoster()}
