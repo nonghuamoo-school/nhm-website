@@ -2,9 +2,9 @@ import { StudentYearStat } from "@/types";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export const defaultSchoolStudentStats: Record<string, StudentYearStat> = {
-  "2568": {
-    academicYear: "2568",
-    updatedDate: "10 มีนาคม 2568",
+  "2569": {
+    academicYear: "2569",
+    updatedDate: "10 มิถุนายน 2569",
     grades: [
       { grade: "อนุบาล 2 (4 ขวบ)", male: 5, female: 5, total: 10, classrooms: 1 },
       { grade: "อนุบาล 3 (5 ขวบ)", male: 6, female: 6, total: 12, classrooms: 1 },
@@ -22,26 +22,6 @@ export const defaultSchoolStudentStats: Record<string, StudentYearStat> = {
       totalClassrooms: 8,
     },
   },
-  "2567": {
-    academicYear: "2567",
-    updatedDate: "10 พฤศจิกายน 2567",
-    grades: [
-      { grade: "อนุบาล 2 (4 ขวบ)", male: 5, female: 6, total: 11, classrooms: 1 },
-      { grade: "อนุบาล 3 (5 ขวบ)", male: 6, female: 6, total: 12, classrooms: 1 },
-      { grade: "ประถมศึกษาปีที่ 1", male: 7, female: 6, total: 13, classrooms: 1 },
-      { grade: "ประถมศึกษาปีที่ 2", male: 8, female: 6, total: 14, classrooms: 1 },
-      { grade: "ประถมศึกษาปีที่ 3", male: 8, female: 7, total: 15, classrooms: 1 },
-      { grade: "ประถมศึกษาปีที่ 4", male: 7, female: 7, total: 14, classrooms: 1 },
-      { grade: "ประถมศึกษาปีที่ 5", male: 6, female: 7, total: 13, classrooms: 1 },
-      { grade: "ประถมศึกษาปีที่ 6", male: 7, female: 6, total: 13, classrooms: 1 },
-    ],
-    summary: {
-      totalMale: 54,
-      totalFemale: 51,
-      totalStudents: 105,
-      totalClassrooms: 8,
-    },
-  },
 };
 
 export const schoolStudentStats = defaultSchoolStudentStats;
@@ -49,7 +29,7 @@ export const schoolStudentStats = defaultSchoolStudentStats;
 const STORAGE_KEY = "nhm_student_stats_v2";
 const CLOUD_KEY = "student_stats";
 
-// Read from localStorage — NO default merge (fixes year leak bug)
+// Read from localStorage with 2569 as primary baseline
 export function getStoredStudentStats(): Record<string, StudentYearStat> {
   if (typeof window === "undefined") {
     return defaultSchoolStudentStats;
@@ -59,7 +39,11 @@ export function getStoredStudentStats(): Record<string, StudentYearStat> {
     if (!raw) return defaultSchoolStudentStats;
     const parsed = JSON.parse(raw);
     if (parsed && typeof parsed === "object" && Object.keys(parsed).length > 0) {
-      return parsed; // Use ONLY stored data — do NOT merge with defaults
+      if (!parsed["2569"]) {
+        parsed["2569"] = defaultSchoolStudentStats["2569"];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+      }
+      return parsed;
     }
     return defaultSchoolStudentStats;
   } catch {

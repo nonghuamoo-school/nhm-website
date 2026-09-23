@@ -51,7 +51,7 @@ export default function AdminStatisticsPage() {
   
   // Student statistics state
   const [allStudentStats, setAllStudentStats] = useState<Record<string, StudentYearStat>>(defaultSchoolStudentStats);
-  const [selectedStudentYear, setSelectedStudentYear] = useState<string>("2568");
+  const [selectedStudentYear, setSelectedStudentYear] = useState<string>("2569");
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
   const [newYearInput, setNewYearInput] = useState("");
@@ -83,7 +83,7 @@ export default function AdminStatisticsPage() {
 
   // Current year student data
   const availableYears = Object.keys(allStudentStats).sort((a, b) => b.localeCompare(a));
-  const activeYearData = allStudentStats[selectedStudentYear] || allStudentStats[availableYears[0]] || defaultSchoolStudentStats["2568"];
+  const activeYearData = allStudentStats[selectedStudentYear] || allStudentStats[availableYears[0]] || defaultSchoolStudentStats["2569"];
 
   // Handle grade change for student data
   const handleGradeChange = (

@@ -31,7 +31,7 @@ import {
   X as CloseIcon
 } from "lucide-react";
 import { NewsItem } from "@/types";
-import { useNews } from "@/hooks/useNews";
+import { useNews, toIsoDate, formatThaiDate } from "@/hooks/useNews";
 import Swal from "sweetalert2";
 
 interface NewsEditorProps {
@@ -62,9 +62,47 @@ export default function NewsEditor({
   const [newGalleryUrl, setNewGalleryUrl] = useState("");
   const [excerpt, setExcerpt] = useState(initialData?.excerpt || "");
   const [content, setContent] = useState(initialData?.content || "");
-  const [publishDate, setPublishDate] = useState(
-    initialData?.date || "23 ก.ย. 2568"
-  );
+
+  // Date selection states (ISO for calendar picker, Thai string for display)
+  const initialIso = initialData?.date
+    ? toIsoDate(initialData.date)
+    : new Date().toISOString().split("T")[0];
+
+  const initialThai = initialData?.date
+    ? formatThaiDate(initialData.date)
+    : formatThaiDate(initialIso);
+
+  const [publishIsoDate, setPublishIsoDate] = useState<string>(initialIso);
+  const [publishDate, setPublishDate] = useState<string>(initialThai);
+
+  const handleDateChange = (isoVal: string) => {
+    if (!isoVal) return;
+    setPublishIsoDate(isoVal);
+    const thaiStr = formatThaiDate(isoVal);
+    setPublishDate(thaiStr);
+  };
+
+  const handleSetPreset = (offsetDays: number) => {
+    const d = new Date();
+    d.setDate(d.getDate() + offsetDays);
+    const iso = d.toISOString().split("T")[0];
+    handleDateChange(iso);
+  };
+
+  const handleSetYearPreset = (thaiYear: number) => {
+    const ceYear = thaiYear - 543;
+    const baseDate = publishIsoDate ? new Date(publishIsoDate) : new Date();
+    baseDate.setFullYear(ceYear);
+    const iso = baseDate.toISOString().split("T")[0];
+    handleDateChange(iso);
+  };
+
+  const handleManualThaiDateChange = (val: string) => {
+    setPublishDate(val);
+    const iso = toIsoDate(val);
+    if (iso) setPublishIsoDate(iso);
+  };
+
   const [status, setStatus] = useState<"เผยแพร่แล้ว" | "ฉบับร่าง">(
     initialData?.status || "เผยแพร่แล้ว"
   );
@@ -824,19 +862,110 @@ export default function NewsEditor({
               </div>
             </div>
 
-            {/* Publish Date */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">
-                วันที่แสดงในข่าว (Publish Date)
-              </label>
-              <div className="relative w-full sm:w-60">
-                <Calendar className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={publishDate}
-                  onChange={(e) => setPublishDate(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] focus:outline-none"
-                />
+            {/* Publish Date Picker & Historic Date Selection */}
+            <div className="pt-3 border-t border-slate-100 space-y-2.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4 text-blue-600" />
+                  <span>กำหนดวันที่เผยแพร่ข่าว (เลือกล่วงหน้า / ทำย้อนหลังได้)</span>
+                </label>
+                <span className="text-[11px] text-slate-400">
+                  ระบบแปลงเป็นวัน-เดือน-ปี พ.ศ. ให้อัตโนมัติ
+                </span>
+              </div>
+
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-slate-50 to-blue-50/30 border border-slate-200/90 space-y-3">
+                {/* Visual Display + Native Calendar Picker Trigger */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                  <div>
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase block mb-0.5">
+                      วันที่แสดงผลบนเว็บไซต์ (ปฏิทินไทย พ.ศ.)
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm sm:text-base font-bold text-[#0F2942]">
+                        {publishDate}
+                      </span>
+                      <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                        {publishIsoDate}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Interactive Calendar Picker */}
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-600 shrink-0">
+                      เลือกจากปฏิทิน:
+                    </label>
+                    <input
+                      type="date"
+                      value={publishIsoDate}
+                      onChange={(e) => handleDateChange(e.target.value)}
+                      className="text-xs font-bold px-3 py-2 rounded-xl border border-blue-300 bg-blue-50/70 text-[#0F2942] hover:bg-blue-100/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-2xs transition-colors"
+                      title="คลิกเพื่อเปิดปฏิทินเลือกวันที่"
+                    />
+                  </div>
+                </div>
+
+                {/* Quick Date Presets */}
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-[11px] font-semibold text-slate-500 mr-0.5">ปุ่มลัด:</span>
+                  <button
+                    type="button"
+                    onClick={() => handleSetPreset(0)}
+                    className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200 transition-colors shadow-2xs"
+                  >
+                    วันนี้ (2569)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSetPreset(-1)}
+                    className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200 transition-colors shadow-2xs"
+                  >
+                    เมื่อวาน
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSetPreset(-7)}
+                    className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200 transition-colors shadow-2xs"
+                  >
+                    7 วันก่อน
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSetPreset(-30)}
+                    className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200 transition-colors shadow-2xs"
+                  >
+                    1 เดือนก่อน
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSetYearPreset(2568)}
+                    className="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold border border-amber-200 transition-colors shadow-2xs"
+                    title="เลื่อนวันที่ไปปีการศึกษา 2568 ย้อนหลัง"
+                  >
+                    ย้อนหลังปี 2568
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSetYearPreset(2567)}
+                    className="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold border border-amber-200 transition-colors shadow-2xs"
+                    title="เลื่อนวันที่ไปปีการศึกษา 2567 ย้อนหลัง"
+                  >
+                    ย้อนหลังปี 2567
+                  </button>
+                </div>
+
+                {/* Fine-tune Text Input */}
+                <div className="pt-2 border-t border-slate-200/60 flex items-center gap-2">
+                  <span className="text-[11px] text-slate-400 shrink-0">แก้ไขข้อความวันที่เอง:</span>
+                  <input
+                    type="text"
+                    value={publishDate}
+                    onChange={(e) => handleManualThaiDateChange(e.target.value)}
+                    placeholder="เช่น 23 ก.ย. 2569"
+                    className="flex-1 max-w-xs text-xs px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
               </div>
             </div>
           </div>

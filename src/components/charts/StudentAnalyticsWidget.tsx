@@ -6,7 +6,7 @@ import { getStoredStudentStats, fetchStudentStatsCloud, defaultSchoolStudentStat
 
 export default function StudentAnalyticsWidget() {
   const [allStats, setAllStats] = useState(defaultSchoolStudentStats);
-  const [selectedYear, setSelectedYear] = useState<string>("2568");
+  const [selectedYear, setSelectedYear] = useState<string>("2569");
 
   useEffect(() => {
     setAllStats(getStoredStudentStats());
@@ -30,8 +30,8 @@ export default function StudentAnalyticsWidget() {
   }, []);
 
   const availableYears = Object.keys(allStats).sort((a, b) => b.localeCompare(a));
-  const activeYear = allStats[selectedYear] ? selectedYear : availableYears[0] || "2568";
-  const stats = allStats[activeYear] || defaultSchoolStudentStats["2568"];
+  const activeYear = allStats[selectedYear] ? selectedYear : availableYears[0] || "2569";
+  const stats = allStats[activeYear] || defaultSchoolStudentStats["2569"];
 
   const maxStudentCount = Math.max(15, ...stats.grades.map((g) => g.total));
   const total = Math.max(1, stats.summary.totalStudents);

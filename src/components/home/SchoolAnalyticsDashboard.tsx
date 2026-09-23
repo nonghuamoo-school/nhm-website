@@ -16,7 +16,7 @@ import { getStoredStudentStats, fetchStudentStatsCloud, defaultSchoolStudentStat
 
 export default function SchoolAnalyticsDashboard() {
   const [allStats, setAllStats] = useState(defaultSchoolStudentStats);
-  const [selectedYear, setSelectedYear] = useState<string>("2568");
+  const [selectedYear, setSelectedYear] = useState<string>("2569");
 
   useEffect(() => {
     setAllStats(getStoredStudentStats());
@@ -39,8 +39,8 @@ export default function SchoolAnalyticsDashboard() {
   }, []);
 
   const availableYears = Object.keys(allStats).sort((a, b) => b.localeCompare(a));
-  const activeYear = allStats[selectedYear] ? selectedYear : availableYears[0] || "2568";
-  const studentData = allStats[activeYear] || defaultSchoolStudentStats["2568"];
+  const activeYear = allStats[selectedYear] ? selectedYear : availableYears[0] || "2569";
+  const studentData = allStats[activeYear] || defaultSchoolStudentStats["2569"];
 
   const total = studentData.summary.totalStudents;
   const kindergarten = studentData.grades

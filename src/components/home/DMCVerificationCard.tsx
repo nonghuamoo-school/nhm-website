@@ -14,7 +14,7 @@ export default function DMCVerificationCard({
   studentCount = 105,
   progressPercent = 94,
   statusText = "เกือบเสร็จแล้ว...",
-  year = "2568"
+  year = "2569"
 }: DMCVerificationCardProps) {
   return (
     <div className="relative rounded-3xl bg-white p-6 sm:p-7 border border-slate-200 shadow-sm overflow-hidden flex flex-col items-center text-center">
