@@ -57,7 +57,23 @@ export const defaultAcademicScores: Record<string, ExamDataset> = {
   },
 };
 
-export const historicalOnetScores = [
+export interface OnetPosterSubject {
+  name: string;
+  school: number;
+  national: number;
+  diff: string;
+  higher: boolean;
+}
+
+export interface OnetPosterItem {
+  year: string;
+  title: string;
+  image: string;
+  highlight?: string;
+  subjects: OnetPosterSubject[];
+}
+
+export const defaultHistoricalOnetScores: OnetPosterItem[] = [
   {
     year: "2568",
     title: "ผลการทดสอบ O-NET ป.6 ปีการศึกษา 2568",
@@ -94,7 +110,10 @@ export const historicalOnetScores = [
   },
 ];
 
+export const historicalOnetScores = defaultHistoricalOnetScores;
+
 const STORAGE_KEY = "nhm_academic_scores_v3";
+const POSTERS_STORAGE_KEY = "nhm_academic_posters_v2";
 
 export function getStoredAcademicScores(): Record<string, ExamDataset> {
   if (typeof window === "undefined") {
@@ -129,3 +148,43 @@ export function resetStoredAcademicScores(): void {
     console.error("Failed to reset academic scores in localStorage:", err);
   }
 }
+
+export function getStoredOnetPosters(): OnetPosterItem[] {
+  if (typeof window === "undefined") {
+    return defaultHistoricalOnetScores;
+  }
+  try {
+    const raw = localStorage.getItem(POSTERS_STORAGE_KEY);
+    if (!raw) return defaultHistoricalOnetScores;
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed;
+    }
+    return defaultHistoricalOnetScores;
+  } catch {
+    return defaultHistoricalOnetScores;
+  }
+}
+
+export function saveStoredOnetPosters(posters: OnetPosterItem[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(POSTERS_STORAGE_KEY, JSON.stringify(posters));
+    window.dispatchEvent(new Event("academic_posters_updated"));
+    window.dispatchEvent(new Event("academic_scores_updated"));
+  } catch (err) {
+    console.error("Failed to save O-NET posters to localStorage:", err);
+  }
+}
+
+export function resetStoredOnetPosters(): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(POSTERS_STORAGE_KEY);
+    window.dispatchEvent(new Event("academic_posters_updated"));
+    window.dispatchEvent(new Event("academic_scores_updated"));
+  } catch (err) {
+    console.error("Failed to reset O-NET posters in localStorage:", err);
+  }
+}
+

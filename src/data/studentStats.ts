@@ -1,6 +1,6 @@
 import { StudentYearStat } from "@/types";
 
-export const schoolStudentStats: Record<string, StudentYearStat> = {
+export const defaultSchoolStudentStats: Record<string, StudentYearStat> = {
   "2568": {
     academicYear: "2568",
     updatedDate: "10 มีนาคม 2568",
@@ -42,3 +42,45 @@ export const schoolStudentStats: Record<string, StudentYearStat> = {
     },
   },
 };
+
+export const schoolStudentStats = defaultSchoolStudentStats;
+
+const STORAGE_KEY = "nhm_student_stats_v2";
+
+export function getStoredStudentStats(): Record<string, StudentYearStat> {
+  if (typeof window === "undefined") {
+    return defaultSchoolStudentStats;
+  }
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultSchoolStudentStats;
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object" && Object.keys(parsed).length > 0) {
+      return { ...defaultSchoolStudentStats, ...parsed };
+    }
+    return defaultSchoolStudentStats;
+  } catch {
+    return defaultSchoolStudentStats;
+  }
+}
+
+export function saveStoredStudentStats(data: Record<string, StudentYearStat>): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    window.dispatchEvent(new Event("student_stats_updated"));
+  } catch (err) {
+    console.error("Failed to save student stats to localStorage:", err);
+  }
+}
+
+export function resetStoredStudentStats(): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    window.dispatchEvent(new Event("student_stats_updated"));
+  } catch (err) {
+    console.error("Failed to reset student stats in localStorage:", err);
+  }
+}
+

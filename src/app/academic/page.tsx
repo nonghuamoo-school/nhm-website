@@ -1,13 +1,30 @@
 "use client";
 
-import React, { useState } from "react";
-import { BookOpen, CheckCircle, BarChart3, Award, Sparkles, ExternalLink, FileDown } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { BookOpen, CheckCircle, BarChart3, Award, Sparkles, ExternalLink, FileDown, UploadCloud, Edit3, X } from "lucide-react";
 import InnerPageLayout from "@/components/layout/InnerPageLayout";
 import AcademicPerformance from "@/components/home/AcademicPerformance";
-import { historicalOnetScores } from "@/data/academicScores";
+import { getStoredOnetPosters, defaultHistoricalOnetScores, OnetPosterItem } from "@/data/academicScores";
 
 export default function AcademicPage() {
   const [selectedPoster, setSelectedPoster] = useState<string | null>(null);
+  const [posters, setPosters] = useState<OnetPosterItem[]>(defaultHistoricalOnetScores);
+
+  useEffect(() => {
+    setPosters(getStoredOnetPosters());
+
+    const handleUpdate = () => {
+      setPosters(getStoredOnetPosters());
+    };
+
+    window.addEventListener("academic_posters_updated", handleUpdate);
+    window.addEventListener("storage", handleUpdate);
+    return () => {
+      window.removeEventListener("academic_posters_updated", handleUpdate);
+      window.removeEventListener("storage", handleUpdate);
+    };
+  }, []);
 
   return (
     <InnerPageLayout
@@ -19,7 +36,7 @@ export default function AcademicPage() {
         {/* 1. Interactive 3-Level Score Comparison (โรงเรียน • เขตพื้นที่ • ประเทศ) */}
         <AcademicPerformance />
 
-        {/* 2. Official O-NET Posters Gallery (ปีการศึกษา 2568, 2567, 2566) */}
+        {/* 2. Official O-NET Posters Gallery */}
         <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
             <div>
@@ -28,16 +45,24 @@ export default function AcademicPage() {
                 <span>รายงานประกาศผลสอบอย่างเป็นทางการ สทศ.</span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-[#0F2942] tracking-tight">
-                ประกาศผลการทดสอบระดับชาติ O-NET ป.6 ย้อนหลัง 3 ปีการศึกษา
+                ประกาศผลการทดสอบระดับชาติ O-NET ป.6 ย้อนหลัง {posters.length} ปีการศึกษา
               </h2>
               <p className="text-xs sm:text-sm text-slate-500">
                 ข้อมูลเปรียบเทียบระดับโรงเรียนบ้านหนองหัวหมู กับ ค่าเฉลี่ยระดับประเทศ
               </p>
             </div>
+
+            <Link
+              href="/admin/academic"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-800 border border-slate-200 text-xs font-bold transition-colors self-start sm:self-auto"
+            >
+              <Edit3 className="w-3.5 h-3.5 text-blue-600" />
+              <span>จัดการ/อัปโหลดภาพโปสเตอร์ O-NET</span>
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {historicalOnetScores.map((poster) => (
+            {posters.map((poster) => (
               <div
                 key={poster.year}
                 className="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between"

@@ -26,12 +26,12 @@ import { AdminAuthGuard, useAdminAuth } from "@/components/admin/AdminAuthGuard"
 
 const adminNav = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { name: "คะแนน O-NET / NT / RT", href: "/admin/academic", icon: Award },
+  { name: "คะแนน O-NET & โปสเตอร์", href: "/admin/academic", icon: Award },
   { name: "ข่าวประชาสัมพันธ์", href: "/admin/news", icon: Megaphone },
   { name: "เอกสาร", href: "/admin/downloads", icon: FileText },
   { name: "บุคลากร", href: "/admin/personnel", icon: Users },
   { name: "กิจกรรม", href: "/admin/calendar", icon: Calendar },
-  { name: "สถิติผู้เข้าชม", href: "/admin/statistics", icon: BarChart3 },
+  { name: "สถิติผู้เข้าชม & ข้อมูลนักเรียน", href: "/admin/statistics", icon: BarChart3 },
   { name: "ตั้งค่า", href: "/admin/settings", icon: Settings },
 ];
 

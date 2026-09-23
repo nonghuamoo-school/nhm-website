@@ -1,16 +1,38 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Users, UserCheck, School, Sparkles, Filter, Database, CheckCircle2 } from "lucide-react";
-import { schoolStudentStats } from "@/data/studentStats";
+import { getStoredStudentStats, defaultSchoolStudentStats } from "@/data/studentStats";
 
 export default function StudentAnalyticsWidget() {
+  const [allStats, setAllStats] = useState(defaultSchoolStudentStats);
   const [selectedYear, setSelectedYear] = useState<string>("2568");
-  const stats = schoolStudentStats[selectedYear] || schoolStudentStats["2568"];
 
-  const maxStudentCount = 15;
-  const malePercent = Math.round((stats.summary.totalMale / stats.summary.totalStudents) * 100); // 51%
-  const femalePercent = 100 - malePercent; // 49%
+  useEffect(() => {
+    setAllStats(getStoredStudentStats());
+
+    const handleUpdate = () => {
+      const updated = getStoredStudentStats();
+      setAllStats(updated);
+    };
+
+    window.addEventListener("student_stats_updated", handleUpdate);
+    window.addEventListener("storage", handleUpdate);
+    return () => {
+      window.removeEventListener("student_stats_updated", handleUpdate);
+      window.removeEventListener("storage", handleUpdate);
+    };
+  }, []);
+
+  const availableYears = Object.keys(allStats).sort((a, b) => b.localeCompare(a));
+  const activeYear = allStats[selectedYear] ? selectedYear : availableYears[0] || "2568";
+  const stats = allStats[activeYear] || defaultSchoolStudentStats["2568"];
+
+  const maxStudentCount = Math.max(15, ...stats.grades.map((g) => g.total));
+  const total = Math.max(1, stats.summary.totalStudents);
+  const malePercent = Math.round((stats.summary.totalMale / total) * 100);
+  const femalePercent = 100 - malePercent;
+  const avgPerRoom = (stats.summary.totalStudents / Math.max(1, stats.summary.totalClassrooms)).toFixed(1);
 
   // Donut SVG parameters
   const size = 160;
@@ -33,11 +55,11 @@ export default function StudentAnalyticsWidget() {
                 สถิตินักเรียนและโครงสร้างชั้นเรียน
               </h3>
               <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                รวม 105 คน
+                รวม {stats.summary.totalStudents} คน
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              ข้อมูลจำนวนนักเรียนจริงรายชั้นเรียน อนุบาล 2 – ประถมศึกษาปีที่ 6
+              ข้อมูลจำนวนนักเรียนจริงรายชั้นเรียน อนุบาล 2 – ประถมศึกษาปีที่ 6 (ปีการศึกษา {activeYear})
             </p>
           </div>
         </div>
@@ -45,12 +67,12 @@ export default function StudentAnalyticsWidget() {
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold text-slate-400">ปีการศึกษา:</span>
           <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
-            {["2568", "2567"].map((yr) => (
+            {availableYears.map((yr) => (
               <button
                 key={yr}
                 onClick={() => setSelectedYear(yr)}
                 className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                  selectedYear === yr
+                  activeYear === yr
                     ? "bg-[#1D4ED8] text-white shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
@@ -71,7 +93,7 @@ export default function StudentAnalyticsWidget() {
             <span className="text-2xl sm:text-3xl font-black text-white">{stats.summary.totalStudents}</span>
             <span className="text-xs text-white/90">คน</span>
           </div>
-          <span className="text-[10px] text-white/70 block mt-1">8 ห้องเรียน</span>
+          <span className="text-[10px] text-white/70 block mt-1">{stats.summary.totalClassrooms} ห้องเรียน</span>
         </div>
 
         {/* Male */}
@@ -81,7 +103,7 @@ export default function StudentAnalyticsWidget() {
             <span className="text-2xl sm:text-3xl font-black text-white">{stats.summary.totalMale}</span>
             <span className="text-xs text-white/90">คน ({malePercent}%)</span>
           </div>
-          <span className="text-[10px] text-white/70 block mt-1">สัดส่วน 51%</span>
+          <span className="text-[10px] text-white/70 block mt-1">สัดส่วน {malePercent}%</span>
         </div>
 
         {/* Female */}
@@ -91,35 +113,35 @@ export default function StudentAnalyticsWidget() {
             <span className="text-2xl sm:text-3xl font-black text-white">{stats.summary.totalFemale}</span>
             <span className="text-xs text-white/90">คน ({femalePercent}%)</span>
           </div>
-          <span className="text-[10px] text-white/70 block mt-1">สัดส่วน 49%</span>
+          <span className="text-[10px] text-white/70 block mt-1">สัดส่วน {femalePercent}%</span>
         </div>
 
         {/* Classrooms */}
         <div className="bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-2xl p-4 shadow-sm">
           <span className="text-xs font-medium text-white/80 block">ห้องเรียนทั้งหมด</span>
           <div className="flex items-baseline gap-1 mt-1">
-            <span className="text-2xl sm:text-3xl font-black text-white">8</span>
+            <span className="text-2xl sm:text-3xl font-black text-white">{stats.summary.totalClassrooms}</span>
             <span className="text-xs text-white/90">ห้อง</span>
           </div>
-          <span className="text-[10px] text-emerald-100 block mt-1">เฉลี่ย 13.1 คน/ห้อง</span>
+          <span className="text-[10px] text-emerald-100 block mt-1">เฉลี่ย {avgPerRoom} คน/ห้อง</span>
         </div>
       </div>
 
       {/* Main Grid: Left Capsule Bars | Right Donut Chart */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-        {/* Left: 8 Capsule Bars (8 cols) */}
+        {/* Left: Capsule Bars (8 cols) */}
         <div className="lg:col-span-8 space-y-3">
           <div className="flex items-center justify-between text-xs text-slate-500">
             <span className="font-bold text-[#0F2942] flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-blue-600" />
               <span>จำนวนนักเรียนแยกตามระดับชั้น (คน)</span>
             </span>
-            <span className="text-[11px] text-slate-400">เฉลี่ย 13.1 คน / ห้อง</span>
+            <span className="text-[11px] text-slate-400">เฉลี่ย {avgPerRoom} คน / ห้อง</span>
           </div>
 
           <div className="h-48 sm:h-56 pt-6 pb-2 grid grid-cols-8 gap-1 sm:gap-2.5 items-end bg-slate-50/70 p-2 sm:p-4 rounded-2xl border border-slate-200 overflow-hidden">
             {stats.grades.map((grade) => {
-              const heightPercent = Math.round((grade.total / maxStudentCount) * 85) + 15;
+              const heightPercent = Math.min(100, Math.round((grade.total / maxStudentCount) * 85) + 15);
               const shortLabel = grade.grade
                 .replace("อนุบาล 2 (4 ขวบ)", "อ.2")
                 .replace("อนุบาล 3 (5 ขวบ)", "อ.3")

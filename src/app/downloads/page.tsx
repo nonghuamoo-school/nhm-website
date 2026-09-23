@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Download,
   Search,
@@ -19,7 +19,7 @@ import {
 import InnerPageLayout from "@/components/layout/InnerPageLayout";
 import DocumentViewerModal from "@/components/common/DocumentViewerModal";
 import { schoolInventoryAssets } from "@/data/assets";
-import { schoolStudentStats } from "@/data/studentStats";
+import { getStoredStudentStats, defaultSchoolStudentStats } from "@/data/studentStats";
 import { DownloadDoc } from "@/types";
 import { useDownloads } from "@/hooks/useDownloads";
 
@@ -40,7 +40,23 @@ export default function DownloadsPage() {
   const [assetStatusFilter, setAssetStatusFilter] = useState<string>("ทั้งหมด");
 
   // Student Stats State
+  const [studentStatsData, setStudentStatsData] = useState(defaultSchoolStudentStats);
   const [selectedYear, setSelectedYear] = useState<string>("2568");
+
+  useEffect(() => {
+    setStudentStatsData(getStoredStudentStats());
+
+    const handleUpdate = () => {
+      setStudentStatsData(getStoredStudentStats());
+    };
+
+    window.addEventListener("student_stats_updated", handleUpdate);
+    window.addEventListener("storage", handleUpdate);
+    return () => {
+      window.removeEventListener("student_stats_updated", handleUpdate);
+      window.removeEventListener("storage", handleUpdate);
+    };
+  }, []);
 
   const docCategories = [
     "ทั้งหมด",
@@ -92,8 +108,11 @@ export default function DownloadsPage() {
     document.body.removeChild(link);
   };
 
+  const availableStudentYears = Object.keys(studentStatsData).sort((a, b) => b.localeCompare(a));
+  const activeStudentYear = studentStatsData[selectedYear] ? selectedYear : availableStudentYears[0] || "2568";
+  const currentStats = studentStatsData[activeStudentYear] || defaultSchoolStudentStats["2568"];
+
   const handleExportStudentStatsExcel = () => {
-    const currentStats = schoolStudentStats[selectedYear];
     const header = "\uFEFFระดับชั้น,เพศชาย (คน),เพศหญิง (คน),รวม (คน),จำนวนห้องเรียน\n";
     const rows = currentStats.grades
       .map((g) => `"${g.grade}","${g.male}","${g.female}","${g.total}","${g.classrooms}"`)
@@ -103,13 +122,11 @@ export default function DownloadsPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `สถิตินักเรียน_โรงเรียนบ้านหนองหัวหมู_ปี${selectedYear}.csv`);
+    link.setAttribute("download", `สถิตินักเรียน_โรงเรียนบ้านหนองหัวหมู_ปี${activeStudentYear}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
-
-  const currentStats = schoolStudentStats[selectedYear];
 
   const toolbar = (
     <div className="flex flex-col gap-3">
@@ -234,12 +251,12 @@ export default function DownloadsPage() {
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-[#0F2942]">เลือกปีการศึกษา:</span>
             <div className="flex items-center gap-1">
-              {["2568", "2567"].map((yr) => (
+              {availableStudentYears.map((yr) => (
                 <button
                   key={yr}
                   onClick={() => setSelectedYear(yr)}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors min-h-[34px] ${
-                    selectedYear === yr
+                    activeStudentYear === yr
                       ? "bg-[#0F2942] text-white shadow-2xs"
                       : "bg-[#F8FAFC] text-slate-600 hover:bg-slate-200/80 border border-[#E5E7EB]"
                   }`}
