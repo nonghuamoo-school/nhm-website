@@ -35,8 +35,10 @@ import {
 import SchoolLogo from "@/components/common/SchoolLogo";
 import { schoolInfo } from "@/data/schoolInfo";
 import { schoolNews } from "@/data/news";
+import { useSchoolSettings } from "@/hooks/useSchoolSettings";
 
 export default function GrandPortalLayout() {
+  const { settings } = useSchoolSettings();
   const [activeNewsTab, setActiveNewsTab] = useState<"all" | "procure" | "activity">("all");
 
   const basicMenu = [
@@ -405,28 +407,31 @@ export default function GrandPortalLayout() {
               {/* Formal Civil Service Portrait Frame */}
               <div className="w-36 h-44 rounded-xl overflow-hidden border-2 border-slate-300 shadow-md relative bg-slate-100">
                 <img
-                  src={schoolInfo.director.imageUrl}
-                  alt={schoolInfo.director.name}
+                  src={settings.directorImageUrl || schoolInfo.director.imageUrl}
+                  alt={settings.directorName || schoolInfo.director.name}
                   className="w-full h-full object-cover"
                   loading="lazy"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = "/images/school-emblem-doc.png";
+                  }}
                 />
               </div>
 
               <div>
                 <h4 className="font-black text-sm sm:text-base text-[#0F2942]">
-                  {schoolInfo.director.name}
+                  {settings.directorName || schoolInfo.director.name}
                 </h4>
                 <p className="text-xs text-blue-800 font-semibold mt-0.5">
-                  {schoolInfo.director.position}
+                  {settings.directorTitle || schoolInfo.director.position}
                 </p>
                 <p className="text-[11px] text-slate-500">
-                  {schoolInfo.director.academicStanding}
+                  {settings.directorAcademicStanding || schoolInfo.director.academicStanding}
                 </p>
               </div>
 
               <div className="w-full pt-2 border-t border-slate-100">
                 <p className="text-[11px] text-slate-500 italic line-clamp-3 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                  &ldquo;{schoolInfo.director.message}&rdquo;
+                  &ldquo;{settings.directorMessage || schoolInfo.director.message}&rdquo;
                 </p>
               </div>
 

@@ -126,6 +126,28 @@ export default function AdminSettingsPage() {
         localStorage.setItem("nhm_school_settings", JSON.stringify(formData));
         window.dispatchEvent(new Event("nhm_settings_updated"));
 
+        // Two-way sync: Update director in personnel database as well
+        try {
+          const persRaw = localStorage.getItem("nhm_school_personnel");
+          if (persRaw) {
+            const persList = JSON.parse(persRaw);
+            const updated = persList.map((p: any) => {
+              if (p.id === "p-01" || p.name.includes("อดุลย์") || (p.position && p.position.includes("ผู้อำนวยการ"))) {
+                return {
+                  ...p,
+                  imageUrl: formData.directorImageUrl || p.imageUrl,
+                  name: formData.directorName || p.name,
+                };
+              }
+              return p;
+            });
+            localStorage.setItem("nhm_school_personnel", JSON.stringify(updated));
+            window.dispatchEvent(new Event("nhm_personnel_updated"));
+          }
+        } catch (persErr) {
+          console.error("Error syncing director to personnel", persErr);
+        }
+
         await Swal.fire({
           icon: "success",
           title: "บันทึกการตั้งค่าเรียบร้อยแล้ว!",
@@ -226,6 +248,63 @@ export default function AdminSettingsPage() {
         }
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDirectorImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (loadEvt) => {
+        const result = loadEvt.target?.result;
+        if (typeof result === "string") {
+          setFormData((prev) => ({
+            ...prev,
+            directorImageUrl: result,
+          }));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSyncWithPersonnel = () => {
+    if (typeof window === "undefined") return;
+    try {
+      const saved = localStorage.getItem("nhm_school_personnel");
+      if (saved) {
+        const personnel = JSON.parse(saved);
+        const director = personnel.find(
+          (p: any) =>
+            p.id === "p-01" ||
+            p.name.includes("อดุลย์") ||
+            (p.position && p.position.includes("ผู้อำนวยการ"))
+        );
+        if (director && director.imageUrl) {
+          setFormData((prev) => ({
+            ...prev,
+            directorImageUrl: director.imageUrl,
+            directorName: director.name || prev.directorName,
+          }));
+          Swal.fire({
+            icon: "success",
+            title: "ซิงค์รูปถ่ายสำเร็จ!",
+            text: `ดึงข้อมูลรูปถ่ายของ ${director.name} จากฐานข้อมูลบุคลากรเรียบร้อยแล้ว`,
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          return;
+        }
+      }
+      Swal.fire({
+        icon: "info",
+        title: "ไม่พบข้อมูลรูปถ่ายในส่วนบุคลากร",
+        text: "สามารถคลิก 'เลือกไฟล์ภาพจากเครื่อง' เพื่ออัปโหลดรูป ผอ. ได้โดยตรง",
+        confirmButtonText: "เข้าใจแล้ว",
+        confirmButtonColor: "#0F2942",
+      });
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -1333,11 +1412,16 @@ export default function AdminSettingsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 text-xs items-start">
               {/* Photo Preview Column (4 cols) */}
               <div className="sm:col-span-4 flex flex-col items-center text-center p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
-                <img
-                  src={formData.directorImageUrl}
-                  alt={formData.directorName}
-                  className="w-28 h-36 rounded-xl object-cover border-2 border-slate-300 shadow-xs"
-                />
+                <div className="relative group w-28 h-36 rounded-xl overflow-hidden border-2 border-slate-300 shadow-xs bg-slate-200">
+                  <img
+                    src={formData.directorImageUrl || "/images/school-emblem-doc.png"}
+                    alt={formData.directorName}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = "/images/school-emblem-doc.png";
+                    }}
+                  />
+                </div>
                 <div>
                   <span className="font-bold text-sm text-[#0F2942] block">
                     {formData.directorName}
@@ -1346,15 +1430,43 @@ export default function AdminSettingsPage() {
                     {formData.directorTitle} ({formData.directorAcademicStanding})
                   </span>
                 </div>
-                <input
-                  type="url"
-                  placeholder="URL ภาพผู้อำนวยการ..."
-                  value={formData.directorImageUrl}
-                  onChange={(e) =>
-                    setFormData({ ...formData, directorImageUrl: e.target.value })
-                  }
-                  className="w-full text-[11px] px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white"
-                />
+
+                {/* Upload Button from machine */}
+                <label className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-xs font-bold text-[#0F2942] cursor-pointer shadow-2xs transition-colors min-h-[38px]">
+                  <Upload className="w-3.5 h-3.5 text-blue-600" />
+                  <span>เลือกไฟล์ภาพจากเครื่อง</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleDirectorImageUpload}
+                    className="hidden"
+                  />
+                </label>
+
+                {/* Sync from Personnel Button */}
+                <button
+                  type="button"
+                  onClick={handleSyncWithPersonnel}
+                  className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-[11px] font-bold transition-colors min-h-[36px] cursor-pointer"
+                  title="ซิงค์รูปและชื่อ ผอ. จากฐานข้อมูลบุคลากร"
+                >
+                  <RefreshCw className="w-3.5 h-3.5 text-amber-600" />
+                  <span>ซิงค์จากข้อมูลบุคลากร</span>
+                </button>
+
+                {/* Fallback URL input */}
+                <div className="w-full text-left pt-1">
+                  <label className="text-[10px] text-slate-400 block mb-0.5">หรือวาง URL ภาพ:</label>
+                  <input
+                    type="url"
+                    placeholder="URL ภาพผู้อำนวยการ..."
+                    value={formData.directorImageUrl}
+                    onChange={(e) =>
+                      setFormData({ ...formData, directorImageUrl: e.target.value })
+                    }
+                    className="w-full text-[11px] px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white"
+                  />
+                </div>
               </div>
 
               {/* Form Fields (8 cols) */}
@@ -1392,7 +1504,7 @@ export default function AdminSettingsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block font-bold text-slate-700 mb-1">
-                      เบอร์โทรศัพท์ติดต่อ
+                      เบอร์โทรศัพท์ติดต่อสถานศึกษา / ส่วนกลาง
                     </label>
                     <input
                       type="text"
@@ -1400,8 +1512,12 @@ export default function AdminSettingsPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, directorPhone: e.target.value })
                       }
+                      placeholder="เช่น 044-xxxxxx หรือ 081-743-2407"
                       className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
                     />
+                    <span className="text-[10px] text-slate-400 mt-0.5 block">
+                      (เบอร์ส่วนตัวจะไม่แสดงบนหัวเว็บสาธารณะ เพื่อความปลอดภัย)
+                    </span>
                   </div>
 
                   <div>
