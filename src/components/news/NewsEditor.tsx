@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { NewsItem } from "@/types";
 import { useNews } from "@/hooks/useNews";
+import Swal from "sweetalert2";
 
 interface NewsEditorProps {
   initialData?: NewsItem;
@@ -180,17 +181,28 @@ export default function NewsEditor({
     setStatus("ฉบับร่าง");
     saveCurrentNews("ฉบับร่าง");
     setSaveSuccess(true);
+    Swal.fire({
+      icon: "success",
+      title: "บันทึกฉบับร่างสำเร็จ",
+      text: "ข่าวได้รับการบันทึกเป็นฉบับร่างเรียบร้อยแล้ว",
+      timer: 1800,
+      showConfirmButton: false,
+    });
     setTimeout(() => setSaveSuccess(false), 3000);
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     setStatus("เผยแพร่แล้ว");
     saveCurrentNews("เผยแพร่แล้ว");
     setSaveSuccess(true);
-    setTimeout(() => {
-      setSaveSuccess(false);
-      router.push("/admin/news");
-    }, 1200);
+    await Swal.fire({
+      icon: "success",
+      title: "เผยแพร่ข่าวสำเร็จ!",
+      text: "ข่าวสารได้รับการเผยแพร่ขึ้นสู่หน้าเว็บไซต์เรียบร้อยแล้ว",
+      timer: 1800,
+      showConfirmButton: false,
+    });
+    router.push("/admin/news");
   };
 
   return (

@@ -33,6 +33,7 @@ import SchoolLogo from "@/components/common/SchoolLogo";
 import { schoolInfo } from "@/data/schoolInfo";
 import { defaultSchoolSettings } from "@/hooks/useSchoolSettings";
 import { getGoogleMapsEmbedUrl, getGoogleMapsNavigationUrl } from "@/lib/maps";
+import Swal from "sweetalert2";
 
 type SettingsTab = "hero" | "branding" | "general" | "vision" | "director" | "contact" | "operations";
 
@@ -118,26 +119,60 @@ export default function AdminSettingsPage() {
     }
   }, []);
 
-  const handleSave = (e?: React.FormEvent) => {
+  const handleSave = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (typeof window !== "undefined") {
       try {
         localStorage.setItem("nhm_school_settings", JSON.stringify(formData));
         window.dispatchEvent(new Event("nhm_settings_updated"));
+
+        await Swal.fire({
+          icon: "success",
+          title: "บันทึกการตั้งค่าเรียบร้อยแล้ว!",
+          text: "ข้อมูลถูกบันทึกและซิงค์ไปยังหน้าเว็บไซต์หลักทันที",
+          confirmButtonText: "ตกลง",
+          confirmButtonColor: "#0F2942",
+          timer: 2500,
+          timerProgressBar: true,
+        });
       } catch (err) {
         console.error("Save error", err);
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาดในการบันทึก",
+          text: "กรุณาลองใหม่อีกครั้ง",
+          confirmButtonText: "ตกลง",
+          confirmButtonColor: "#0F2942",
+        });
       }
     }
     setSaved(true);
     setTimeout(() => setSaved(false), 3500);
   };
 
-  const handleResetDefaults = () => {
-    if (confirm("คุณต้องการคืนค่าเริ่มต้นทั้งหมดของระบบหรือไม่?")) {
+  const handleResetDefaults = async () => {
+    const result = await Swal.fire({
+      icon: "warning",
+      title: "คืนค่าเริ่มต้นระบบ?",
+      text: "คุณต้องการคืนค่าเริ่มต้นทั้งหมดของระบบหรือไม่? ข้อมูลการแก้ไขจะกลับสู่ค่ามาตรฐานของโรงเรียน",
+      showCancelButton: true,
+      confirmButtonText: "ใช่, คืนค่าเริ่มต้น",
+      cancelButtonText: "ยกเลิก",
+      confirmButtonColor: "#DC2626",
+      cancelButtonColor: "#64748B",
+    });
+
+    if (result.isConfirmed) {
       if (typeof window !== "undefined") {
         localStorage.removeItem("nhm_school_settings");
         window.dispatchEvent(new Event("nhm_settings_updated"));
       }
+      await Swal.fire({
+        icon: "success",
+        title: "คืนค่าเริ่มต้นเรียบร้อยแล้ว",
+        timer: 1500,
+        showConfirmButton: false,
+      });
       window.location.reload();
     }
   };
@@ -291,7 +326,7 @@ export default function AdminSettingsPage() {
       </div>
 
       {/* Form Content */}
-      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-6">
+      <form noValidate onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-6">
         
         {/* ================= TAB 0: HERO BANNER (ส่วนหัวต้อนรับหน้าแรก) ================= */}
         {activeTab === "hero" && (

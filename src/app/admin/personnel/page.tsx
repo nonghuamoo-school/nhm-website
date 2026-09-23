@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { usePersonnel } from "@/hooks/usePersonnel";
 import { PersonnelMember } from "@/types";
+import Swal from "sweetalert2";
 
 const DEPARTMENT_OPTIONS = [
   "ฝ่ายบริหารสถานศึกษา",
@@ -273,7 +274,13 @@ export default function AdminPersonnelPage() {
         order: Number(formData.order) || 1,
         roles: rolesToSave
       });
-      showToast(`แก้ไขข้อมูล "${formData.name}" เรียบร้อยแล้ว`);
+      Swal.fire({
+        icon: "success",
+        title: "แก้ไขข้อมูลสำเร็จ",
+        text: `บันทึกการแก้ไขข้อมูล "${formData.name}" เรียบร้อยแล้ว`,
+        timer: 1800,
+        showConfirmButton: false,
+      });
     } else {
       addMember({
         name: formData.name.trim(),
@@ -284,7 +291,13 @@ export default function AdminPersonnelPage() {
         order: Number(formData.order) || personnelList.length + 1,
         roles: rolesToSave
       });
-      showToast(`เพิ่มข้อมูลบุคลากร "${formData.name}" เรียบร้อยแล้ว`);
+      Swal.fire({
+        icon: "success",
+        title: "เพิ่มข้อมูลสำเร็จ",
+        text: `เพิ่มข้อมูลบุคลากร "${formData.name}" เรียบร้อยแล้ว`,
+        timer: 1800,
+        showConfirmButton: false,
+      });
     }
 
     setIsModalOpen(false);
