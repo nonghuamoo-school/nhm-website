@@ -13,20 +13,26 @@ interface SchoolLogoProps {
 export default function SchoolLogo({
   className = "",
   size = 48,
-  customLogoUrl,
+  customLogoUrl: propLogoUrl,
   emblemType: propEmblemType,
 }: SchoolLogoProps) {
-  const [activeLogoUrl, setActiveLogoUrl] = useState<string | undefined>(customLogoUrl);
-  const [activeEmblem, setActiveEmblem] = useState<string>(propEmblemType || "vector");
+  const [activeLogoUrl, setActiveLogoUrl] = useState<string>(
+    propLogoUrl || "/images/school-logo.png"
+  );
+  const [activeEmblem, setActiveEmblem] = useState<string>(
+    propEmblemType || "custom"
+  );
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    const loadFromSettings = () => {
+      if (typeof window === "undefined") return;
       try {
         const saved = localStorage.getItem("nhm_school_settings");
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (parsed.logoUrl && !customLogoUrl) {
-            setActiveLogoUrl(parsed.logoUrl);
+          const logo = parsed.customLogoUrl || parsed.logoUrl;
+          if (logo && !propLogoUrl) {
+            setActiveLogoUrl(logo);
           }
           if (parsed.emblemType && !propEmblemType) {
             setActiveEmblem(parsed.emblemType);
@@ -35,20 +41,47 @@ export default function SchoolLogo({
       } catch (e) {
         // fallback to defaults
       }
-    }
-  }, [customLogoUrl, propEmblemType]);
+    };
 
-  // If custom logo image URL is set and emblem is set to custom
-  if (activeLogoUrl && (activeEmblem === "custom" || customLogoUrl)) {
+    loadFromSettings();
+
+    window.addEventListener("storage", loadFromSettings);
+    window.addEventListener("nhm_settings_updated", loadFromSettings);
+
+    return () => {
+      window.removeEventListener("storage", loadFromSettings);
+      window.removeEventListener("nhm_settings_updated", loadFromSettings);
+    };
+  }, [propLogoUrl, propEmblemType]);
+
+  // Sync if props change directly
+  useEffect(() => {
+    if (propLogoUrl !== undefined) {
+      setActiveLogoUrl(propLogoUrl || "/images/school-logo.png");
+    }
+  }, [propLogoUrl]);
+
+  useEffect(() => {
+    if (propEmblemType !== undefined) {
+      setActiveEmblem(propEmblemType);
+    }
+  }, [propEmblemType]);
+
+  // If custom logo image URL is set or emblem is custom (default)
+  if (activeEmblem === "custom" || (!propEmblemType && activeLogoUrl)) {
+    const logoSrc = activeLogoUrl || "/images/school-logo.png";
     return (
       <div
         className={`relative flex items-center justify-center rounded-full overflow-hidden bg-white shadow-md border-2 border-amber-400/80 shrink-0 ${className}`}
         style={{ width: size, height: size }}
       >
         <img
-          src={activeLogoUrl}
+          src={logoSrc}
           alt={schoolInfo.name}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain p-0.5"
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).src = "/images/school-logo.png";
+          }}
         />
       </div>
     );

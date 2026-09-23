@@ -178,8 +178,8 @@ export default function Footer() {
           <p>
             &copy; {new Date().getFullYear()} {schoolInfo.name} ({schoolInfo.nameEn}). สงวนลิขสิทธิ์ทุกประการ
           </p>
-          <p className="text-slate-400">
-            {schoolInfo.subAffiliation}
+          <p className="text-slate-400 text-center sm:text-right">
+            {schoolInfo.subAffiliation.replace("เขต 3", "เขต\u00A03")}
           </p>
         </div>
       </div>

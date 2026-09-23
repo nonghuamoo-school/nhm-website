@@ -97,16 +97,24 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
               </div>
             </div>
             <div>
-              <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-50 text-blue-800 text-[11px] font-bold border border-blue-200 mb-1">
+              <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-50 text-blue-800 text-[11px] font-bold border border-blue-200 mb-2">
                 <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
                 <span>ระบบรักษาความปลอดภัย</span>
               </span>
-              <h1 className="text-xl sm:text-2xl font-black text-[#0F2942] tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-black text-[#0F2942] tracking-tight mb-2">
                 เข้าสู่ระบบผู้ดูแลระบบ
               </h1>
-              <p className="text-xs text-slate-500">
-                {schoolInfo.name} ({schoolInfo.subAffiliation})
-              </p>
+              <div className="flex flex-col items-center gap-0.5 text-center">
+                <p className="text-sm sm:text-base font-bold text-slate-800">
+                  {schoolInfo.name}
+                </p>
+                <p className="text-xs text-slate-500 font-medium hidden sm:block">
+                  สำนักงานเขตพื้นที่การศึกษาประถมศึกษาบุรีรัมย์&nbsp;เขต&nbsp;3
+                </p>
+                <p className="text-xs text-slate-500 font-medium sm:hidden">
+                  สพป. บุรีรัมย์&nbsp;เขต&nbsp;3
+                </p>
+              </div>
             </div>
           </div>
 

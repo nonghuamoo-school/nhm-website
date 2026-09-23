@@ -52,14 +52,21 @@ export default function Header() {
           {/* Brand Identity */}
           <Link href="/" className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 group">
             <div className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
-              <SchoolLogo size={46} />
+              <SchoolLogo
+                size={46}
+                customLogoUrl={settings.customLogoUrl}
+                emblemType={settings.emblemType}
+              />
             </div>
             <div className="flex flex-col min-w-0">
               <span className="text-base sm:text-xl lg:text-2xl font-black text-[#0F2942] tracking-tight leading-tight truncate group-hover:text-blue-900 transition-colors">
                 {settings.name}
               </span>
-              <span className="text-[11px] sm:text-xs text-slate-500 font-medium truncate">
+              <span className="text-[11px] sm:text-xs text-slate-500 font-medium truncate hidden sm:block">
                 {settings.subAffiliation}
+              </span>
+              <span className="text-[11px] text-slate-500 font-medium truncate sm:hidden">
+                สพป. บุรีรัมย์ เขต 3
               </span>
             </div>
           </Link>

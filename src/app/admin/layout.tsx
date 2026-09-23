@@ -151,7 +151,7 @@ export default function AdminLayout({
 
             <div className="px-2 text-[11px] text-slate-400 flex items-center gap-1.5 pt-1">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span className="truncate">{schoolInfo.subAffiliation}</span>
+              <span className="truncate">สพป. บุรีรัมย์ เขต 3</span>
             </div>
           </div>
         </aside>
