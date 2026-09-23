@@ -11,7 +11,7 @@ const UPDATE_EVENT = "nhm_news_updated";
 const CLOUD_SETTINGS_KEY = "school_news_list";
 
 /**
- * Convert Thai date format (e.g. "22 ก.ย. 2568" or "18 มี.ค. 2568") or any date string
+ * Convert Thai date format (e.g. "22 ก.ย. 2569" or "18 มี.ค. 2569") or any date string
  * into safe ISO format (YYYY-MM-DD) for Postgres DATE columns.
  */
 export function toIsoDate(dateStr?: string): string {
@@ -48,7 +48,7 @@ export function toIsoDate(dateStr?: string): string {
 }
 
 /**
- * Format ISO or standard date into Thai formatted string (e.g. "22 ก.ย. 2568")
+ * Format ISO or standard date into Thai formatted string (e.g. "22 ก.ย. 2569")
  */
 export function formatThaiDate(dateStr?: string): string {
   if (!dateStr) return "";

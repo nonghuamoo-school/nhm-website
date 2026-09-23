@@ -194,7 +194,7 @@ export default function AdminAcademicPage() {
   const handleCreateNewExamYear = () => {
     const trimmed = newYearInput.trim();
     if (!trimmed || !/^\d{4}$/.test(trimmed)) {
-      alert("กรุณาระบุปีการศึกษาเป็นตัวเลข 4 หลัก เช่น 2568 หรือ 2569");
+      alert("กรุณาระบุปีการศึกษาเป็นตัวเลข 4 หลัก เช่น 2569 หรือ 2570");
       return;
     }
 
@@ -259,7 +259,7 @@ export default function AdminAcademicPage() {
 
   // ================= 2. POSTERS TAB LOGIC =================
   const handleAddPoster = (targetYear?: string) => {
-    const newYear = targetYear || (posters.length > 0 ? (parseInt(posters[0].year) + 1).toString() : "2568");
+    const newYear = targetYear || (posters.length > 0 ? (parseInt(posters[0].year) + 1).toString() : "2569");
     const newPoster: OnetPosterItem = {
       year: newYear,
       title: `ผลการทดสอบ O-NET ป.6 ปีการศึกษา ${newYear}`,
@@ -553,7 +553,7 @@ export default function AdminAcademicPage() {
 
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs text-slate-600">กดเลือกปีด่วน:</span>
-                  {(["2568", "2569", "2570", "2565"] as const).map((preset) => (
+                  {(["2569", "2570", "2571", "2568"] as const).map((preset) => (
                     <button
                       key={preset}
                       type="button"
@@ -575,7 +575,7 @@ export default function AdminAcademicPage() {
                       type="text"
                       value={newYearInput}
                       onChange={(e) => setNewYearInput(e.target.value)}
-                      placeholder="ระบุปี พ.ศ. เช่น 2568 หรือ 2569"
+                      placeholder="ระบุปี พ.ศ. เช่น 2569 หรือ 2570"
                       maxLength={4}
                       className="w-full text-xs py-2 px-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-hidden font-bold"
                     />
@@ -767,12 +767,12 @@ export default function AdminAcademicPage() {
 
             <div className="flex flex-wrap items-center gap-2 shrink-0">
               <button
-                onClick={() => handleAddPoster("2568")}
+                onClick={() => handleAddPoster("2569")}
                 type="button"
                 className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-900 text-xs font-bold transition-all shadow-2xs"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>+ เพิ่มปี 2568</span>
+                <span>+ เพิ่มปี 2569</span>
               </button>
               <button
                 onClick={() => handleAddPoster()}
@@ -932,7 +932,7 @@ export default function AdminAcademicPage() {
                           type="text"
                           value={poster.year}
                           onChange={(e) => handlePosterFieldChange(pIdx, "year", e.target.value)}
-                          placeholder="เช่น 2568"
+                          placeholder="เช่น 2569"
                           className="w-full py-2 px-3 text-xs font-bold bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                         />
                       </div>
@@ -959,7 +959,7 @@ export default function AdminAcademicPage() {
                         type="text"
                         value={poster.title}
                         onChange={(e) => handlePosterFieldChange(pIdx, "title", e.target.value)}
-                        placeholder="เช่น ผลการทดสอบ O-NET ป.6 ปีการศึกษา 2568"
+                        placeholder="เช่น ผลการทดสอบ O-NET ป.6 ปีการศึกษา 2569"
                         className="w-full py-2 px-3 text-xs font-bold text-[#0F2942] bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                       />
                     </div>

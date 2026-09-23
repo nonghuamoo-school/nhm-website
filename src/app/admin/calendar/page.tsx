@@ -39,7 +39,7 @@ export default function AdminCalendarPage() {
     location: string;
   }>({
     title: "",
-    date: "15 พ.ค. 2568",
+    date: "16 พ.ค. 2569",
     time: "08:30 - 16:30 น.",
     category: "กิจกรรมโรงเรียน",
     location: "โรงเรียนบ้านหนองหัวหมู"
@@ -54,7 +54,7 @@ export default function AdminCalendarPage() {
     setEditingId(null);
     setFormData({
       title: "",
-      date: "15 พ.ค. 2568",
+      date: "16 พ.ค. 2569",
       time: "08:30 - 16:30 น.",
       category: "กิจกรรมโรงเรียน",
       location: "โรงเรียนบ้านหนองหัวหมู"
@@ -295,7 +295,7 @@ export default function AdminCalendarPage() {
                   <input
                     type="text"
                     required
-                    placeholder="เช่น 16 พ.ค. 2568"
+                    placeholder="เช่น 16 พ.ค. 2569"
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600"

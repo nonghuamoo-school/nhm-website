@@ -112,8 +112,8 @@ export default function AdminSettingsPage() {
     directorEmail: defaultSchoolSettings.email,
     colors: defaultSchoolSettings.colors,
     philosophy: defaultSchoolSettings.philosophy,
-    currentAcademicYear: "2568",
-    currentSemester: "ภาคเรียนที่ 1/2568",
+    currentAcademicYear: "2569",
+    currentSemester: "ภาคเรียนที่ 1/2569",
     visitorCountBase: "0",
   });
 
@@ -129,6 +129,12 @@ export default function AdminSettingsPage() {
         const savedData = localStorage.getItem("nhm_school_settings");
         if (savedData) {
           const parsed = JSON.parse(savedData);
+          if (parsed.currentAcademicYear === "2568" || !parsed.currentAcademicYear) {
+            parsed.currentAcademicYear = "2569";
+          }
+          if (parsed.currentSemester?.includes("2568") || !parsed.currentSemester) {
+            parsed.currentSemester = "ภาคเรียนที่ 1/2569";
+          }
           setFormData((prev) => ({ ...prev, ...parsed }));
         }
       } catch (e) {
@@ -2059,9 +2065,11 @@ export default function AdminSettingsPage() {
                   }
                   className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-none"
                 >
-                  <option value="2568">2568 (ปัจจุบัน)</option>
-                  <option value="2567">2567</option>
-                  <option value="2569">2569</option>
+                  <option value="2569">2569 (เริ่มต้นโครงการ / ปัจจุบัน)</option>
+                  <option value="2570">2570</option>
+                  <option value="2571">2571</option>
+                  <option value="2572">2572</option>
+                  <option value="2573">2573</option>
                 </select>
               </div>
 

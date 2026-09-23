@@ -93,7 +93,7 @@ export default function CalendarPage() {
 
             <div className="self-end sm:self-center">
               <span className="text-xs font-semibold text-[#0F2942] bg-[#0F2942]/5 px-3 py-1.5 rounded-xl border border-[#0F2942]/10">
-                ปีการศึกษา 2567-2568
+                ปีการศึกษา 2569
               </span>
             </div>
           </div>

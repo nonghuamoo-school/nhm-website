@@ -36,7 +36,7 @@ import AcademicPerformanceChart from "@/components/academic/AcademicPerformanceC
 
 export default function AdminDashboardPage() {
   const visitorStats = visitorService.getVisitorStats();
-  const currentStudentStats = schoolStudentStats["2569"] || schoolStudentStats["2568"];
+  const currentStudentStats = schoolStudentStats["2569"] || Object.values(schoolStudentStats)[0];
   const recentNews = schoolNews.slice(0, 4);
 
   // Recent operational tracking items

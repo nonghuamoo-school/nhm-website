@@ -202,7 +202,7 @@ export default function AdminStatisticsPage() {
     if (confirm("คุณต้องการรีเซ็ตข้อมูลสถิตินักเรียนกลับเป็นค่าเริ่มต้นมาตรฐานหรือไม่?")) {
       resetStoredStudentStats();
       setAllStudentStats(defaultSchoolStudentStats);
-      setSelectedStudentYear("2568");
+      setSelectedStudentYear("2569");
       setResetSuccess(true);
       setTimeout(() => setResetSuccess(false), 3500);
     }
@@ -652,7 +652,7 @@ export default function AdminStatisticsPage() {
                   type="text"
                   value={activeYearData.updatedDate}
                   onChange={(e) => handleUpdatedDateChange(e.target.value)}
-                  placeholder="เช่น 10 มีนาคม 2568"
+                  placeholder="เช่น 10 มิถุนายน 2569"
                   className="py-1.5 px-3 text-xs bg-white border border-slate-300 rounded-xl font-medium text-[#0F2942] focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                 />
               </div>

@@ -14,7 +14,7 @@ export default function TopBar() {
     const count = visitorService.recordVisit();
     setVisitorCount(count);
 
-    // Official Thai Buddhist calendar date (e.g. วันพุธที่ 23 ก.ย. 2568)
+    // Official Thai Buddhist calendar date (e.g. วันพุธที่ 23 ก.ย. 2569)
     try {
       const now = new Date();
       const formatted = now.toLocaleDateString("th-TH", {

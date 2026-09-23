@@ -257,7 +257,7 @@ export default function DocumentViewerModal({
                 {/* Body Content of Simulated Page */}
                 <div className="pt-8 space-y-6">
                   <div className="flex items-center justify-between text-xs text-slate-500 pb-2 border-b border-slate-200">
-                    <span>รหัสเอกสาร: NHM-DOC-2568-0{currentPage}</span>
+                    <span>รหัสเอกสาร: NHM-DOC-2569-0{currentPage}</span>
                     <span>หน้าที่ {currentPage} จาก {totalPages}</span>
                   </div>
 

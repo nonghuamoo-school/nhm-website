@@ -138,15 +138,15 @@ export const visitorService = {
       popularNews: [
         {
           id: "news-01",
-          title: "เปิดรับสมัครนักเรียนใหม่ ประจำปีการศึกษา 2568 (อ.2 และ ป.1)",
+          title: "เปิดรับสมัครนักเรียนใหม่ ประจำปีการศึกษา 2569 (อ.2 และ ป.1)",
           views: Math.max(1, Math.round(totalCount * 0.18)),
-          date: "18 มี.ค. 2568",
+          date: "18 มี.ค. 2569",
         },
         {
           id: "news-03",
           title: "นักเรียนคว้ารางวัลชนะเลิศ การแข่งขันวิทยาศาสตร์และสิ่งประดิษฐ์",
           views: Math.max(1, Math.round(totalCount * 0.12)),
-          date: "10 มี.ค. 2568",
+          date: "10 มี.ค. 2569",
         },
       ],
       dailyTrend: (() => {

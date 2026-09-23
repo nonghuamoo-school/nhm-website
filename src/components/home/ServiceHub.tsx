@@ -120,7 +120,7 @@ export default function ServiceHub() {
           {/* Action Link */}
           <div className="pt-3.5 mt-3 border-t border-blue-100 flex items-center justify-between">
             <span className="text-xs text-slate-500">
-              ข้อมูลเปรียบเทียบมาตรฐาน สพฐ. ปีการศึกษา 2566 – 2568
+              ข้อมูลเปรียบเทียบมาตรฐาน สพฐ. ปีการศึกษาล่าสุด – 2569
             </span>
             <Link
               href="/academic"
@@ -279,7 +279,7 @@ export default function ServiceHub() {
                   <Calendar className="w-4 h-4" />
                 </div>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200">
-                  ปีการศึกษา 2568
+                  ปีการศึกษา 2569
                 </span>
               </div>
               <h4 className="font-bold text-sm text-[#0F2942] group-hover:text-blue-800 transition-colors">

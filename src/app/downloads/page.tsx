@@ -41,7 +41,7 @@ export default function DownloadsPage() {
 
   // Student Stats State
   const [studentStatsData, setStudentStatsData] = useState(defaultSchoolStudentStats);
-  const [selectedYear, setSelectedYear] = useState<string>("2568");
+  const [selectedYear, setSelectedYear] = useState<string>("2569");
 
   useEffect(() => {
     setStudentStatsData(getStoredStudentStats());
@@ -114,8 +114,8 @@ export default function DownloadsPage() {
   };
 
   const availableStudentYears = Object.keys(studentStatsData).sort((a, b) => b.localeCompare(a));
-  const activeStudentYear = studentStatsData[selectedYear] ? selectedYear : availableStudentYears[0] || "2568";
-  const currentStats = studentStatsData[activeStudentYear] || defaultSchoolStudentStats["2568"];
+  const activeStudentYear = studentStatsData[selectedYear] ? selectedYear : availableStudentYears[0] || "2569";
+  const currentStats = studentStatsData[activeStudentYear] || defaultSchoolStudentStats["2569"];
 
   const handleExportStudentStatsExcel = () => {
     const header = "\uFEFFระดับชั้น,เพศชาย (คน),เพศหญิง (คน),รวม (คน),จำนวนห้องเรียน\n";
