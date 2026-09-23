@@ -205,7 +205,7 @@ export default function SchoolGeneralInfoCard() {
 
             {/* Tile 2: สถิติและจำนวนนักเรียน */}
             <Link
-              href="/admin/statistics"
+              href="/#student-stats"
               className="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-400 shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between group"
             >
               <div className="flex items-center justify-between mb-2">
@@ -216,7 +216,7 @@ export default function SchoolGeneralInfoCard() {
               </div>
               <div>
                 <h4 className="text-xs font-bold text-[#0F2942] group-hover:text-emerald-700 transition-colors">
-                  สถิตินักเรียน 165 คน
+                  สถิตินักเรียน
                 </h4>
                 <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5">
                   จำแนกตามชั้นเรียน อ.2 - ป.6 และสัดส่วนเพศ
@@ -237,7 +237,7 @@ export default function SchoolGeneralInfoCard() {
               </div>
               <div>
                 <h4 className="text-xs font-bold text-[#0F2942] group-hover:text-amber-700 transition-colors">
-                  ทำเนียบบุคลากร 12 ท่าน
+                  ทำเนียบบุคลากร
                 </h4>
                 <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5">
                   ฝ่ายบริหาร คณะครู และบุคลากรทางการศึกษา

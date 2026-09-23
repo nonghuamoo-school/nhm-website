@@ -82,7 +82,7 @@ export default function SchoolAnalyticsDashboard() {
   const maleStrokeDashoffset = circumference - (malePercent / 100) * circumference;
 
   return (
-    <section className="space-y-6">
+    <section id="student-stats" className="space-y-6 scroll-mt-20">
       {/* Section Title */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-2 border-b border-slate-200/80">
         <div>
