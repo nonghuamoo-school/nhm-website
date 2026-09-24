@@ -174,44 +174,24 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
                     <button
                       type="button"
                       onClick={() => setLightboxImage(news.newsletterPosterUrl!)}
-                      className="px-3 py-1.5 rounded-xl bg-white text-[#0F2942] font-bold text-xs shadow-md flex items-center gap-1.5 hover:bg-slate-100 transition-colors cursor-pointer"
+                      className="px-3.5 py-2 rounded-xl bg-white text-[#0F2942] font-bold text-xs shadow-md flex items-center gap-1.5 hover:bg-slate-100 transition-colors cursor-pointer"
                     >
                       <Maximize2 className="w-3.5 h-3.5" />
-                      <span>ซูมดูป้าย A4</span>
+                      <span>ซูมดูป้าย A4 เต็มจอ</span>
                     </button>
-                    <a
-                      href={news.newsletterPosterUrl}
-                      download={`nhm-${news.issueNumber || "poster"}.jpg`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-1.5 rounded-xl bg-white text-[#0F2942] hover:bg-slate-100 shadow-md transition-colors"
-                      title="ดาวน์โหลดภาพป้าย"
-                    >
-                      <Download className="w-4 h-4" />
-                    </a>
                   </div>
                 </div>
 
-                {/* Action Buttons for Mobile & Desktop */}
-                <div className="grid grid-cols-2 sm:grid-cols-1 gap-2 w-full mt-3">
+                {/* Action Button: Single Clean Zoom Button */}
+                <div className="w-full mt-3">
                   <button
                     type="button"
                     onClick={() => setLightboxImage(news.newsletterPosterUrl!)}
-                    className="py-2.5 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-2.5 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Maximize2 className="w-3.5 h-3.5" />
                     <span>ซูมดูป้ายเต็มจอ</span>
                   </button>
-                  <a
-                    href={news.newsletterPosterUrl}
-                    download={`nhm-${news.issueNumber || "poster"}.jpg`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="py-2.5 px-3 rounded-xl bg-white hover:bg-slate-100 text-emerald-800 border border-emerald-300 text-xs font-bold shadow-2xs transition-colors flex items-center justify-center gap-1.5"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>บันทึกภาพ A4</span>
-                  </a>
                 </div>
               </div>
             </div>
@@ -341,17 +321,6 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
                   {news.title}
                 </span>
                 <div className="flex items-center gap-2 shrink-0">
-                  <a
-                    href={lightboxImage}
-                    download="nhm-school-poster.jpg"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold transition-colors"
-                    title="บันทึกภาพลงเครื่อง"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>บันทึกภาพ</span>
-                  </a>
                   <button
                     type="button"
                     onClick={() => setLightboxImage(null)}

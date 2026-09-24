@@ -53,7 +53,7 @@ export default function NewsletterPosters() {
             </span>
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            จดหมายข่าว ผลงานสถานศึกษา และประกาศสำคัญ (สัดส่วน A4 คมชัดสูง แตะเพื่อซูมอ่านหรือบันทึกภาพ)
+            จดหมายข่าว ผลงานสถานศึกษา และประกาศสำคัญ (สัดส่วน A4 คมชัดสูง แตะเพื่อซูมอ่านขนาดเต็มจอ)
           </p>
         </div>
       </div>
@@ -107,22 +107,11 @@ export default function NewsletterPosters() {
                       <Maximize2 className="w-4 h-4 text-emerald-700" />
                       <span>ซูมดูป้ายขนาดเต็ม</span>
                     </button>
-
-                    <a
-                      href={posterUrl}
-                      download={`nhm-${item.issueNumber || "newsletter"}.jpg`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-lg transition-all flex items-center gap-1.5"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>บันทึกภาพ A4</span>
-                    </a>
                   </div>
                 </div>
 
-                {/* Mobile Quick Action Buttons (Always visible on mobile) */}
-                <div className="sm:hidden grid grid-cols-2 gap-1.5 p-2.5 bg-slate-50 border-b border-slate-100">
+                {/* Mobile Quick Action Button (Single Clean Zoom) */}
+                <div className="sm:hidden p-2 bg-slate-50 border-b border-slate-100">
                   <button
                     type="button"
                     onClick={() =>
@@ -132,21 +121,11 @@ export default function NewsletterPosters() {
                         issue: item.issueNumber,
                       })
                     }
-                    className="py-1.5 px-2 rounded-lg bg-white border border-slate-200 text-[#0F2942] text-[11px] font-bold flex items-center justify-center gap-1 shadow-2xs"
+                    className="w-full py-2 px-3 rounded-xl bg-white border border-slate-200 text-[#0F2942] hover:text-emerald-700 text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs"
                   >
-                    <Maximize2 className="w-3 h-3 text-emerald-700" />
-                    <span>ซูมดูป้าย</span>
+                    <Maximize2 className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>แตะเพื่อซูมดูป้าย</span>
                   </button>
-                  <a
-                    href={posterUrl}
-                    download={`nhm-${item.issueNumber || "newsletter"}.jpg`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="py-1.5 px-2 rounded-lg bg-emerald-600 text-white text-[11px] font-bold flex items-center justify-center gap-1 shadow-2xs"
-                  >
-                    <Download className="w-3 h-3" />
-                    <span>บันทึกภาพ</span>
-                  </a>
                 </div>
 
                 {/* Card Body */}
@@ -200,17 +179,6 @@ export default function NewsletterPosters() {
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
-                <a
-                  href={lightboxPoster.url}
-                  download="nhm-newsletter-a4.jpg"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors shadow-md"
-                  title="ดาวน์โหลดภาพป้ายขนาดเต็ม 1414 x 2000 px"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>บันทึกภาพ A4</span>
-                </a>
                 <button
                   type="button"
                   onClick={() => setLightboxPoster(null)}

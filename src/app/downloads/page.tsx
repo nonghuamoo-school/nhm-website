@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import InnerPageLayout from "@/components/layout/InnerPageLayout";
 import DocumentViewerModal from "@/components/common/DocumentViewerModal";
-import { schoolInventoryAssets } from "@/data/assets";
+import { useAssets } from "@/hooks/useAssets";
 import { getStoredStudentStats, fetchStudentStatsCloud, defaultSchoolStudentStats } from "@/data/studentStats";
 import { DownloadDoc } from "@/types";
 import { useDownloads } from "@/hooks/useDownloads";
@@ -27,6 +27,7 @@ type ActiveTab = "documents" | "inventory" | "studentStats";
 
 export default function DownloadsPage() {
   const { docList } = useDownloads();
+  const { assetsList } = useAssets();
   const [activeTab, setActiveTab] = useState<ActiveTab>("documents");
   const [selectedDocCategory, setSelectedDocCategory] = useState<string>("ทั้งหมด");
   const [docSearch, setDocSearch] = useState<string>("");
@@ -79,7 +80,7 @@ export default function DownloadsPage() {
     return matchesCat && matchesSearch;
   });
 
-  const filteredAssets = schoolInventoryAssets.filter((asset) => {
+  const filteredAssets = assetsList.filter((asset) => {
     const matchesStatus =
       assetStatusFilter === "ทั้งหมด" || asset.status === assetStatusFilter;
     const matchesSearch =
@@ -459,8 +460,18 @@ export default function DownloadsPage() {
                   ))}
                   {filteredAssets.length === 0 && (
                     <tr>
-                      <td colSpan={9} className="text-center py-10 text-slate-400">
-                        ไม่พบข้อมูลครุภัณฑ์ที่ค้นหา
+                      <td colSpan={9} className="text-center py-12 text-slate-400">
+                        <FileSpreadsheet className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                        <p className="font-semibold text-sm text-slate-500">
+                          {assetsList.length === 0
+                            ? "ยังไม่มีข้อมูลในทะเบียนคุมครุภัณฑ์และสินทรัพย์"
+                            : "ไม่พบข้อมูลครุภัณฑ์ที่ตรงกับเงื่อนไขการค้นหา"}
+                        </p>
+                        <p className="text-xs text-slate-400 mt-1">
+                          {assetsList.length === 0
+                            ? "เจ้าหน้าที่พัสดุสามารถเพิ่มและจัดการรายการครุภัณฑ์ได้ผ่านระบบผู้ดูแล"
+                            : "ลองเปลี่ยนคำค้นหาหรือตัวกรองสถานะ"}
+                        </p>
                       </td>
                     </tr>
                   )}

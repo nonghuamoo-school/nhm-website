@@ -164,17 +164,6 @@ export default function JournalPage() {
                         <Maximize2 className="w-4 h-4 text-blue-600" />
                         <span>ซูมดูป้ายขนาดเต็ม</span>
                       </button>
-
-                      <a
-                        href={posterUrl}
-                        download="nhm-newsletter.jpg"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-lg transition-all flex items-center gap-1.5"
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                        <span>บันทึกภาพป้าย</span>
-                      </a>
                     </div>
                   </div>
 
@@ -247,17 +236,6 @@ export default function JournalPage() {
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
-                <a
-                  href={lightboxItem.url}
-                  download="nhm-school-newsletter-a4.jpg"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-colors shadow-md"
-                  title="ดาวน์โหลดภาพป้ายขนาดเต็ม 1414 x 2000 px"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>บันทึกภาพ A4</span>
-                </a>
                 <button
                   type="button"
                   onClick={() => setLightboxItem(null)}

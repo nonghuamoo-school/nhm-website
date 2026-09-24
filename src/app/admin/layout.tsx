@@ -28,7 +28,7 @@ const adminNav = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { name: "คะแนน O-NET & โปสเตอร์", href: "/admin/academic", icon: Award },
   { name: "ข่าวประชาสัมพันธ์", href: "/admin/news", icon: Megaphone },
-  { name: "เอกสาร", href: "/admin/downloads", icon: FileText },
+  { name: "เอกสาร & ครุภัณฑ์", href: "/admin/downloads", icon: FileText },
   { name: "บุคลากร", href: "/admin/personnel", icon: Users },
   { name: "กิจกรรม", href: "/admin/calendar", icon: Calendar },
   { name: "สถิติผู้เข้าชม & ข้อมูลนักเรียน", href: "/admin/statistics", icon: BarChart3 },
