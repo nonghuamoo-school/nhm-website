@@ -28,7 +28,7 @@ export default function SchoolIntro() {
               </h3>
             </div>
 
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed indent-8 sm:indent-10 text-justify whitespace-pre-wrap">
               <strong>{schoolInfo.name}</strong> ตั้งอยู่ ณ จังหวัด{schoolInfo.province} สังกัด{schoolInfo.subAffiliation} จัดการศึกษาระดับการศึกษาปฐมวัย และระดับการศึกษาขั้นพื้นฐาน (ประถมศึกษา) เพื่อส่งเสริมการเรียนรู้ของเยาวชนในชุมชนและพื้นที่ใกล้เคียงอย่างทั่วถึงและเท่าเทียม
             </p>
 
@@ -38,7 +38,7 @@ export default function SchoolIntro() {
                 <BookOpen className="w-4 h-4 text-blue-700" />
                 <span>วิสัยทัศน์ของโรงเรียน</span>
               </div>
-              <p className="text-xs sm:text-sm text-blue-950 italic leading-relaxed font-medium">
+              <p className="text-xs sm:text-sm text-blue-950 italic leading-relaxed font-medium indent-6 sm:indent-8 text-justify whitespace-pre-wrap">
                 &ldquo;{schoolInfo.vision}&rdquo;
               </p>
             </div>

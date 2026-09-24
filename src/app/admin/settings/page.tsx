@@ -601,7 +601,7 @@ export default function AdminSettingsPage() {
                       </p>
                     </div>
 
-                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal indent-6 sm:indent-8 text-justify whitespace-pre-wrap">
                       {formData.welcomeMessage}
                     </p>
 
@@ -754,8 +754,11 @@ export default function AdminSettingsPage() {
                     onChange={(e) => setFormData({ ...formData, welcomeMessage: e.target.value })}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 leading-relaxed"
                   />
-                  <p className="text-[11px] text-slate-400 mt-1">
-                    ข้อความสั้นกระชับ 2-3 บรรทัด เพื่อสรุปจุดเด่นและแนวทางการจัดการศึกษาของโรงเรียน
+                  <p className="text-[11px] text-slate-500 mt-1 flex flex-wrap items-center gap-1.5">
+                    <span className="font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                      💡 ย่อหน้าอัตโนมัติ:
+                    </span>
+                    <span>ระบบตั้งค่าย่อหน้าให้อัตโนมัติ (Indent) หากต้องการเคาะเว้นวรรคเพิ่มเอง สามารถกด Spacebar หรือกด Enter ขึ้นย่อหน้าใหม่ได้ทันที</span>
                   </p>
                 </div>
               </div>
@@ -1506,8 +1509,11 @@ export default function AdminSettingsPage() {
                   onChange={(e) => setFormData({ ...formData, historyText: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-[#F8FAFC] focus:bg-white focus:outline-hidden leading-relaxed"
                 />
-                <p className="text-[11px] text-slate-400 mt-1">
-                  แสดงในหน้า &ldquo;ข้อมูลโรงเรียนและประวัติความเป็นมา&rdquo; (/about)
+                <p className="text-[11px] text-slate-500 mt-1 flex flex-wrap items-center gap-1.5">
+                  <span className="font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                    💡 ย่อหน้าอัตโนมัติ:
+                  </span>
+                  <span>ระบบตั้งค่าย่อหน้าให้อัตโนมัติ (Indent) หากต้องการขึ้นย่อหน้าใหม่ ให้กดปุ่ม Enter หรือเคาะ Spacebar เว้นวรรคเพิ่มเองได้ตามต้องการ</span>
                 </p>
               </div>
 

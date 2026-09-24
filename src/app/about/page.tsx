@@ -26,9 +26,21 @@ export default function AboutPage() {
             <Building className="w-5 h-5 text-[#0F2942]" />
             <h2 className="text-lg sm:text-xl font-bold text-[#0F2942]">ประวัติความเป็นมา</h2>
           </div>
-          <div className="text-xs sm:text-sm text-slate-600 leading-relaxed space-y-3">
-            <p>{settings.historyText}</p>
-            <p>
+          <div className="text-xs sm:text-sm text-slate-700 leading-relaxed space-y-4">
+            {settings.historyText
+              ? settings.historyText
+                  .split("\n")
+                  .filter((p) => p.trim().length > 0)
+                  .map((paragraph, idx) => (
+                    <p
+                      key={idx}
+                      className="indent-8 sm:indent-10 text-justify leading-relaxed whitespace-pre-wrap"
+                    >
+                      {paragraph}
+                    </p>
+                  ))
+              : null}
+            <p className="indent-8 sm:indent-10 text-justify leading-relaxed whitespace-pre-wrap">
               ปัจจุบันจัดการเรียนการสอนระดับ{settings.schoolLevels} มุ่งเน้นการจัดการเรียนรู้เชิงรุก (Active Learning) ปลูกฝังคุณธรรม จริยธรรม สอดแทรกทักษะชีวิตตามหลักปรัชญาของเศรษฐกิจพอเพียง
             </p>
           </div>
@@ -45,7 +57,7 @@ export default function AboutPage() {
                   <Sparkles className="w-4 h-4 text-amber-600" />
                   <h4 className="text-sm font-bold">ปรัชญาของโรงเรียน (Philosophy)</h4>
                 </div>
-                <div className="p-3.5 bg-amber-50/70 rounded-2xl border border-amber-200/80 text-amber-950 font-bold text-xs sm:text-sm">
+                <div className="p-3.5 bg-amber-50/70 rounded-2xl border border-amber-200/80 text-amber-950 font-bold text-xs sm:text-sm indent-6 text-justify whitespace-pre-wrap">
                   &ldquo;{settings.philosophy || "นตฺถิ ปญฺญา สมา อาภา “ไม่มีแสงสว่างใดเสมอด้วยปัญญา”"}&rdquo;
                 </div>
               </div>
@@ -56,7 +68,7 @@ export default function AboutPage() {
                   <Award className="w-4 h-4 text-orange-600" />
                   <h4 className="text-sm font-bold">คำขวัญประจำโรงเรียน (Motto)</h4>
                 </div>
-                <div className="p-3.5 bg-orange-50/70 rounded-2xl border border-orange-200/80 text-orange-950 font-bold text-xs sm:text-sm">
+                <div className="p-3.5 bg-orange-50/70 rounded-2xl border border-orange-200/80 text-orange-950 font-bold text-xs sm:text-sm indent-6 text-justify whitespace-pre-wrap">
                   &ldquo;{settings.motto}&rdquo;
                 </div>
               </div>
@@ -67,7 +79,7 @@ export default function AboutPage() {
                   <Target className="w-4 h-4 text-[#0F2942]" />
                   <h4 className="text-sm font-bold">วิสัยทัศน์ (Vision)</h4>
                 </div>
-                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-[#0F2942] font-medium text-xs sm:text-sm leading-relaxed italic">
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200 text-[#0F2942] font-medium text-xs sm:text-sm leading-relaxed italic indent-8 sm:indent-10 text-justify whitespace-pre-wrap">
                   &ldquo;{settings.vision}&rdquo;
                 </div>
               </div>

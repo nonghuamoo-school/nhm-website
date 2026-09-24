@@ -76,7 +76,7 @@ export default function Hero() {
             </div>
 
             {/* Welcome paragraph */}
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal indent-6 sm:indent-8 text-justify whitespace-pre-wrap">
               {settings.welcomeMessage}
             </p>
 

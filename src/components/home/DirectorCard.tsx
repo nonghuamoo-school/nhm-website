@@ -38,7 +38,7 @@ export default function DirectorCard() {
             <p className="text-[11px] text-slate-500">{director.academicStanding}</p>
           )}
 
-          <blockquote className="mt-3 text-xs text-slate-600 italic leading-relaxed bg-slate-50 p-3 rounded-lg border-l-2 border-amber-400">
+          <blockquote className="mt-3 text-xs text-slate-600 italic leading-relaxed bg-slate-50 p-3 rounded-lg border-l-2 border-amber-400 indent-6 text-justify whitespace-pre-wrap">
             &ldquo;{director.message}&rdquo;
           </blockquote>
         </div>
