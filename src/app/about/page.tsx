@@ -27,22 +27,17 @@ export default function AboutPage() {
             <h2 className="text-lg sm:text-xl font-bold text-[#0F2942]">ประวัติความเป็นมา</h2>
           </div>
           <div className="text-xs sm:text-sm text-slate-700 leading-relaxed space-y-4">
-            {settings.historyText
-              ? settings.historyText
-                  .split("\n")
-                  .filter((p) => p.trim().length > 0)
-                  .map((paragraph, idx) => (
-                    <p
-                      key={idx}
-                      className="indent-8 sm:indent-10 text-justify leading-relaxed whitespace-pre-wrap"
-                    >
-                      {paragraph}
-                    </p>
-                  ))
-              : null}
-            <p className="indent-8 sm:indent-10 text-justify leading-relaxed whitespace-pre-wrap">
-              ปัจจุบันจัดการเรียนการสอนระดับ{settings.schoolLevels} มุ่งเน้นการจัดการเรียนรู้เชิงรุก (Active Learning) ปลูกฝังคุณธรรม จริยธรรม สอดแทรกทักษะชีวิตตามหลักปรัชญาของเศรษฐกิจพอเพียง
-            </p>
+            {(settings.historyText || "โรงเรียนบ้านหนองหัวหมู ก่อตั้งขึ้นเมื่อวันที่ 1 พฤษภาคม พ.ศ. 2517 ตั้งอยู่เลขที่ 144 หมู่ที่ 7 บ้านโคกสะอาด ตำบลทุ่งกระเต็น อำเภอหนองกี่ จังหวัดบุรีรัมย์ สังกัดสำนักงานเขตพื้นที่การศึกษาประถมศึกษาบุรีรัมย์ เขต 3 จัดการศึกษาขั้นพื้นฐานตั้งแต่ระดับอนุบาล 2 ถึงประถมศึกษาปีที่ 6 มุ่งเน้นการจัดการเรียนรู้เชิงรุก (Active Learning) ปลูกฝังคุณธรรม จริยธรรม สอดแทรกทักษะชีวิตตามหลักปรัชญาของเศรษฐกิจพอเพียง")
+              .split("\n")
+              .filter((p) => p.trim().length > 0)
+              .map((paragraph, idx) => (
+                <p
+                  key={idx}
+                  className="indent-8 sm:indent-10 text-justify leading-relaxed whitespace-pre-wrap"
+                >
+                  {paragraph}
+                </p>
+              ))}
           </div>
         </section>
 

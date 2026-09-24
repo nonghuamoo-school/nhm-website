@@ -11,10 +11,15 @@ export default function TopBar() {
   const [fontSizeIndex, setFontSizeIndex] = useState<number>(0);
 
   useEffect(() => {
-    const count = visitorService.recordVisit();
-    setVisitorCount(count);
+    // Record visit (increments if new session)
+    visitorService.recordVisit();
 
-    // Official Thai Buddhist calendar date (e.g. วันพุธที่ 23 ก.ย. 2569)
+    // Subscribe to global real-time visitor updates
+    const unsubscribe = visitorService.subscribeToVisitorCount((count) => {
+      setVisitorCount(count);
+    });
+
+    // Official Thai Buddhist calendar date (e.g. วันพุธที่ 24 ก.ย. 2569)
     try {
       const now = new Date();
       const formatted = now.toLocaleDateString("th-TH", {
@@ -27,6 +32,10 @@ export default function TopBar() {
     } catch {
       // Fallback
     }
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const cycleFontSize = () => {
@@ -55,17 +64,17 @@ export default function TopBar() {
 
         {/* Right: Visitor Counter, Current Thai Date & Accessibility */}
         <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-          {/* Visitor count */}
-          <div className="flex items-center gap-1 text-slate-300 font-medium">
+          {/* Global Visitor count */}
+          <div className="flex items-center gap-1 text-slate-300 font-medium" title="จำนวนผู้เข้าชมรวมทั้งหมดทั่วโลก (Real-time Cloud Sync)">
             <Eye className="w-3.5 h-3.5 text-sky-400 shrink-0" />
             <span className="hidden md:inline">ผู้เข้าชม</span>
             <strong className="text-white font-bold font-mono">
-              {(visitorCount ?? 1).toLocaleString()}
+              {(visitorCount ?? 1259).toLocaleString()}
             </strong>
             <span className="hidden md:inline">ครั้ง</span>
           </div>
 
-          {/* Official Current Thai Date (Replaced Director's personal phone number) */}
+          {/* Official Current Thai Date */}
           {currentDate && (
             <div className="hidden lg:flex items-center gap-1.5 text-slate-300 font-medium">
               <span className="text-slate-700">|</span>

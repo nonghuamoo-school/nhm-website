@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useCalendar } from "@/hooks/useCalendar";
 import { CalendarEvent } from "@/types";
+import Swal from "sweetalert2";
 
 const CALENDAR_CATEGORIES: CalendarEvent["category"][] = [
   "กิจกรรมโรงเรียน",
@@ -77,7 +78,11 @@ export default function AdminCalendarPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title.trim()) {
-      alert("กรุณาระบุชื่อกิจกรรม");
+      Swal.fire({
+        icon: "warning",
+        title: "กรุณาระบุชื่อกิจกรรม",
+        confirmButtonColor: "#0F2942",
+      });
       return;
     }
 
@@ -89,7 +94,13 @@ export default function AdminCalendarPage() {
         category: formData.category,
         location: formData.location.trim() || "-"
       });
-      showToast(`แก้ไขกิจกรรม "${formData.title}" เรียบร้อยแล้ว`);
+      Swal.fire({
+        icon: "success",
+        title: "บันทึกการแก้ไขเรียบร้อย",
+        text: `กิจกรรม "${formData.title}" อัปเดตขึ้น Cloud แบบ Real-time แล้ว`,
+        timer: 1800,
+        showConfirmButton: false,
+      });
     } else {
       addEvent({
         title: formData.title.trim(),
@@ -98,16 +109,38 @@ export default function AdminCalendarPage() {
         category: formData.category,
         location: formData.location.trim() || "-"
       });
-      showToast(`เพิ่มกิจกรรมใหม่ "${formData.title}" เรียบร้อยแล้ว`);
+      Swal.fire({
+        icon: "success",
+        title: "เพิ่มกิจกรรมใหม่สำเร็จ",
+        text: `กิจกรรม "${formData.title}" บันทึกขึ้น Cloud แบบ Real-time เรียบร้อยแล้ว`,
+        timer: 1800,
+        showConfirmButton: false,
+      });
     }
 
     setIsModalOpen(false);
   };
 
-  const handleDelete = (id: string, title: string) => {
-    if (confirm(`คุณต้องการลบกิจกรรม "${title}" ใช่หรือไม่?`)) {
+  const handleDelete = async (id: string, title: string) => {
+    const res = await Swal.fire({
+      title: "ยืนยันการลบกิจกรรม?",
+      text: `คุณต้องการลบกิจกรรม "${title}" ใช่หรือไม่? เมื่อลบแล้วจะหายไปจากหน้าปฏิทินทันทีแบบ Real-time`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#e11d48",
+      cancelButtonColor: "#64748b",
+      confirmButtonText: "ใช่, ลบกิจกรรมนี้",
+      cancelButtonText: "ยกเลิก",
+    });
+
+    if (res.isConfirmed) {
       deleteEvent(id);
-      showToast(`ลบกิจกรรม "${title}" เรียบร้อยแล้ว`);
+      Swal.fire({
+        icon: "success",
+        title: "ลบกิจกรรมเรียบร้อยแล้ว",
+        timer: 1500,
+        showConfirmButton: false,
+      });
     }
   };
 

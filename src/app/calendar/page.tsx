@@ -1,19 +1,20 @@
 "use client";
 
 import React, { useState } from "react";
-import { Calendar as CalendarIcon, Clock, MapPin, Filter } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, MapPin, Filter, CalendarDays } from "lucide-react";
 import InnerPageLayout from "@/components/layout/InnerPageLayout";
-import { schoolCalendarEvents } from "@/data/calendar";
+import { useCalendar } from "@/hooks/useCalendar";
 
 export default function CalendarPage() {
+  const { eventList, isLoaded } = useCalendar();
   const [selectedCat, setSelectedCat] = useState<string>("ทั้งหมด");
 
   const categories = ["ทั้งหมด", "กิจกรรมโรงเรียน", "สอบ/วิชาการ", "วันหยุดราชการ", "ประชุม/อบรม"];
 
   const filtered =
     selectedCat === "ทั้งหมด"
-      ? schoolCalendarEvents
-      : schoolCalendarEvents.filter((ev) => ev.category === selectedCat);
+      ? eventList
+      : eventList.filter((ev) => ev.category === selectedCat);
 
   const toolbar = (
     <div className="flex flex-wrap items-center gap-2">
@@ -44,61 +45,75 @@ export default function CalendarPage() {
       description="กำหนดการกิจกรรม วันสอบ วันหยุดราชการ และการประชุม ประจำปีการศึกษา โรงเรียนบ้านหนองหัวหมู"
       toolbar={toolbar}
     >
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-xs divide-y divide-slate-100">
-        {filtered.map((event) => (
-          <div
-            key={event.id}
-            className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/80 transition-colors"
-          >
-            <div className="flex items-start gap-4">
-              {/* Date Box */}
-              <div className="w-14 sm:w-16 h-14 sm:h-16 rounded-xl bg-[#0F2942] text-white flex flex-col items-center justify-center shrink-0 shadow-xs">
-                <CalendarIcon className="w-4 h-4 text-amber-400 mb-0.5" />
-                <span className="text-[10px] font-bold text-slate-200 uppercase text-center px-1 leading-tight">
-                  {event.date.split(" ")[1] || "กำหนด"}
+      {filtered.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-[#E5E7EB] p-12 text-center shadow-xs">
+          <CalendarDays className="w-12 h-12 mx-auto mb-3 text-slate-300" />
+          <h3 className="text-sm sm:text-base font-bold text-[#0F2942]">
+            {selectedCat === "ทั้งหมด" ? "ยังไม่มีกิจกรรมในปฏิทิน" : `ไม่พบกิจกรรมในหมวดหมู่ "${selectedCat}"`}
+          </h3>
+          <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+            {selectedCat === "ทั้งหมด"
+              ? "สามารถติดตามกำหนดการและกิจกรรมใหม่จากทางโรงเรียนได้เร็วๆ นี้"
+              : "ลองเลือกหมวดหมู่อื่นเพื่อดูกิจกรรมที่เกี่ยวข้อง"}
+          </p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-xs divide-y divide-slate-100">
+          {filtered.map((event) => (
+            <div
+              key={event.id}
+              className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/80 transition-colors"
+            >
+              <div className="flex items-start gap-4">
+                {/* Date Box */}
+                <div className="w-14 sm:w-16 h-14 sm:h-16 rounded-xl bg-[#0F2942] text-white flex flex-col items-center justify-center shrink-0 shadow-xs">
+                  <CalendarIcon className="w-4 h-4 text-amber-400 mb-0.5" />
+                  <span className="text-[10px] font-bold text-slate-200 uppercase text-center px-1 leading-tight">
+                    {event.date.split(" ")[1] || "กำหนด"}
+                  </span>
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#0F2942]/10 text-[#0F2942]">
+                      {event.category}
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-sm sm:text-base text-[#0F2942]">
+                    {event.title}
+                  </h3>
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
+                    <span className="flex items-center gap-1 font-medium text-slate-700">
+                      <CalendarIcon className="w-3.5 h-3.5 text-[#0F2942]" />
+                      {event.date}
+                    </span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5 text-slate-400" />
+                      {event.time}
+                    </span>
+                    {event.location && event.location !== "-" && (
+                      <>
+                        <span>•</span>
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                          {event.location}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="self-end sm:self-center">
+                <span className="text-xs font-semibold text-[#0F2942] bg-[#0F2942]/5 px-3 py-1.5 rounded-xl border border-[#0F2942]/10">
+                  ปีการศึกษา 2569
                 </span>
               </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#0F2942]/10 text-[#0F2942]">
-                    {event.category}
-                  </span>
-                </div>
-                <h3 className="font-bold text-sm sm:text-base text-[#0F2942]">
-                  {event.title}
-                </h3>
-                <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
-                  <span className="flex items-center gap-1 font-medium text-slate-700">
-                    <CalendarIcon className="w-3.5 h-3.5 text-[#0F2942]" />
-                    {event.date}
-                  </span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5 text-slate-400" />
-                    {event.time}
-                  </span>
-                  {event.location !== "-" && (
-                    <>
-                      <span>•</span>
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                        {event.location}
-                      </span>
-                    </>
-                  )}
-                </div>
-              </div>
             </div>
-
-            <div className="self-end sm:self-center">
-              <span className="text-xs font-semibold text-[#0F2942] bg-[#0F2942]/5 px-3 py-1.5 rounded-xl border border-[#0F2942]/10">
-                ปีการศึกษา 2569
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </InnerPageLayout>
   );
 }
