@@ -116,31 +116,118 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
             </div>
           </div>
 
-          {/* Cover Image / Poster with Lightbox */}
-          <div className="rounded-2xl overflow-hidden bg-slate-50 border border-[#E5E7EB] relative group flex items-center justify-center p-2 sm:p-4">
-            <img
-              src={news.imageUrl || "/images/school-emblem-doc.png"}
-              alt={news.title}
-              className="max-h-[650px] w-auto object-contain rounded-xl shadow-xs"
-            />
-            <div className="absolute bottom-4 right-4 flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setLightboxImage(news.imageUrl || "/images/school-emblem-doc.png")}
-                className="px-3.5 py-2 rounded-xl bg-black/70 hover:bg-black/90 text-white backdrop-blur-2xs text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer transition-colors"
-                title="คลิกดูภาพป้ายขนาดเต็ม"
-              >
-                <Maximize2 className="w-4 h-4" />
-                <span>ดูภาพขนาดเต็ม</span>
-              </button>
-            </div>
-          </div>
+          {/* Visual Presentation: Side-by-side if A4 Poster exists, or Standard Single Cover */}
+          {news.newsletterPosterUrl ? (
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+              {/* Left Column (5 cols): Vertical A4 Poster (1414*2000 px) */}
+              <div className="md:col-span-5 bg-gradient-to-b from-amber-50/70 to-slate-50 rounded-2xl border border-amber-200 p-3 sm:p-4 shadow-xs flex flex-col items-center">
+                <div className="flex items-center justify-between w-full pb-2 mb-2 border-b border-amber-200/80 text-xs font-bold text-amber-950">
+                  <span className="flex items-center gap-1.5">
+                    <Megaphone className="w-4 h-4 text-amber-600" />
+                    <span>ป้ายวารสารประชาสัมพันธ์ A4</span>
+                  </span>
+                  {news.issueNumber && (
+                    <span className="px-2 py-0.5 rounded-md bg-amber-500 text-white text-[10px]">
+                      {news.issueNumber}
+                    </span>
+                  )}
+                </div>
 
-          {/* Excerpt Callout */}
-          {news.excerpt && (
-            <p className="font-medium text-slate-800 bg-[#F8FAFC] p-4 sm:p-5 rounded-xl border border-[#E5E7EB] leading-relaxed text-sm sm:text-base thai-wrap">
-              {news.excerpt}
-            </p>
+                <div className="relative w-full aspect-[1414/2000] rounded-xl overflow-hidden shadow-md group bg-white border border-slate-200 flex items-center justify-center">
+                  <img
+                    src={news.newsletterPosterUrl}
+                    alt={news.title}
+                    className="w-full h-full object-contain"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setLightboxImage(news.newsletterPosterUrl!)}
+                      className="px-3 py-1.5 rounded-xl bg-white text-[#0F2942] font-bold text-xs shadow-md flex items-center gap-1.5 hover:bg-slate-100 transition-colors cursor-pointer"
+                    >
+                      <Maximize2 className="w-3.5 h-3.5" />
+                      <span>ซูมดูป้าย A4</span>
+                    </button>
+                    <a
+                      href={news.newsletterPosterUrl}
+                      download="nhm-newsletter-poster.jpg"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 rounded-xl bg-white text-[#0F2942] hover:bg-slate-100 shadow-md transition-colors"
+                      title="ดาวน์โหลดภาพป้าย"
+                    >
+                      <Download className="w-4 h-4" />
+                    </a>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setLightboxImage(news.newsletterPosterUrl!)}
+                  className="mt-3 w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Maximize2 className="w-3.5 h-3.5" />
+                  <span>คลิกดูป้ายวารสารขนาดเต็ม (1414x2000 px)</span>
+                </button>
+              </div>
+
+              {/* Right Column (7 cols): Landscape Activity Cover Photo + Excerpt */}
+              <div className="md:col-span-7 space-y-4">
+                <div className="rounded-2xl overflow-hidden aspect-[16/10] bg-slate-100 border border-slate-200 relative group shadow-xs">
+                  <img
+                    src={news.imageUrl || "/images/school-emblem-doc.png"}
+                    alt={news.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <span className="absolute top-2.5 left-2.5 text-[10px] font-bold px-2 py-0.5 rounded bg-black/60 text-white backdrop-blur-2xs">
+                    ภาพหน้าปกกิจกรรม
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setLightboxImage(news.imageUrl || "/images/school-emblem-doc.png")}
+                    className="absolute bottom-2.5 right-2.5 p-2 rounded-xl bg-black/60 hover:bg-black/80 text-white backdrop-blur-2xs transition-all cursor-pointer"
+                    title="ดูภาพขยาย"
+                  >
+                    <Maximize2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {news.excerpt && (
+                  <p className="font-medium text-slate-800 bg-[#F8FAFC] p-4 sm:p-5 rounded-2xl border border-[#E5E7EB] leading-relaxed text-xs sm:text-sm thai-wrap">
+                    {news.excerpt}
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Standard Single Cover Image / Poster with Lightbox */}
+              <div className="rounded-2xl overflow-hidden bg-slate-50 border border-[#E5E7EB] relative group flex items-center justify-center p-2 sm:p-4">
+                <img
+                  src={news.imageUrl || "/images/school-emblem-doc.png"}
+                  alt={news.title}
+                  className="max-h-[650px] w-auto object-contain rounded-xl shadow-xs"
+                />
+                <div className="absolute bottom-4 right-4 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setLightboxImage(news.imageUrl || "/images/school-emblem-doc.png")}
+                    className="px-3.5 py-2 rounded-xl bg-black/70 hover:bg-black/90 text-white backdrop-blur-2xs text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer transition-colors"
+                    title="คลิกดูภาพป้ายขนาดเต็ม"
+                  >
+                    <Maximize2 className="w-4 h-4" />
+                    <span>ดูภาพขนาดเต็ม</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Excerpt Callout */}
+              {news.excerpt && (
+                <p className="font-medium text-slate-800 bg-[#F8FAFC] p-4 sm:p-5 rounded-xl border border-[#E5E7EB] leading-relaxed text-sm sm:text-base thai-wrap">
+                  {news.excerpt}
+                </p>
+              )}
+            </>
           )}
 
           {/* Article Body Content */}

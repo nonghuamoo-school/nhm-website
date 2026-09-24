@@ -84,6 +84,8 @@ function rowToNews(row: any): NewsItem {
     status: row.status || "เผยแพร่แล้ว",
     facebookUrl: row.facebook_url || row.facebookUrl || undefined,
     externalUrl: row.external_url || row.externalUrl || undefined,
+    newsletterPosterUrl: row.newsletter_poster_url || row.newsletterPosterUrl || undefined,
+    issueNumber: row.issue_number || row.issueNumber || undefined,
     galleryImages: Array.isArray(row.gallery_images)
       ? row.gallery_images
       : Array.isArray(row.galleryImages)
@@ -102,6 +104,8 @@ function newsToRow(item: NewsItem) {
     date: toIsoDate(item.date),
     author: item.author || "ฝ่ายงานประชาสัมพันธ์ โรงเรียนบ้านหนองหัวหมู",
     image_url: item.imageUrl || "/images/school-emblem-doc.png",
+    newsletter_poster_url: item.newsletterPosterUrl || null,
+    issue_number: item.issueNumber || null,
     views: item.views || 1,
     is_pinned: Boolean(item.isFeatured),
     attachments: item.attachments || [],
@@ -126,10 +130,11 @@ export function useNews() {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
           const cleaned = parsed.filter((n) => !deletedIds.has(n.id));
-          if (cleaned.length > 0 || deletedIds.size > 0) {
-            setNewsList(cleaned);
-            return;
-          }
+          const existingIds = new Set(cleaned.map((n) => n.id));
+          const missingDefaults = schoolNews.filter((n) => !deletedIds.has(n.id) && !existingIds.has(n.id));
+          const merged = [...missingDefaults, ...cleaned];
+          setNewsList(merged);
+          return;
         }
       }
 

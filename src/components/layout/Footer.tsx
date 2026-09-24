@@ -57,6 +57,12 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/journal" className="hover:text-amber-400 transition-colors flex items-center gap-1.5 text-amber-300 font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                  วารสารประชาสัมพันธ์
+                </Link>
+              </li>
+              <li>
                 <Link href="/academic" className="hover:text-amber-400 transition-colors">
                   ผลการทดสอบระดับชาติ
                 </Link>

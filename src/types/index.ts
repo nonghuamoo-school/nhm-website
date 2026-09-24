@@ -77,10 +77,12 @@ export interface NewsItem {
   slug: string;
   excerpt: string;
   content: string;
-  category: 'ประชาสัมพันธ์' | 'กิจกรรม' | 'วิชาการ' | 'จัดซื้อจัดจ้าง';
+  category: 'ประชาสัมพันธ์' | 'กิจกรรม' | 'วิชาการ' | 'จัดซื้อจัดจ้าง' | 'วารสารประชาสัมพันธ์';
   date: string;
   author: string;
   imageUrl: string;
+  newsletterPosterUrl?: string; // ป้ายวารสารประชาสัมพันธ์ ขนาด 1414*2000 px (A4)
+  issueNumber?: string; // เช่น ฉบับที่ 11/2569
   views: number;
   isFeatured?: boolean;
   status?: 'เผยแพร่แล้ว' | 'ฉบับร่าง';

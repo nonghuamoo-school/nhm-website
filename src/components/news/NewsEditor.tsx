@@ -49,12 +49,20 @@ export default function NewsEditor({
 
   const [title, setTitle] = useState(initialData?.title || "");
   const [category, setCategory] = useState<
-    "ประชาสัมพันธ์" | "กิจกรรม" | "วิชาการ" | "จัดซื้อจัดจ้าง"
+    "ประชาสัมพันธ์" | "กิจกรรม" | "วิชาการ" | "จัดซื้อจัดจ้าง" | "วารสารประชาสัมพันธ์"
   >(initialData?.category || "ประชาสัมพันธ์");
   const [imageUrl, setImageUrl] = useState(
     initialData?.imageUrl ||
       "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=800"
   );
+  const [newsletterPosterUrl, setNewsletterPosterUrl] = useState(
+    initialData?.newsletterPosterUrl || ""
+  );
+  const [issueNumber, setIssueNumber] = useState(
+    initialData?.issueNumber || ""
+  );
+  const [isProcessingPoster, setIsProcessingPoster] = useState(false);
+  const posterInputRef = useRef<HTMLInputElement>(null);
   const [facebookUrl, setFacebookUrl] = useState(initialData?.facebookUrl || "");
   const [externalUrl, setExternalUrl] = useState(initialData?.externalUrl || "");
   const [galleryImages, setGalleryImages] = useState<string[]>(
@@ -146,6 +154,26 @@ export default function NewsEditor({
     }
   };
 
+  // Newsletter A4 poster upload (1414 x 2000 px)
+  const handlePosterFileUpload = async (file: File) => {
+    setIsProcessingPoster(true);
+    try {
+      const dataUrl = await compressImageFile(file, { maxWidth: 1414, maxHeight: 2000, quality: 0.85 });
+      setNewsletterPosterUrl(dataUrl);
+      if (posterInputRef.current) posterInputRef.current.value = "";
+    } catch (err: any) {
+      console.error("Error processing poster image:", err);
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาดในการโหลดรูปภาพป้ายวารสาร",
+        text: err?.message || "กรุณาลองใหม่อีกครั้ง หรือเลือกไฟล์อื่น",
+        confirmButtonColor: "#0F2942",
+      });
+    } finally {
+      setIsProcessingPoster(false);
+    }
+  };
+
   // Gallery multi-image upload
   const handleGalleryFilesUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -221,6 +249,8 @@ export default function NewsEditor({
       title: title.trim() || "ข่าวประชาสัมพันธ์",
       category,
       imageUrl: imageUrl || "/images/school-emblem-doc.png",
+      newsletterPosterUrl: newsletterPosterUrl.trim() || undefined,
+      issueNumber: issueNumber.trim() || undefined,
       galleryImages: galleryImages.filter(Boolean),
       facebookUrl: facebookUrl.trim() || undefined,
       externalUrl: externalUrl.trim() || undefined,
@@ -391,6 +421,7 @@ export default function NewsEditor({
                   className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20 focus:border-[#0F2942] min-h-[38px]"
                 >
                   <option value="ประชาสัมพันธ์">ประชาสัมพันธ์</option>
+                  <option value="วารสารประชาสัมพันธ์">วารสารประชาสัมพันธ์</option>
                   <option value="กิจกรรม">กิจกรรม</option>
                   <option value="วิชาการ">วิชาการ</option>
                   <option value="จัดซื้อจัดจ้าง">จัดซื้อจัดจ้าง</option>
@@ -504,6 +535,127 @@ export default function NewsEditor({
                   />
                 </div>
               </div>
+            </div>
+
+            {/* SECTION 1.5: A4 NEWSLETTER POSTER (ป้ายวารสารประชาสัมพันธ์ 1414*2000 px) */}
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-50/70 to-teal-50/60 border border-emerald-200/80 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                    <FileText className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-bold text-[#0F2942] flex items-center gap-1.5">
+                      <span>แนบป้ายวารสาร / จดหมายข่าวแนวตั้ง A4 (1414 × 2000 px)</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">ถ้ามี</span>
+                    </h3>
+                    <p className="text-[11px] text-slate-500">
+                      เมื่อแนบป้ายนี้ ระบบจะแสดงคู่กับภาพกิจกรรมด้านซ้าย และนำไปรวมในหน้า "วารสารประชาสัมพันธ์" ให้ดาวน์โหลดได้ทันที
+                    </p>
+                  </div>
+                </div>
+
+                {newsletterPosterUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setNewsletterPosterUrl("")}
+                    className="px-2.5 py-1 text-[11px] rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 font-medium transition-colors"
+                  >
+                    ลบป้ายนี้
+                  </button>
+                )}
+              </div>
+
+              {/* Issue Number Input & URL */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                    ฉบับที่ / รหัสวารสาร (Issue Number)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="เช่น ฉบับที่ 11/2569 หรือ รางวัลดีเด่น"
+                    value={issueNumber}
+                    onChange={(e) => setIssueNumber(e.target.value)}
+                    className="w-full text-xs px-3 py-2 rounded-xl border border-emerald-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                    หรือวางลิงก์รูปป้าย A4 (URL)
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://... หรือ /images/journal-issue-11-2569.jpg"
+                    value={newsletterPosterUrl.startsWith("data:") ? "" : newsletterPosterUrl}
+                    onChange={(e) => setNewsletterPosterUrl(e.target.value)}
+                    className="w-full text-xs px-3 py-2 rounded-xl border border-emerald-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+
+              {/* Hidden Poster File Input */}
+              <input
+                type="file"
+                ref={posterInputRef}
+                accept="image/png, image/jpeg, image/jpg, image/webp"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handlePosterFileUpload(file);
+                }}
+                className="hidden"
+              />
+
+              {newsletterPosterUrl ? (
+                <div className="flex items-center gap-4 bg-white/80 p-3 rounded-xl border border-emerald-200">
+                  <div className="w-16 h-22 sm:w-20 sm:h-28 rounded-lg overflow-hidden bg-slate-900 border border-emerald-300 shrink-0 shadow-sm relative group">
+                    <img
+                      src={newsletterPosterUrl}
+                      alt="ตัวอย่างป้ายวารสาร A4"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 text-emerald-800 font-bold text-xs mb-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span>แนบป้ายวารสาร A4 สำเร็จ</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 line-clamp-2">
+                      {issueNumber ? `ฉบับ: ${issueNumber} • ` : ""}สัดส่วนแนวตั้ง 1414×2000 px คมชัด พร้อมให้ผู้ปกครองซูมดูและดาวน์โหลด
+                    </p>
+                    <div className="mt-2 flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => posterInputRef.current?.click()}
+                        disabled={isProcessingPoster}
+                        className="px-2.5 py-1 text-[11px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition-colors flex items-center gap-1"
+                      >
+                        <Upload className="w-3 h-3" />
+                        <span>{isProcessingPoster ? "กำลังประมวลผล..." : "เปลี่ยนรูปป้าย A4"}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  onClick={() => posterInputRef.current?.click()}
+                  className="border-2 border-dashed border-emerald-300 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-xl p-4 text-center cursor-pointer transition-all duration-200 group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto mb-2 group-hover:scale-105 transition-transform">
+                    {isProcessingPoster ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Upload className="w-5 h-5" />
+                    )}
+                  </div>
+                  <p className="text-xs font-bold text-emerald-950 mb-0.5">
+                    {isProcessingPoster ? "กำลังประมวลผลและปรับขนาดป้าย A4..." : "คลิกเพื่อเลือกไฟล์ป้ายวารสารแนวตั้ง A4 (1414 × 2000 px)"}
+                  </p>
+                  <p className="text-[11px] text-emerald-700/80">
+                    รองรับ JPG, PNG (ระบบจะรักษาความคมชัดและสัดส่วน A4 ให้ตรงตามมาตรฐานประชาสัมพันธ์)
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* SECTION 2: DEDICATED FACEBOOK POST LINK */}
@@ -995,14 +1147,46 @@ export default function NewsEditor({
             {/* TAB 1: Article Live Preview */}
             {previewTab === "article" && (
               <div className="space-y-3 max-h-[650px] overflow-y-auto pr-1">
-                {/* Cover Image */}
-                <div className="aspect-[16/9] rounded-xl overflow-hidden bg-slate-100 border border-[#E5E7EB]">
-                  <img
-                    src={imageUrl || "/images/school-emblem-doc.png"}
-                    alt={title || "หน้าปก"}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                {/* Cover Image / Paired A4 Poster Preview */}
+                {newsletterPosterUrl ? (
+                  <div className="grid grid-cols-12 gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <div className="col-span-5 aspect-[1414/2000] rounded-lg overflow-hidden bg-slate-900 border border-slate-300 relative shadow-2xs">
+                      <img
+                        src={newsletterPosterUrl}
+                        alt="ป้ายวารสาร A4"
+                        className="w-full h-full object-contain"
+                      />
+                      <span className="absolute bottom-1 right-1 text-[8px] bg-emerald-700 text-white px-1 rounded font-bold">
+                        A4 ป้าย
+                      </span>
+                    </div>
+                    <div className="col-span-7 flex flex-col justify-between">
+                      <div className="aspect-[16/10] rounded-lg overflow-hidden bg-slate-100 border border-slate-200 shadow-2xs">
+                        <img
+                          src={imageUrl || "/images/school-emblem-doc.png"}
+                          alt={title || "หน้าปก"}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="mt-2 bg-white p-2 rounded-lg border border-slate-200">
+                        <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 inline-block mb-1">
+                          {issueNumber || "วารสารประชาสัมพันธ์"}
+                        </span>
+                        <p className="text-[10px] text-slate-500 line-clamp-2">
+                          แสดงป้าย A4 คู่กับภาพกิจกรรมบนหน้าข่าว
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="aspect-[16/9] rounded-xl overflow-hidden bg-slate-100 border border-[#E5E7EB]">
+                    <img
+                      src={imageUrl || "/images/school-emblem-doc.png"}
+                      alt={title || "หน้าปก"}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
 
                 <div className="space-y-1.5">
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#0F2942] text-white inline-block">
