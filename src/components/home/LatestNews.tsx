@@ -41,15 +41,8 @@ export default function LatestNews() {
         {/* Action Buttons */}
         <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
           <Link
-            href="/journal"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 px-3.5 py-2 rounded-xl border border-amber-200 transition-colors shadow-2xs"
-          >
-            <BookOpen className="w-3.5 h-3.5 text-amber-600" />
-            <span>วารสารประชาสัมพันธ์</span>
-          </Link>
-          <Link
             href="/news"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#0F2942] hover:bg-[#163C61] px-3.5 py-2 rounded-xl shadow-xs transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#0F2942] hover:bg-[#163C61] px-4 py-2 rounded-xl shadow-xs transition-colors"
           >
             <span>ดูข่าวทั้งหมด</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -57,11 +50,11 @@ export default function LatestNews() {
         </div>
       </div>
 
-      {/* Main Grid: Asymmetric 7/5 with balanced spacing */}
+      {/* Main Grid: Asymmetric 7/5 or Full 12 when single */}
       {featured ? (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-          {/* Left: Featured Flagship Story (7 cols) */}
-          <div className="lg:col-span-7 bg-white rounded-2xl border border-[#E5E7EB] shadow-xs overflow-hidden group hover:border-slate-300 transition-colors flex flex-col">
+        <div className={`grid grid-cols-1 ${sideNews.length > 0 ? "lg:grid-cols-12" : ""} gap-5 items-start`}>
+          {/* Featured Flagship Story */}
+          <div className={`${sideNews.length > 0 ? "lg:col-span-7" : "w-full"} bg-white rounded-2xl border border-[#E5E7EB] shadow-xs overflow-hidden group hover:border-slate-300 transition-colors flex flex-col`}>
             <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100">
               <img
                 src={featured.imageUrl || "/images/school-emblem-doc.png"}
@@ -123,9 +116,9 @@ export default function LatestNews() {
           </div>
 
           {/* Right: 4 Balanced Compact Stories (5 cols) */}
-          <div className="lg:col-span-5 flex flex-col gap-2.5">
-            {sideNews.length > 0 ? (
-              sideNews.map((news) => (
+          {sideNews.length > 0 && (
+            <div className="lg:col-span-5 flex flex-col gap-2.5">
+              {sideNews.map((news) => (
                 <Link
                   key={news.id}
                   href={`/news/${news.id}`}
@@ -162,13 +155,9 @@ export default function LatestNews() {
                     </h4>
                   </div>
                 </Link>
-              ))
-            ) : (
-              <div className="p-8 text-center bg-white rounded-2xl border border-dashed border-slate-200 text-slate-400 text-xs">
-                ไม่มีข่าวเพิ่มเติมในขณะนี้
-              </div>
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       ) : (
         <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 text-slate-400 text-sm">

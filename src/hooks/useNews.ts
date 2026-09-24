@@ -168,10 +168,14 @@ export function useNews() {
           .filter((n) => !deletedIds.has(n.id));
 
         if (cloudItems.length > 0) {
-          setNewsList(cloudItems);
+          const existingIds = new Set(cloudItems.map((n) => n.id));
+          const missingDefaults = schoolNews.filter((n) => !deletedIds.has(n.id) && !existingIds.has(n.id));
+          const finalMerged = [...cloudItems, ...missingDefaults];
+
+          setNewsList(finalMerged);
           setIsCloudSynced(true);
           if (typeof window !== "undefined") {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudItems));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(finalMerged));
           }
           return;
         }
@@ -189,10 +193,14 @@ export function useNews() {
           .filter((n) => !deletedIds.has(n.id));
 
         if (cloudFromTable.length > 0) {
-          setNewsList(cloudFromTable);
+          const existingIds = new Set(cloudFromTable.map((n) => n.id));
+          const missingDefaults = schoolNews.filter((n) => !deletedIds.has(n.id) && !existingIds.has(n.id));
+          const finalMerged = [...cloudFromTable, ...missingDefaults];
+
+          setNewsList(finalMerged);
           setIsCloudSynced(true);
           if (typeof window !== "undefined") {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudFromTable));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(finalMerged));
           }
         }
       }

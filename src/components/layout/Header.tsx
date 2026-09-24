@@ -13,7 +13,6 @@ const navLinks = [
   { name: "ข้อมูลโรงเรียน", href: "/about" },
   { name: "บุคลากร", href: "/personnel" },
   { name: "ข่าวประชาสัมพันธ์", href: "/news" },
-  { name: "วารสารประชาสัมพันธ์", href: "/journal" },
   { name: "ผลการทดสอบระดับชาติ", href: "/academic" },
   { name: "ดาวน์โหลด", href: "/downloads" },
   { name: "ปฏิทิน", href: "/calendar" },

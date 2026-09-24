@@ -421,7 +421,6 @@ export default function NewsEditor({
                   className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20 focus:border-[#0F2942] min-h-[38px]"
                 >
                   <option value="ประชาสัมพันธ์">ประชาสัมพันธ์</option>
-                  <option value="วารสารประชาสัมพันธ์">วารสารประชาสัมพันธ์</option>
                   <option value="กิจกรรม">กิจกรรม</option>
                   <option value="วิชาการ">วิชาการ</option>
                   <option value="จัดซื้อจัดจ้าง">จัดซื้อจัดจ้าง</option>
