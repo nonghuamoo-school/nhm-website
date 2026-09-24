@@ -12,11 +12,38 @@ const sarabun = Sarabun({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://nhm-website-two.vercel.app"),
   title: {
     template: `%s | ${schoolInfo.name}`,
     default: `${schoolInfo.name} - ${schoolInfo.subAffiliation}`,
   },
   description: `${schoolInfo.name} (${schoolInfo.nameEn}) ${schoolInfo.subAffiliation} ข้อมูลโรงเรียน ข่าวสารประชาสัมพันธ์ ผลการทดสอบระดับชาติ บุคลากรทางการศึกษา`,
+  openGraph: {
+    title: `${schoolInfo.name} | ${schoolInfo.subAffiliation}`,
+    description: `เว็บไซต์ทางการ ${schoolInfo.name} (${schoolInfo.nameEn}) สังกัด ${schoolInfo.subAffiliation} ข้อมูลโรงเรียน ข่าวสารประชาสัมพันธ์ วารสาร และผลงานทางการศึกษา`,
+    url: "https://nhm-website-two.vercel.app",
+    siteName: schoolInfo.name,
+    images: [
+      {
+        url: "/images/school-hero-gate.png",
+        width: 1200,
+        height: 630,
+        alt: schoolInfo.name,
+      },
+    ],
+    locale: "th_TH",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${schoolInfo.name} | ${schoolInfo.subAffiliation}`,
+    description: `เว็บไซต์ทางการ ${schoolInfo.name} สพป.บุรีรัมย์ เขต 3`,
+    images: ["/images/school-hero-gate.png"],
+  },
+  icons: {
+    icon: "/images/school-logo.png",
+    apple: "/images/school-logo.png",
+  },
 };
 
 export default function RootLayout({

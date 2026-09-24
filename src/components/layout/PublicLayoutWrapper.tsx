@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Header from "./Header";
 import Footer from "./Footer";
@@ -12,6 +12,22 @@ export default function PublicLayoutWrapper({
 }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
+
+  // Clean Facebook tracking parameters (?fbclid=...) from browser URL bar seamlessly
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.search.includes("fbclid")) {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("fbclid");
+        url.searchParams.delete("fb_source");
+        const cleanQuery = url.searchParams.toString();
+        const cleanUrl = url.pathname + (cleanQuery ? `?${cleanQuery}` : "") + url.hash;
+        window.history.replaceState({}, document.title, cleanUrl);
+      } catch (e) {
+        console.debug("Clean fbclid error:", e);
+      }
+    }
+  }, [pathname]);
 
   if (isAdmin) {
     return <>{children}</>;
