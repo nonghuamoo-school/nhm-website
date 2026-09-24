@@ -67,6 +67,20 @@ export function formatThaiDate(dateStr?: string): string {
   return `${day} ${month} ${year}`;
 }
 
+/**
+ * Sort news items strictly by date descending (newest date first)
+ */
+export function sortNewsByDateDesc(items: NewsItem[]): NewsItem[] {
+  return [...items].sort((a, b) => {
+    const isoA = toIsoDate(a.date);
+    const isoB = toIsoDate(b.date);
+    if (isoB !== isoA) {
+      return isoB.localeCompare(isoA);
+    }
+    return (b.id || "").localeCompare(a.id || "");
+  });
+}
+
 function rowToNews(row: any): NewsItem {
   return {
     id: row.id,
@@ -130,20 +144,19 @@ export function useNews() {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
           const cleaned = parsed.filter((n) => !deletedIds.has(n.id));
-          const existingIds = new Set(cleaned.map((n) => n.id));
-          const missingDefaults = schoolNews.filter((n) => !deletedIds.has(n.id) && !existingIds.has(n.id));
-          const merged = [...missingDefaults, ...cleaned];
-          setNewsList(merged);
-          return;
+          if (cleaned.length > 0) {
+            setNewsList(sortNewsByDateDesc(cleaned));
+            return;
+          }
         }
       }
 
       // Fallback: If no saved list or empty without intentional deletions, load default schoolNews
       const initialCleaned = schoolNews.filter((n) => !deletedIds.has(n.id));
-      setNewsList(initialCleaned);
+      setNewsList(sortNewsByDateDesc(initialCleaned));
     } catch (err) {
       console.error("Error reading nhm_school_news from localStorage", err);
-      setNewsList(schoolNews);
+      setNewsList(sortNewsByDateDesc(schoolNews));
     } finally {
       setIsLoaded(true);
     }
@@ -168,14 +181,11 @@ export function useNews() {
           .filter((n) => !deletedIds.has(n.id));
 
         if (cloudItems.length > 0) {
-          const existingIds = new Set(cloudItems.map((n) => n.id));
-          const missingDefaults = schoolNews.filter((n) => !deletedIds.has(n.id) && !existingIds.has(n.id));
-          const finalMerged = [...cloudItems, ...missingDefaults];
-
-          setNewsList(finalMerged);
+          const sorted = sortNewsByDateDesc(cloudItems);
+          setNewsList(sorted);
           setIsCloudSynced(true);
           if (typeof window !== "undefined") {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(finalMerged));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(sorted));
           }
           return;
         }
@@ -193,14 +203,11 @@ export function useNews() {
           .filter((n) => !deletedIds.has(n.id));
 
         if (cloudFromTable.length > 0) {
-          const existingIds = new Set(cloudFromTable.map((n) => n.id));
-          const missingDefaults = schoolNews.filter((n) => !deletedIds.has(n.id) && !existingIds.has(n.id));
-          const finalMerged = [...cloudFromTable, ...missingDefaults];
-
-          setNewsList(finalMerged);
+          const sorted = sortNewsByDateDesc(cloudFromTable);
+          setNewsList(sorted);
           setIsCloudSynced(true);
           if (typeof window !== "undefined") {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(finalMerged));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(sorted));
           }
         }
       }
@@ -250,12 +257,13 @@ export function useNews() {
   }, [loadFromStorage, fetchCloudNews]);
 
   const persist = async (newList: NewsItem[]): Promise<void> => {
-    setNewsList(newList);
+    const sorted = sortNewsByDateDesc(newList);
+    setNewsList(sorted);
 
     // 1. Save to localStorage immediately
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(newList));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sorted));
         window.dispatchEvent(new Event(UPDATE_EVENT));
       } catch (err) {
         console.error("Error saving nhm_school_news to localStorage", err);
@@ -268,12 +276,12 @@ export function useNews() {
         // A. Primary: Store full rich news payload in school_settings JSONB (100% schema resilient)
         await supabase.from("school_settings").upsert({
           key: CLOUD_SETTINGS_KEY,
-          value: newList,
+          value: sorted,
           updated_at: new Date().toISOString(),
         });
 
         // B. Secondary: Store rows in news table with mapped columns and safe ISO dates
-        const rows = newList.map(newsToRow);
+        const rows = sorted.map(newsToRow);
         const { error: upsertErr } = await supabase.from("news").upsert(rows);
         if (upsertErr) {
           console.warn("Notice: Sync to news table warning (JSONB backup secured):", upsertErr.message);

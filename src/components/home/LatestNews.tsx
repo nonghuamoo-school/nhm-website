@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -12,14 +12,17 @@ import {
   Megaphone,
   BookOpen
 } from "lucide-react";
-import { useNews } from "@/hooks/useNews";
+import { useNews, sortNewsByDateDesc } from "@/hooks/useNews";
 
 export default function LatestNews() {
   const { newsList } = useNews();
 
-  // Featured article is either the first marked as featured, or the first item
-  const featured = newsList.find((n) => n.isFeatured) || newsList[0];
-  const sideNews = newsList.filter((n) => n.id !== featured?.id).slice(0, 4);
+  // Strictly sort news by newest date first
+  const sortedNews = useMemo(() => sortNewsByDateDesc(newsList), [newsList]);
+
+  // The latest news item is always the main featured story
+  const featured = sortedNews[0];
+  const sideNews = sortedNews.slice(1, 5);
 
   return (
     <section className="space-y-5">

@@ -58,14 +58,14 @@ export default function Header() {
                 emblemType={settings.emblemType}
               />
             </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-base sm:text-xl lg:text-2xl font-black text-[#0F2942] tracking-tight leading-tight truncate group-hover:text-blue-900 transition-colors">
+            <div className="flex flex-col justify-center min-w-0 py-0.5">
+              <span className="text-base sm:text-xl lg:text-2xl font-black text-[#0F2942] tracking-tight leading-normal pb-1 group-hover:text-blue-900 transition-colors">
                 {settings.name}
               </span>
-              <span className="text-[11px] sm:text-xs text-slate-500 font-medium truncate hidden sm:block">
+              <span className="text-[11px] sm:text-xs text-slate-500 font-medium leading-normal -mt-1 hidden sm:block">
                 {settings.subAffiliation}
               </span>
-              <span className="text-[11px] text-slate-500 font-medium truncate sm:hidden">
+              <span className="text-[11px] text-slate-500 font-medium leading-normal -mt-1 sm:hidden">
                 สพป. บุรีรัมย์ เขต 3
               </span>
             </div>

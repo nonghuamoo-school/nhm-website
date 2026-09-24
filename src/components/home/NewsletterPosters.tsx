@@ -12,7 +12,7 @@ import {
   X,
   ExternalLink
 } from "lucide-react";
-import { useNews } from "@/hooks/useNews";
+import { useNews, toIsoDate } from "@/hooks/useNews";
 
 export default function NewsletterPosters() {
   const { newsList } = useNews();
@@ -22,9 +22,14 @@ export default function NewsletterPosters() {
     issue?: string;
   } | null>(null);
 
-  // Filter items that have an A4 newsletter poster attached
+  // Filter items that have an A4 newsletter poster attached and sort newest first
   const posterItems = useMemo(() => {
-    return newsList.filter((item) => Boolean(item.newsletterPosterUrl));
+    const withPoster = newsList.filter((item) => Boolean(item.newsletterPosterUrl));
+    return [...withPoster].sort((a, b) => {
+      const isoA = toIsoDate(a.date);
+      const isoB = toIsoDate(b.date);
+      return isoB.localeCompare(isoA);
+    });
   }, [newsList]);
 
   if (posterItems.length === 0) {
@@ -50,17 +55,6 @@ export default function NewsletterPosters() {
             จดหมายข่าว ผลงานสถานศึกษา และประกาศสำคัญ (สัดส่วน A4 คมชัดสูง แตะเพื่อซูมอ่านหรือบันทึกภาพ)
           </p>
         </div>
-
-        <a
-          href="https://www.facebook.com/profile.php?id=100071517975903"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1877F2] hover:text-blue-800 bg-blue-50/70 hover:bg-blue-100/70 px-3.5 py-2 rounded-xl border border-blue-200/60 transition-colors shrink-0 self-start sm:self-auto"
-        >
-          <span className="font-mono font-bold">f</span>
-          <span>คลังภาพกิจกรรมบน Facebook</span>
-          <ExternalLink className="w-3 h-3" />
-        </a>
       </div>
 
       {/* Poster Grid: 2 cols on mobile, 3 cols on tablet, 4 cols on desktop */}

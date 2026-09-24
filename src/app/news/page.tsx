@@ -16,7 +16,7 @@ import {
   ExternalLink
 } from "lucide-react";
 import InnerPageLayout from "@/components/layout/InnerPageLayout";
-import { useNews } from "@/hooks/useNews";
+import { useNews, sortNewsByDateDesc } from "@/hooks/useNews";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -26,20 +26,23 @@ export default function NewsListPage() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
+  // Strictly sort news by date descending
+  const sorted = useMemo(() => sortNewsByDateDesc(newsList), [newsList]);
+
   // Filter only by search word (title or excerpt)
   const filtered = useMemo(() => {
-    if (!searchWord.trim()) return newsList;
+    if (!searchWord.trim()) return sorted;
     const term = searchWord.toLowerCase().trim();
-    return newsList.filter((item) => {
+    return sorted.filter((item) => {
       const titleMatch = (item.title || "").toLowerCase().includes(term);
       const excerptMatch = (item.excerpt || "").toLowerCase().includes(term);
       return titleMatch || excerptMatch;
     });
-  }, [newsList, searchWord]);
+  }, [sorted, searchWord]);
 
-  // Featured banner on page 1 when no search active
+  // Featured banner on page 1 when no search active: ALWAYS the newest news item
   const showFeaturedBanner = !searchWord && currentPage === 1 && filtered.length > 0;
-  const featured = showFeaturedBanner ? (filtered.find((n) => n.isFeatured) || filtered[0]) : null;
+  const featured = showFeaturedBanner ? filtered[0] : null;
 
   // Grid items: exclude featured from page 1 grid to avoid duplication
   const gridSource = useMemo(() => {
