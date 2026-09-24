@@ -5,10 +5,6 @@ import {
   X,
   ExternalLink,
   Download,
-  ZoomIn,
-  ZoomOut,
-  ChevronLeft,
-  ChevronRight,
   Maximize2,
   Minimize2,
   FileText,
@@ -16,8 +12,12 @@ import {
   Share2,
   Check,
   Building2,
-  ShieldCheck
+  ShieldCheck,
+  AlertCircle,
+  HardDrive,
+  Loader2
 } from "lucide-react";
+import { resolveDocumentMedia, triggerDocumentDownload } from "@/lib/drive";
 
 interface DocumentViewerModalProps {
   isOpen: boolean;
@@ -30,6 +30,7 @@ interface DocumentViewerModalProps {
     date?: string;
     driveUrl?: string;
     downloadUrl?: string;
+    previewUrl?: string;
     description?: string;
   } | null;
 }
@@ -37,13 +38,11 @@ interface DocumentViewerModalProps {
 export default function DocumentViewerModal({
   isOpen,
   onClose,
-  document,
+  document: doc,
 }: DocumentViewerModalProps) {
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const totalPages = 12;
-  const [zoomLevel, setZoomLevel] = useState<number>(100);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
+  const [isLoadingIframe, setIsLoadingIframe] = useState<boolean>(true);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -51,30 +50,50 @@ export default function DocumentViewerModal({
     };
     if (isOpen) {
       window.addEventListener("keydown", handleKeyDown);
-      document && (window.document.body.style.overflow = "hidden");
+      window.document.body.style.overflow = "hidden";
+      setIsLoadingIframe(true);
     }
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.document.body.style.overflow = "unset";
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, doc]);
 
-  if (!isOpen || !document) return null;
+  if (!isOpen || !doc) return null;
+
+  const media = resolveDocumentMedia(doc);
 
   const handleCopyLink = () => {
-    if (document.driveUrl) {
-      navigator.clipboard.writeText(document.driveUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+    const linkToCopy = media.driveViewUrl || doc.driveUrl || window.location.href;
+    navigator.clipboard.writeText(linkToCopy);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownload = () => {
+    triggerDocumentDownload(media.downloadUrl, media.fileName);
   };
 
   const handlePrint = () => {
+    // If there's an iframe, we try to focus and print, or fallback to window.print()
+    const iframeEl = document.getElementById("nhm-pdf-viewer-frame") as HTMLIFrameElement | null;
+    if (iframeEl && iframeEl.contentWindow) {
+      try {
+        iframeEl.contentWindow.print();
+        return;
+      } catch {
+        // Cross-origin iframe will throw security error, open in new window instead
+        if (media.driveViewUrl) {
+          window.open(media.driveViewUrl, "_blank");
+          return;
+        }
+      }
+    }
     window.print();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-200">
       <div
         className={`bg-slate-900 text-white rounded-2xl flex flex-col shadow-2xl border border-slate-700/60 transition-all duration-300 overflow-hidden ${
           isFullscreen
@@ -83,65 +102,66 @@ export default function DocumentViewerModal({
         }`}
       >
         {/* Top Header */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-slate-950 border-b border-slate-800 shrink-0 gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-red-500/20 text-red-400 border border-red-500/30 flex items-center justify-center shrink-0">
-              <FileText className="w-5 h-5" />
+        <div className="flex items-center justify-between px-3 sm:px-6 py-3 bg-slate-950 border-b border-slate-800 shrink-0 gap-2 sm:gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-red-500/20 text-red-400 border border-red-500/30 flex items-center justify-center shrink-0">
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                  {document.category || "เอกสารราชการ"}
+                  {doc.category || "เอกสารราชการ"}
                 </span>
                 <span className="text-[11px] text-slate-400 hidden sm:inline">
-                  • {document.fileSize || "1.2 MB"} • วันที่ {document.date || "ล่าสุด"}
+                  • {doc.fileSize || "1.0 MB"} • วันที่ {doc.date || "ล่าสุด"}
                 </span>
               </div>
-              <h2 className="text-sm sm:text-base font-bold text-white truncate max-w-md sm:max-w-xl">
-                {document.title}
+              <h2 className="text-xs sm:text-base font-bold text-white truncate max-w-[200px] sm:max-w-md lg:max-w-xl">
+                {doc.title}
               </h2>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Drive Link Button */}
-            {document.driveUrl && (
+            {media.driveViewUrl && (
               <a
-                href={document.driveUrl}
+                href={media.driveViewUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 title="เปิดดูไฟล์ต้นฉบับบน Google Drive"
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 text-xs font-semibold transition-colors"
+                className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 text-xs font-semibold transition-colors"
               >
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.4z" />
-                </svg>
+                <HardDrive className="w-3.5 h-3.5" />
                 <span>เปิดบน Google Drive</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
             )}
 
-            {/* Direct Download */}
-            <a
-              href={document.downloadUrl || "#"}
-              download
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-xs transition-colors"
+            {/* Direct Download Button with dynamic filename */}
+            <button
+              type="button"
+              onClick={handleDownload}
+              title={`ดาวน์โหลดเป็นไฟล์: ${media.fileName}`}
+              className="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">ดาวน์โหลด</span>
-            </a>
+            </button>
 
-            {/* Share link */}
+            {/* Share / Copy link */}
             <button
+              type="button"
               onClick={handleCopyLink}
               title="คัดลอกลิงก์เอกสาร"
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
             >
               {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4" />}
             </button>
 
             {/* Print */}
             <button
+              type="button"
               onClick={handlePrint}
               title="พิมพ์เอกสาร"
               className="hidden sm:inline-flex p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
@@ -151,177 +171,140 @@ export default function DocumentViewerModal({
 
             {/* Fullscreen Toggle */}
             <button
+              type="button"
               onClick={() => setIsFullscreen(!isFullscreen)}
               title={isFullscreen ? "ออกจากโหมดเต็มจอ" : "โหมดเต็มจอ"}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
             >
               {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </button>
 
             {/* Close Button */}
             <button
+              type="button"
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-red-500/20 hover:text-red-400 transition-colors ml-1"
+              className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-white hover:bg-red-500/20 hover:text-red-400 transition-colors ml-0.5 sm:ml-1"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* Reader Toolbar Controls (Page Nav & Zoom) */}
-        <div className="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-300 shrink-0">
-          <div className="flex items-center gap-1 sm:gap-2">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage <= 1}
-              className="p-1 rounded-lg hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-slate-800 text-slate-200 font-mono text-[11px]">
-              <span>หน้า</span>
-              <input
-                type="number"
-                value={currentPage}
-                onChange={(e) => {
-                  const val = parseInt(e.target.value);
-                  if (val >= 1 && val <= totalPages) setCurrentPage(val);
-                }}
-                className="w-8 text-center bg-slate-950 rounded border border-slate-700 py-0.5 text-xs text-white"
-              />
-              <span>/ {totalPages}</span>
-            </div>
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage >= totalPages}
-              className="p-1 rounded-lg hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
+        {/* Reader Notification / Helper Bar */}
+        <div className="flex items-center justify-between px-3 sm:px-4 py-2 bg-slate-900 border-b border-slate-800 text-[11px] sm:text-xs text-slate-300 shrink-0">
+          <div className="flex items-center gap-1.5 text-slate-300">
+            {media.isDrive ? (
+              <>
+                <HardDrive className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                <span className="truncate">
+                  เปิดดูไฟล์ออนไลน์ผ่าน Google Drive (สามารถเลื่อนอ่านหลายหน้าและซูมดูได้)
+                </span>
+              </>
+            ) : (
+              <>
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span className="truncate">เอกสารเผยแพร่อย่างเป็นทางการ • โรงเรียนบ้านหนองหัวหมู</span>
+              </>
+            )}
           </div>
 
-          <div className="hidden sm:flex items-center gap-2 text-slate-400 text-xs">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>เอกสารเผยแพร่อย่างเป็นทางการ • โรงเรียนบ้านหนองหัวหมู สพป. บุรีรัมย์ เขต 3</span>
-          </div>
-
-          <div className="flex items-center gap-1 sm:gap-2">
-            <button
-              onClick={() => setZoomLevel((z) => Math.max(60, z - 10))}
-              className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-300"
-              title="ย่อขนาด"
-            >
-              <ZoomOut className="w-3.5 h-3.5" />
-            </button>
-            <span className="font-mono text-[11px] w-12 text-center text-slate-300">
-              {zoomLevel}%
-            </span>
-            <button
-              onClick={() => setZoomLevel((z) => Math.min(160, z + 10))}
-              className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-300"
-              title="ขยายขนาด"
-            >
-              <ZoomIn className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Document Canvas Area */}
-        <div className="flex-1 bg-slate-950 overflow-auto p-4 sm:p-8 flex justify-center items-start">
-          <div
-            style={{ transform: `scale(${zoomLevel / 100})`, transformOrigin: "top center" }}
-            className="transition-transform duration-150 shadow-2xl"
-          >
-            {/* Authentic Thai School Document Page Simulation */}
-            <div className="w-[680px] sm:w-[760px] min-h-[1020px] bg-white text-slate-800 p-12 sm:p-16 rounded-sm shadow-xl flex flex-col justify-between font-sans leading-relaxed text-xs sm:text-sm">
-              <div>
-                {/* Official Emblem & Header */}
-                <div className="text-center pb-8 border-b-2 border-slate-800/80">
-                  <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-[#0F2942]/10 flex items-center justify-center border border-[#0F2942]/20">
-                    <Building2 className="w-8 h-8 text-[#0F2942]" />
-                  </div>
-                  <h1 className="text-lg sm:text-xl font-bold text-[#0F2942] tracking-tight">
-                    {document.title}
-                  </h1>
-                  <p className="text-xs text-slate-600 font-semibold mt-1">
-                    โรงเรียนบ้านหนองหัวหมู จังหวัดบุรีรัมย์
-                  </p>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    สำนักงานเขตพื้นที่การศึกษาประถมศึกษาบุรีรัมย์ เขต 3
-                  </p>
-                  <p className="text-[11px] text-slate-400 mt-1">
-                    สำนักงานคณะกรรมการการศึกษาขั้นพื้นฐาน กระทรวงศึกษาธิการ
-                  </p>
-                </div>
-
-                {/* Body Content of Simulated Page */}
-                <div className="pt-8 space-y-6">
-                  <div className="flex items-center justify-between text-xs text-slate-500 pb-2 border-b border-slate-200">
-                    <span>รหัสเอกสาร: NHM-DOC-2569-0{currentPage}</span>
-                    <span>หน้าที่ {currentPage} จาก {totalPages}</span>
-                  </div>
-
-                  <div className="space-y-4 text-slate-700">
-                    <p className="text-justify indent-8 leading-relaxed">
-                      {document.description ||
-                        "เอกสารฉบับนี้จัดทำขึ้นเพื่อเป็นแนวทางการบริหารจัดการศึกษาและการดำเนินงานตามมาตรฐานสถานศึกษา เพื่อยกระดับผลสัมฤทธิ์ทางการเรียน คุณลักษณะอันพึงประสงค์ และประสิทธิภาพการปฏิบัติงานของคณะครูและบุคลากรทางการศึกษา โรงเรียนบ้านหนองหัวหมู"}
-                    </p>
-
-                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
-                      <h4 className="font-bold text-[#0F2942] text-xs">สาระสำคัญของเอกสาร:</h4>
-                      <ul className="list-disc list-inside space-y-1 text-xs text-slate-600">
-                        <li>เป้าหมายการพัฒนาคุณภาพผู้เรียนตามหลักสูตรแกนกลางการศึกษาขั้นพื้นฐาน</li>
-                        <li>แนวทางการจัดกิจกรรมการเรียนรู้แบบ Active Learning</li>
-                        <li>มาตรการดูแลความปลอดภัยในสถานศึกษาและการช่วยเหลือผู้เรียนรายบุคคล</li>
-                        <li>การประสานความร่วมมือระหว่างโรงเรียน ชุมชน และคณะกรรมการสถานศึกษา</li>
-                      </ul>
-                    </div>
-
-                    <p className="text-justify indent-8 leading-relaxed">
-                      จึงประกาศและเผยแพร่เพื่อให้คณะครู บุคลากรทางการศึกษา ผู้ปกครอง และผู้มีส่วนเกี่ยวข้อง ได้ใช้เป็นแนวทางในการประสานความร่วมมือเพื่อขับเคลื่อนการศึกษาของโรงเรียนบ้านหนองหัวหมูให้บรรลุตามเป้าหมายต่อไป
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Document Signature & Verification Footer */}
-              <div className="pt-12 mt-8 border-t border-slate-200 flex items-end justify-between text-xs">
-                <div>
-                  <span className="block text-[11px] text-slate-400">ระบบคลังเอกสารดิจิทัล</span>
-                  <span className="font-bold text-[#0F2942]">โรงเรียนบ้านหนองหัวหมู (สพป. บุรีรัมย์ เขต 3)</span>
-                </div>
-
-                <div className="text-center space-y-1">
-                  <div className="h-10 flex items-center justify-center italic text-slate-400 text-xs">
-                    (ลงชื่อแล้วในระบบดิจิทัล)
-                  </div>
-                  <p className="font-bold text-[#0F2942]">ผู้อำนวยการโรงเรียนบ้านหนองหัวหมู</p>
-                  <p className="text-[11px] text-slate-500">ประธานคณะกรรมการบริหารสถานศึกษา</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Status bar with Google Drive Direct Tip */}
-        <div className="px-4 py-2.5 bg-slate-950 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2 shrink-0">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-            <span>เชื่อมต่อผ่านระบบ Google Workspace for Education (สพป. บุรีรัมย์ เขต 3)</span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {document.driveUrl && (
+          <div className="flex items-center gap-2 shrink-0">
+            {media.driveViewUrl && (
               <a
-                href={document.driveUrl}
+                href={media.driveViewUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-400 hover:text-blue-300 font-semibold inline-flex items-center gap-1"
+                className="text-blue-400 hover:text-blue-300 font-semibold inline-flex items-center gap-1 text-[11px]"
               >
-                <span>ดูไฟล์ฉบับเต็มบน Google Drive</span>
+                <span>เปิดในแท็บใหม่</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
             )}
+          </div>
+        </div>
+
+        {/* Document Viewer Body */}
+        <div className="flex-1 w-full h-full relative bg-slate-950 flex flex-col items-center justify-center overflow-hidden">
+          {media.previewEmbedUrl ? (
+            <div className="relative w-full h-full flex flex-col bg-slate-900">
+              {isLoadingIframe && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/90 z-10 text-slate-300 gap-2">
+                  <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+                  <p className="text-xs font-medium">กำลังโหลดเอกสาร PDF ออนไลน์...</p>
+                </div>
+              )}
+              <iframe
+                id="nhm-pdf-viewer-frame"
+                src={media.previewEmbedUrl}
+                title={doc.title}
+                className="w-full h-full border-0 bg-white"
+                allow="autoplay; encrypted-media; fullscreen"
+                onLoad={() => setIsLoadingIframe(false)}
+              />
+            </div>
+          ) : (
+            /* Fallback Card if No Previewable URL exists */
+            <div className="p-6 sm:p-10 max-w-lg text-center space-y-4 bg-slate-900 rounded-2xl border border-slate-800 m-4">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">
+                <Building2 className="w-8 h-8" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">{doc.title}</h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  {doc.description || "เอกสารทางการ โรงเรียนบ้านหนองหัวหมู สพป. บุรีรัมย์ เขต 3"}
+                </p>
+              </div>
+
+              <div className="bg-slate-800/60 p-3.5 rounded-xl border border-slate-700/60 text-xs text-slate-300 space-y-1 text-left">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">หมวดหมู่:</span>
+                  <span className="font-semibold text-white">{doc.category || "เอกสารทั่วไป"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">ชนิดไฟล์:</span>
+                  <span className="font-semibold text-white">{doc.fileType || "PDF"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">ขนาด:</span>
+                  <span className="font-semibold text-white">{doc.fileSize || "1.0 MB"}</span>
+                </div>
+              </div>
+
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleDownload}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>ดาวน์โหลดเอกสาร ({media.fileName})</span>
+                </button>
+                {media.driveViewUrl && (
+                  <a
+                    href={media.driveViewUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 transition-all"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    <span>เปิดใน Google Drive</span>
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Bottom Footer Notice Bar */}
+        <div className="px-3 sm:px-6 py-2.5 bg-slate-950 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-[11px] sm:text-xs text-slate-400 gap-1.5 shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span>ชื่อไฟล์ที่ดาวน์โหลด: <span className="font-mono text-slate-300 font-semibold">{media.fileName}</span></span>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-slate-400">
+            <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span>หากเปิดไม่ติด: ตรวจสอบการตั้งค่าสิทธิ์ Drive ให้เป็น &quot;ทุกคนที่มีลิงก์มีสิทธิ์อ่าน&quot;</span>
           </div>
         </div>
       </div>

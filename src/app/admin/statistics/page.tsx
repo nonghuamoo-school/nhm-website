@@ -153,7 +153,7 @@ export default function AdminStatisticsPage() {
 
     const newRecord: StudentYearStat = {
       academicYear: trimmed,
-      updatedDate: `10 มีนาคม ${trimmed}`,
+      updatedDate: `10 มิถุนายน ${trimmed}`,
       grades: newGrades,
       summary: {
         totalMale,

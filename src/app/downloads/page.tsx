@@ -22,6 +22,7 @@ import { schoolInventoryAssets } from "@/data/assets";
 import { getStoredStudentStats, fetchStudentStatsCloud, defaultSchoolStudentStats } from "@/data/studentStats";
 import { DownloadDoc } from "@/types";
 import { useDownloads } from "@/hooks/useDownloads";
+import { resolveDocumentMedia, triggerDocumentDownload } from "@/lib/drive";
 
 type ActiveTab = "documents" | "inventory" | "studentStats";
 
@@ -325,83 +326,88 @@ export default function DownloadsPage() {
       {activeTab === "documents" && (
         <div className="space-y-4">
           <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-xs overflow-hidden divide-y divide-slate-100">
-            {filteredDocs.map((doc) => (
-              <div
-                key={doc.id}
-                className="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:bg-slate-50/70 transition-colors"
-              >
-                <div className="flex items-start gap-3.5">
-                  <div
-                    className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center shrink-0 font-bold text-xs ${
-                      doc.fileType === "PDF"
-                        ? "bg-red-50 text-red-600 border border-red-200"
-                        : doc.fileType === "XLSX"
-                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                        : "bg-blue-50 text-blue-700 border border-blue-200"
-                    }`}
-                  >
-                    <FileText className="w-4 h-4 mb-0.5" />
-                    <span className="text-[9px] uppercase leading-none">{doc.fileType}</span>
-                  </div>
-
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <span className="text-[10px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
-                        {doc.category}
-                      </span>
-                      <span className="text-xs text-slate-400">• วันที่: {doc.date}</span>
-                      <span className="text-xs text-slate-400">• ขนาด: {doc.fileSize}</span>
-                      <span className="text-xs text-slate-400">• ดาวน์โหลด: {doc.downloads} ครั้ง</span>
+            {filteredDocs.map((doc) => {
+              const media = resolveDocumentMedia(doc);
+              return (
+                <div
+                  key={doc.id}
+                  className="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:bg-slate-50/70 transition-colors"
+                >
+                  <div className="flex items-start gap-3.5">
+                    <div
+                      className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center shrink-0 font-bold text-xs ${
+                        doc.fileType === "PDF"
+                          ? "bg-red-50 text-red-600 border border-red-200"
+                          : doc.fileType === "XLSX"
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-blue-50 text-blue-700 border border-blue-200"
+                      }`}
+                    >
+                      <FileText className="w-4 h-4 mb-0.5" />
+                      <span className="text-[9px] uppercase leading-none">{doc.fileType}</span>
                     </div>
 
-                    <h3 className="font-bold text-sm sm:text-base text-[#0F2942]">
-                      {doc.title}
-                    </h3>
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <span className="text-[10px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
+                          {doc.category}
+                        </span>
+                        <span className="text-xs text-slate-400">• วันที่: {doc.date}</span>
+                        <span className="text-xs text-slate-400">• ขนาด: {doc.fileSize}</span>
+                        <span className="text-xs text-slate-400">• ดาวน์โหลด: {doc.downloads} ครั้ง</span>
+                      </div>
 
-                    {doc.description && (
-                      <p className="text-xs text-slate-500 mt-1 line-clamp-2 max-w-2xl leading-relaxed">
-                        {doc.description}
-                      </p>
+                      <h3 className="font-bold text-sm sm:text-base text-[#0F2942]">
+                        {doc.title}
+                      </h3>
+
+                      {doc.description && (
+                        <p className="text-xs text-slate-500 mt-1 line-clamp-2 max-w-2xl leading-relaxed">
+                          {doc.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 self-start lg:self-center shrink-0">
+                    {/* Preview Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleOpenPreview(doc)}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-[#0F2942] text-xs font-bold border border-slate-200 shadow-2xs transition-colors min-h-[38px] cursor-pointer"
+                    >
+                      <Eye className="w-3.5 h-3.5 text-blue-700" />
+                      <span>เปิดอ่านออนไลน์</span>
+                    </button>
+
+                    {/* Google Drive Link */}
+                    {media.driveViewUrl && (
+                      <a
+                        href={media.driveViewUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100/80 text-blue-900 text-xs font-bold border border-blue-200 shadow-2xs transition-colors min-h-[38px]"
+                        title="เปิดไฟล์นี้บน Google Drive โดยตรง"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Google Drive</span>
+                      </a>
                     )}
+
+                    {/* Direct Download Button with clean filename */}
+                    <button
+                      type="button"
+                      onClick={() => triggerDocumentDownload(media.downloadUrl, media.fileName)}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-2xs transition-colors min-h-[38px] cursor-pointer"
+                      title={`ดาวน์โหลด ${media.fileName}`}
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>ดาวน์โหลดไฟล์</span>
+                    </button>
                   </div>
                 </div>
-
-                <div className="flex flex-wrap items-center gap-2 self-start lg:self-center shrink-0">
-                  {/* Preview Button */}
-                  <button
-                    onClick={() => handleOpenPreview(doc)}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-[#0F2942] text-xs font-bold border border-slate-200 shadow-2xs transition-colors min-h-[38px]"
-                  >
-                    <Eye className="w-3.5 h-3.5 text-blue-700" />
-                    <span>เปิดดูตัวอย่าง</span>
-                  </button>
-
-                  {/* Google Drive Link */}
-                  {doc.driveUrl && (
-                    <a
-                      href={doc.driveUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100/80 text-blue-900 text-xs font-bold border border-blue-200 shadow-2xs transition-colors min-h-[38px]"
-                      title="เปิดไฟล์นี้บน Google Drive โดยตรง"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      <span>Google Drive</span>
-                    </a>
-                  )}
-
-                  {/* Direct Download Button */}
-                  <a
-                    href={doc.downloadUrl}
-                    download
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-2xs transition-colors min-h-[38px]"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>ดาวน์โหลดไฟล์</span>
-                  </a>
-                </div>
-              </div>
-            ))}
+              );
+            })}
 
             {filteredDocs.length === 0 && (
               <div className="text-center py-12 p-8 text-slate-500 text-sm">
