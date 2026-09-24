@@ -2,7 +2,19 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
-import { Search, Calendar, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import {
+  Search,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  ArrowRight,
+  Megaphone,
+  Maximize2,
+  X,
+  Download,
+  Share2,
+  ExternalLink
+} from "lucide-react";
 import InnerPageLayout from "@/components/layout/InnerPageLayout";
 import { useNews } from "@/hooks/useNews";
 
@@ -10,26 +22,26 @@ const ITEMS_PER_PAGE = 6;
 
 export default function NewsListPage() {
   const { newsList } = useNews();
-  const [selectedCat, setSelectedCat] = useState<string>("ทั้งหมด");
   const [searchWord, setSearchWord] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
-  const categories = ["ทั้งหมด", "ประชาสัมพันธ์", "กิจกรรม", "วิชาการ", "จัดซื้อจัดจ้าง"];
-
+  // Filter only by search word (title or excerpt)
   const filtered = useMemo(() => {
+    if (!searchWord.trim()) return newsList;
+    const term = searchWord.toLowerCase().trim();
     return newsList.filter((item) => {
-      const matchesCat = selectedCat === "ทั้งหมด" || item.category === selectedCat;
-      const titleMatch = (item.title || "").toLowerCase().includes(searchWord.toLowerCase());
-      const excerptMatch = (item.excerpt || "").toLowerCase().includes(searchWord.toLowerCase());
-      return matchesCat && (titleMatch || excerptMatch);
+      const titleMatch = (item.title || "").toLowerCase().includes(term);
+      const excerptMatch = (item.excerpt || "").toLowerCase().includes(term);
+      return titleMatch || excerptMatch;
     });
-  }, [newsList, selectedCat, searchWord]);
+  }, [newsList, searchWord]);
 
-  // Only show separate featured banner when viewing all categories on page 1 with no search query
-  const showFeaturedBanner = selectedCat === "ทั้งหมด" && !searchWord && currentPage === 1 && filtered.length > 0;
+  // Featured banner on page 1 when no search active
+  const showFeaturedBanner = !searchWord && currentPage === 1 && filtered.length > 0;
   const featured = showFeaturedBanner ? (filtered.find((n) => n.isFeatured) || filtered[0]) : null;
 
-  // Grid items: if featured banner is displayed, exclude that item from the grid to eliminate duplicates!
+  // Grid items: exclude featured from page 1 grid to avoid duplication
   const gridSource = useMemo(() => {
     if (featured) {
       return filtered.filter((n) => n.id !== featured.id);
@@ -44,33 +56,21 @@ export default function NewsListPage() {
   );
 
   const toolbar = (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-      {/* Category Chips */}
-      <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => {
-              setSelectedCat(cat);
-              setCurrentPage(1);
-            }}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors min-h-[36px] ${
-              selectedCat === cat
-                ? "bg-[#0F2942] text-white shadow-2xs"
-                : "bg-[#F8FAFC] text-slate-600 hover:bg-slate-200/80 border border-[#E5E7EB]"
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
+      {/* News Count Badge */}
+      <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F2942] text-white shadow-2xs">
+          <Megaphone className="w-4 h-4 text-amber-400" />
+          <span>ข่าวประชาสัมพันธ์ทั้งหมด ({filtered.length} รายการ)</span>
+        </span>
       </div>
 
       {/* Search Input */}
-      <div className="relative w-full sm:w-72">
+      <div className="relative w-full sm:w-80">
         <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
         <input
           type="text"
-          placeholder="ค้นหาหัวข้อข่าว..."
+          placeholder="ค้นหาชื่อเรื่องข่าวประชาสัมพันธ์..."
           value={searchWord}
           onChange={(e) => {
             setSearchWord(e.target.value);
@@ -85,29 +85,39 @@ export default function NewsListPage() {
   return (
     <InnerPageLayout
       breadcrumbs={[{ label: "ข่าวประชาสัมพันธ์" }]}
-      title="ข่าวสารและกิจกรรมประชาสัมพันธ์"
-      description="ประกาศ ข่าวสาร กิจกรรม ผลงานนักเรียน และข่าวจัดซื้อจัดจ้าง โรงเรียนบ้านหนองหัวหมู"
+      title="ข่าวประชาสัมพันธ์"
+      description="จดหมายข่าวประชาสัมพันธ์ กิจกรรม และประกาศสำคัญ โรงเรียนบ้านหนองหัวหมู"
       toolbar={toolbar}
     >
       <div className="space-y-8">
-        {/* Featured Article Banner (Only on page 1 and if no active search) */}
+        {/* Featured Article Banner */}
         {currentPage === 1 && !searchWord && featured && (
-          <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-xs overflow-hidden grid grid-cols-1 lg:grid-cols-12 group">
-            <div className="lg:col-span-6 aspect-[16/10] bg-slate-100 relative">
+          <div className="bg-white rounded-3xl border border-[#E5E7EB] shadow-xs overflow-hidden grid grid-cols-1 lg:grid-cols-12 group">
+            <div className="lg:col-span-6 aspect-[16/11] bg-slate-50 relative overflow-hidden flex items-center justify-center p-2 sm:p-3">
               <img
                 src={featured.imageUrl}
                 alt={featured.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain sm:object-cover rounded-2xl"
               />
-              <span className="absolute top-3 left-3 text-[11px] font-bold px-2.5 py-1 rounded-md bg-[#0F2942] text-white">
-                {featured.category}
+              <span className="absolute top-4 left-4 text-[11px] font-bold px-3 py-1 rounded-xl bg-[#0F2942]/90 backdrop-blur-xs text-white shadow-sm flex items-center gap-1.5">
+                <Megaphone className="w-3 h-3 text-amber-400" />
+                <span>ข่าวประชาสัมพันธ์ล่าสุด</span>
               </span>
+
+              <button
+                type="button"
+                onClick={() => setLightboxImage(featured.imageUrl)}
+                className="absolute bottom-4 right-4 p-2.5 rounded-xl bg-black/60 hover:bg-black/80 text-white backdrop-blur-2xs transition-all shadow-md cursor-pointer"
+                title="คลิกดูภาพป้ายขนาดเต็ม"
+              >
+                <Maximize2 className="w-4 h-4" />
+              </button>
             </div>
 
             <div className="lg:col-span-6 p-6 sm:p-8 flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 text-xs text-slate-400 mb-2">
-                  <Calendar className="w-3.5 h-3.5" />
+                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
                   <span>{featured.date}</span>
                   <span>•</span>
                   <span>{featured.author}</span>
@@ -122,55 +132,83 @@ export default function NewsListPage() {
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 mt-4">
+              <div className="pt-4 border-t border-slate-100 mt-4 flex flex-wrap items-center justify-between gap-3">
                 <Link
                   href={`/news/${featured.id}`}
-                  className="inline-flex items-center gap-2 text-xs font-bold text-[#0F2942] group-hover:text-blue-900"
+                  className="inline-flex items-center gap-2 text-xs font-bold text-[#0F2942] hover:text-blue-700"
                 >
-                  <span>อ่านรายละเอียดข่าวเด่น</span>
+                  <span>อ่านรายละเอียดข่าว</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
+
+                {featured.facebookUrl && (
+                  <a
+                    href={featured.facebookUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#1877F2] hover:bg-[#166FE5] text-white text-xs font-bold transition-colors shadow-2xs"
+                  >
+                    <span>ดูอัลบั้มบน Facebook</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
               </div>
             </div>
           </div>
         )}
 
         {/* News Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {paginatedNews.map((news) => (
             <div
               key={news.id}
-              className="bg-white rounded-2xl border border-[#E5E7EB] shadow-xs hover:border-slate-300 transition-colors overflow-hidden flex flex-col justify-between group"
+              className="bg-white rounded-3xl border border-[#E5E7EB] shadow-xs hover:border-slate-300 hover:shadow-md transition-all overflow-hidden flex flex-col justify-between group"
             >
               <div>
-                <div className="relative aspect-[16/10] bg-slate-100">
+                {/* Poster / News Image with Lightbox Zoom Trigger */}
+                <div className="relative aspect-[16/11] bg-slate-50 overflow-hidden flex items-center justify-center p-2">
                   <img
                     src={news.imageUrl || "/images/school-emblem-doc.png"}
                     alt={news.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain sm:object-cover rounded-2xl"
                   />
-                  <span className="absolute top-2.5 left-2.5 text-[10px] font-bold px-2 py-0.5 rounded bg-[#0F2942] text-white">
-                    {news.category}
+                  <span className="absolute top-3.5 left-3.5 text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-[#0F2942]/90 backdrop-blur-2xs text-white">
+                    ข่าวประชาสัมพันธ์
                   </span>
 
-                  <div className="absolute top-2.5 right-2.5 flex items-center gap-1">
+                  <div className="absolute top-3.5 right-3.5 flex items-center gap-1.5">
                     {news.facebookUrl && (
-                      <span className="w-5 h-5 rounded-md bg-[#1877F2] text-white flex items-center justify-center font-bold text-[10px] shadow-2xs" title="มีลิงก์โพสต์ Facebook">
-                        f
-                      </span>
+                      <a
+                        href={news.facebookUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-2 py-0.5 rounded-lg bg-[#1877F2] hover:bg-blue-700 text-white font-bold text-[10px] shadow-xs flex items-center gap-1 transition-colors"
+                        title="เปิดดูอัลบั้มภาพบน Facebook"
+                      >
+                        <span className="font-mono">f</span>
+                        <span className="hidden sm:inline">อัลบั้ม</span>
+                      </a>
                     )}
                     {news.galleryImages && news.galleryImages.length > 0 && (
-                      <span className="px-1.5 py-0.5 rounded-md bg-amber-500 text-white font-bold text-[9px] shadow-2xs flex items-center gap-0.5" title={`มีรูปกิจกรรม ${news.galleryImages.length} รูป`}>
+                      <span className="px-2 py-0.5 rounded-lg bg-amber-500 text-white font-bold text-[10px] shadow-xs flex items-center gap-1" title={`มีรูปกิจกรรม ${news.galleryImages.length} รูป`}>
                         <span>📷</span>
                         <span>{news.galleryImages.length}</span>
                       </span>
                     )}
+                    <button
+                      type="button"
+                      onClick={() => setLightboxImage(news.imageUrl || "/images/school-emblem-doc.png")}
+                      className="p-1.5 rounded-lg bg-black/60 hover:bg-black/80 text-white transition-colors cursor-pointer"
+                      title="ดูป้ายขนาดเต็ม"
+                    >
+                      <Maximize2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </div>
 
-                <div className="p-4 sm:p-5">
+                <div className="p-5">
                   <div className="flex items-center gap-2 text-[11px] text-slate-400 mb-1.5">
-                    <Calendar className="w-3 h-3" />
+                    <Calendar className="w-3 h-3 text-slate-400" />
                     <span>{news.date}</span>
                   </div>
 
@@ -184,7 +222,7 @@ export default function NewsListPage() {
                 </div>
               </div>
 
-              <div className="p-4 sm:p-5 pt-0 border-t border-slate-100 mt-2">
+              <div className="p-5 pt-0 border-t border-slate-100 mt-2 flex items-center justify-between">
                 <Link
                   href={`/news/${news.id}`}
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0F2942] group-hover:text-blue-900 pt-2"
@@ -192,14 +230,23 @@ export default function NewsListPage() {
                   <span>อ่านต่อ</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
+
+                <button
+                  type="button"
+                  onClick={() => setLightboxImage(news.imageUrl || "/images/school-emblem-doc.png")}
+                  className="text-[11px] text-slate-500 hover:text-blue-700 font-semibold pt-2 flex items-center gap-1 cursor-pointer"
+                >
+                  <Maximize2 className="w-3 h-3" />
+                  <span>ดูป้าย</span>
+                </button>
               </div>
             </div>
           ))}
         </div>
 
         {filtered.length === 0 && (
-          <div className="text-center py-16 bg-white rounded-2xl border border-[#E5E7EB] p-8 text-slate-500 text-sm">
-            ไม่พบข่าวสารที่ตรงกับเงื่อนไขการค้นหา
+          <div className="text-center py-16 bg-white rounded-3xl border border-[#E5E7EB] p-8 text-slate-500 text-sm">
+            ไม่พบข่าวประชาสัมพันธ์ที่ตรงกับคำค้นหา
           </div>
         )}
 
@@ -240,6 +287,57 @@ export default function NewsListPage() {
           </div>
         )}
       </div>
+
+      {/* Lightbox Modal for Fullscreen Poster / Image Viewing */}
+      {lightboxImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setLightboxImage(null)}
+        >
+          <div
+            className="relative max-w-4xl max-h-[90vh] flex flex-col items-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Top Toolbar */}
+            <div className="w-full flex items-center justify-between pb-3 text-white">
+              <span className="text-xs sm:text-sm font-semibold flex items-center gap-2">
+                <Megaphone className="w-4 h-4 text-amber-400" />
+                <span>ป้ายข่าวสารประชาสัมพันธ์ โรงเรียนบ้านหนองหัวหมู</span>
+              </span>
+              <div className="flex items-center gap-2">
+                <a
+                  href={lightboxImage}
+                  download="nhm-school-poster.jpg"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold transition-colors"
+                  title="ดาวน์โหลดหรือเปิดภาพขนาดต้นฉบับ"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>บันทึกภาพ</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setLightboxImage(null)}
+                  className="p-2 rounded-xl bg-white/20 hover:bg-white/30 text-white transition-colors cursor-pointer"
+                  title="ปิดหน้าต่าง"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Poster Image */}
+            <div className="rounded-2xl overflow-hidden bg-black/40 border border-white/20 shadow-2xl flex items-center justify-center max-h-[82vh]">
+              <img
+                src={lightboxImage}
+                alt="ป้ายข่าวประชาสัมพันธ์ขนาดเต็ม"
+                className="max-w-full max-h-[80vh] object-contain rounded-xl"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </InnerPageLayout>
   );
 }

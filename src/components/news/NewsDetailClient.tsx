@@ -13,7 +13,9 @@ import {
   Share2,
   Images,
   X as CloseIcon,
-  Maximize2
+  Maximize2,
+  Download,
+  Megaphone
 } from "lucide-react";
 import InnerPageLayout from "@/components/layout/InnerPageLayout";
 import NewsAttachmentsView from "@/components/news/NewsAttachmentsView";
@@ -85,16 +87,17 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
         { label: news.title },
       ]}
       title={news.title}
-      description={`หมวดหมู่: ${news.category} • เผยแพร่เมื่อ ${news.date}`}
+      description={`ข่าวประชาสัมพันธ์ โรงเรียนบ้านหนองหัวหมู • เผยแพร่เมื่อ ${news.date}`}
     >
       <div className="space-y-8 max-w-4xl mx-auto">
         {/* Main Article Container */}
-        <article className="bg-white rounded-2xl p-6 sm:p-8 border border-[#E5E7EB] shadow-xs space-y-6">
+        <article className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E5E7EB] shadow-xs space-y-6">
           {/* Metadata Bar */}
           <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#E5E7EB] text-xs text-slate-500">
             <div className="flex items-center gap-4">
-              <span className="font-bold text-white bg-[#0F2942] px-2.5 py-1 rounded-md">
-                {news.category}
+              <span className="font-bold text-white bg-[#0F2942] px-3 py-1 rounded-xl flex items-center gap-1.5 shadow-2xs">
+                <Megaphone className="w-3.5 h-3.5 text-amber-400" />
+                <span>ข่าวประชาสัมพันธ์</span>
               </span>
               <span className="flex items-center gap-1">
                 <Calendar className="w-3.5 h-3.5 text-slate-400" />
@@ -113,20 +116,24 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
             </div>
           </div>
 
-          {/* Cover Image */}
-          <div className="rounded-xl overflow-hidden aspect-[16/9] bg-slate-100 border border-[#E5E7EB] relative group">
+          {/* Cover Image / Poster with Lightbox */}
+          <div className="rounded-2xl overflow-hidden bg-slate-50 border border-[#E5E7EB] relative group flex items-center justify-center p-2 sm:p-4">
             <img
               src={news.imageUrl || "/images/school-emblem-doc.png"}
               alt={news.title}
-              className="w-full h-full object-cover"
+              className="max-h-[650px] w-auto object-contain rounded-xl shadow-xs"
             />
-            <button
-              onClick={() => setLightboxImage(news.imageUrl || "/images/school-emblem-doc.png")}
-              className="absolute bottom-3 right-3 p-2 rounded-xl bg-black/60 hover:bg-black/80 text-white backdrop-blur-2xs opacity-0 group-hover:opacity-100 transition-opacity"
-              title="ดูรูปขนาดเต็ม"
-            >
-              <Maximize2 className="w-4 h-4" />
-            </button>
+            <div className="absolute bottom-4 right-4 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setLightboxImage(news.imageUrl || "/images/school-emblem-doc.png")}
+                className="px-3.5 py-2 rounded-xl bg-black/70 hover:bg-black/90 text-white backdrop-blur-2xs text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer transition-colors"
+                title="คลิกดูภาพป้ายขนาดเต็ม"
+              >
+                <Maximize2 className="w-4 h-4" />
+                <span>ดูภาพขนาดเต็ม</span>
+              </button>
+            </div>
           </div>
 
           {/* Excerpt Callout */}
@@ -218,25 +225,49 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
         {/* Lightbox Modal for Fullscreen Photo Viewing */}
         {lightboxImage && (
           <div
-            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
             onClick={() => setLightboxImage(null)}
           >
             <div
-              className="relative max-w-4xl max-h-[90vh] bg-transparent rounded-2xl overflow-hidden"
+              className="relative max-w-4xl max-h-[90vh] flex flex-col items-center"
               onClick={(e) => e.stopPropagation()}
             >
-              <button
-                onClick={() => setLightboxImage(null)}
-                className="absolute top-3 right-3 p-2 rounded-full bg-black/60 hover:bg-black/90 text-white z-10 transition-colors"
-                title="ปิด"
-              >
-                <CloseIcon className="w-5 h-5" />
-              </button>
-              <img
-                src={lightboxImage}
-                alt="ภาพกิจกรรมขยายใหญ่"
-                className="w-full h-auto max-h-[85vh] object-contain rounded-xl"
-              />
+              {/* Lightbox Toolbar */}
+              <div className="w-full flex items-center justify-between pb-3 text-white">
+                <span className="text-xs sm:text-sm font-semibold truncate max-w-[70%]">
+                  {news.title}
+                </span>
+                <div className="flex items-center gap-2 shrink-0">
+                  <a
+                    href={lightboxImage}
+                    download="nhm-school-poster.jpg"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold transition-colors"
+                    title="บันทึกภาพลงเครื่อง"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>บันทึกภาพ</span>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setLightboxImage(null)}
+                    className="p-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white transition-colors cursor-pointer"
+                    title="ปิด"
+                  >
+                    <CloseIcon className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Lightbox Image */}
+              <div className="rounded-2xl overflow-hidden bg-black/40 border border-white/20 shadow-2xl flex items-center justify-center max-h-[82vh]">
+                <img
+                  src={lightboxImage}
+                  alt={news.title}
+                  className="max-w-full max-h-[80vh] object-contain rounded-xl"
+                />
+              </div>
             </div>
           </div>
         )}
