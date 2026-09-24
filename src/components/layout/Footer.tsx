@@ -189,11 +189,16 @@ export default function Footer() {
       <div className="bg-[#091A2B] py-4 px-4 border-t border-slate-800/80 text-xs text-slate-400">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2.5 text-center sm:text-left">
           <div className="leading-relaxed">
-            <span className="font-semibold text-slate-300">
-              &copy; {new Date().getFullYear()} {schoolInfo.name}
-            </span>{" "}
-            <span className="hidden md:inline text-slate-400">({schoolInfo.nameEn}).</span>{" "}
-            <span className="whitespace-nowrap font-normal text-slate-400">สงวนลิขสิทธิ์ทุกประการ</span>
+            <div>
+              <span className="font-semibold text-slate-300">
+                &copy; {new Date().getFullYear()} {schoolInfo.name}
+              </span>{" "}
+              <span className="hidden md:inline text-slate-400">({schoolInfo.nameEn}).</span>{" "}
+              <span className="whitespace-nowrap font-normal text-slate-400">สงวนลิขสิทธิ์ทุกประการ</span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1">
+              พัฒนาระบบโดย &quot;นายธนาธิป คุณวงศ์&quot; คุณครูโรงเรียนบ้านหนองหัวหมู
+            </p>
           </div>
           <div className="text-slate-400 text-center sm:text-right leading-relaxed whitespace-nowrap">
             <span>{schoolInfo.subAffiliation.replace("เขต 3", "เขต\u00A03")}</span>

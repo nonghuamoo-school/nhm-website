@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { Calendar, Eye, ArrowRight } from "lucide-react";
 import { NewsItem } from "@/types";
+import { formatThaiTitle } from "@/lib/thaiTypography";
 
 interface NewsCardProps {
   news: NewsItem;
@@ -55,7 +56,7 @@ export default function NewsCard({ news, featured = false }: NewsCardProps) {
             </div>
 
             <h3 className="font-bold text-base sm:text-lg text-slate-900 group-hover:text-blue-700 transition-colors line-clamp-2 leading-snug thai-wrap">
-              <Link href={`/news/${news.id}`}>{news.title}</Link>
+              <Link href={`/news/${news.id}`}>{formatThaiTitle(news.title)}</Link>
             </h3>
 
             <p className="mt-2 text-xs sm:text-sm text-slate-600 line-clamp-3 leading-relaxed thai-wrap">
@@ -103,7 +104,7 @@ export default function NewsCard({ news, featured = false }: NewsCardProps) {
           </div>
 
           <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-700 transition-colors line-clamp-2 leading-snug thai-wrap">
-            <Link href={`/news/${news.id}`}>{news.title}</Link>
+            <Link href={`/news/${news.id}`}>{formatThaiTitle(news.title)}</Link>
           </h4>
 
           <p className="mt-1.5 text-xs text-slate-500 line-clamp-2 leading-relaxed thai-wrap">

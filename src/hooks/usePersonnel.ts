@@ -78,6 +78,17 @@ export function usePersonnel() {
             if (wiletuItem) cleaned.push(wiletuItem);
           }
 
+          // Replace any legacy placeholder or unsplash images with real photos from schoolPersonnel
+          cleaned = cleaned.map((p) => {
+            if (!p.imageUrl || p.imageUrl.includes("unsplash.com")) {
+              const realItem = schoolPersonnel.find((sp) => sp.name.trim() === p.name.trim() || sp.id === p.id);
+              if (realItem?.imageUrl && !realItem.imageUrl.includes("unsplash")) {
+                return { ...p, imageUrl: realItem.imageUrl };
+              }
+            }
+            return p;
+          });
+
           const sorted = [...cleaned].sort((a, b) => (a.order || 0) - (b.order || 0));
           const reindexed = sorted.map((item, idx) => ({ ...item, order: idx + 1 }));
           setPersonnelList(reindexed);
@@ -105,7 +116,15 @@ export function usePersonnel() {
         .order("order_index", { ascending: true })
         .then(({ data, error }) => {
           if (!error && data && data.length > 0) {
-            const fromCloud: PersonnelMember[] = data.map(rowToMember);
+            const fromCloud: PersonnelMember[] = data.map(rowToMember).map((p) => {
+              if (!p.imageUrl || p.imageUrl.includes("unsplash.com")) {
+                const realItem = schoolPersonnel.find((sp) => sp.name.trim() === p.name.trim() || sp.id === p.id);
+                if (realItem?.imageUrl && !realItem.imageUrl.includes("unsplash")) {
+                  return { ...p, imageUrl: realItem.imageUrl };
+                }
+              }
+              return p;
+            });
             setPersonnelList(fromCloud);
             setIsCloudSynced(true);
             if (typeof window !== "undefined") {

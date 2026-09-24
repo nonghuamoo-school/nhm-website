@@ -13,6 +13,7 @@ import {
   ExternalLink
 } from "lucide-react";
 import { useNews, toIsoDate } from "@/hooks/useNews";
+import { formatThaiTitle } from "@/lib/thaiTypography";
 
 export default function NewsletterPosters() {
   const { newsList } = useNews();
@@ -57,8 +58,16 @@ export default function NewsletterPosters() {
         </div>
       </div>
 
-      {/* Poster Grid: 2 cols on mobile, 3 cols on tablet, 4 cols on desktop */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+      {/* Poster Grid: Scaled cleanly on desktop so cards are well-proportioned */}
+      <div
+        className={`grid grid-cols-1 sm:grid-cols-2 ${
+          posterItems.length <= 2
+            ? "lg:grid-cols-2 max-w-3xl"
+            : posterItems.length === 3
+            ? "lg:grid-cols-3 max-w-5xl"
+            : "lg:grid-cols-3 xl:grid-cols-4"
+        } gap-4 sm:gap-6`}
+      >
         {posterItems.map((item) => {
           const posterUrl = item.newsletterPosterUrl!;
           return (
@@ -142,13 +151,13 @@ export default function NewsletterPosters() {
 
                 {/* Card Body */}
                 <div className="p-3.5 sm:p-4">
-                  <div className="flex items-center gap-1.5 text-[11px] text-slate-400 mb-1">
-                    <Calendar className="w-3.5 h-3.5" />
+                  <div className="flex items-center gap-1.5 text-[11px] text-slate-400 mb-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                     <span>{item.date}</span>
                   </div>
 
-                  <h3 className="font-bold text-xs sm:text-sm text-[#0F2942] group-hover:text-blue-900 transition-colors line-clamp-2 leading-snug thai-wrap">
-                    <Link href={`/news/${item.id}`}>{item.title}</Link>
+                  <h3 className="font-bold text-sm sm:text-base text-[#0F2942] group-hover:text-emerald-700 transition-colors line-clamp-2 leading-snug thai-wrap">
+                    <Link href={`/news/${item.id}`}>{formatThaiTitle(item.title)}</Link>
                   </h3>
                 </div>
               </div>

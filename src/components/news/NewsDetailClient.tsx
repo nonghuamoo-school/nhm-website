@@ -21,6 +21,7 @@ import InnerPageLayout from "@/components/layout/InnerPageLayout";
 import NewsAttachmentsView from "@/components/news/NewsAttachmentsView";
 import { useNews } from "@/hooks/useNews";
 import { NewsItem } from "@/types";
+import { formatThaiTitle } from "@/lib/thaiTypography";
 
 interface NewsDetailClientProps {
   id: string;
@@ -86,7 +87,7 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
         { label: "ข่าวประชาสัมพันธ์", href: "/news" },
         { label: news.title },
       ]}
-      title={news.title}
+      title={formatThaiTitle(news.title)}
       description={`ข่าวประชาสัมพันธ์ โรงเรียนบ้านหนองหัวหมู • เผยแพร่เมื่อ ${news.date}`}
     >
       <div className="space-y-8 max-w-4xl mx-auto">
@@ -399,7 +400,7 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
                       {item.category} • {item.date}
                     </span>
                     <h4 className="text-xs font-bold text-[#0F2942] group-hover:text-blue-900 transition-colors line-clamp-2 leading-snug thai-wrap">
-                      {item.title}
+                      {formatThaiTitle(item.title)}
                     </h4>
                   </div>
                   <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-[#0F2942]">

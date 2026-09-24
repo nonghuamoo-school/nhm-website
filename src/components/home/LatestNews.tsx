@@ -13,6 +13,7 @@ import {
   BookOpen
 } from "lucide-react";
 import { useNews, sortNewsByDateDesc } from "@/hooks/useNews";
+import { formatThaiTitle } from "@/lib/thaiTypography";
 
 export default function LatestNews() {
   const { newsList } = useNews();
@@ -94,7 +95,7 @@ export default function LatestNews() {
                 </div>
 
                 <h3 className="text-base sm:text-lg font-bold text-[#0F2942] group-hover:text-blue-900 transition-colors leading-snug thai-wrap">
-                  <Link href={`/news/${featured.id}`}>{featured.title}</Link>
+                  <Link href={`/news/${featured.id}`}>{formatThaiTitle(featured.title)}</Link>
                 </h3>
 
                 <p className="mt-2 text-xs sm:text-sm text-slate-600 line-clamp-2 sm:line-clamp-3 leading-relaxed thai-wrap">
@@ -154,7 +155,7 @@ export default function LatestNews() {
                     </div>
 
                     <h4 className="text-xs sm:text-[13px] font-bold text-[#0F2942] group-hover:text-blue-900 transition-colors line-clamp-2 leading-snug thai-wrap">
-                      {news.title}
+                      {formatThaiTitle(news.title)}
                     </h4>
                   </div>
                 </Link>

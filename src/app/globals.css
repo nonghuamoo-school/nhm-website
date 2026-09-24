@@ -39,7 +39,13 @@ body {
   word-break: normal;
   overflow-wrap: break-word;
   line-break: loose;
-  text-wrap: pretty;
+  text-wrap: balance;
+}
+
+.thai-balance {
+  text-wrap: balance;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .thai-nowrap {

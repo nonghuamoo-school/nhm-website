@@ -19,6 +19,7 @@ import {
 import InnerPageLayout from "@/components/layout/InnerPageLayout";
 import { useNews } from "@/hooks/useNews";
 import { NewsItem } from "@/types";
+import { formatThaiTitle } from "@/lib/thaiTypography";
 
 export default function JournalPage() {
   const { newsList } = useNews();
@@ -185,7 +186,7 @@ export default function JournalPage() {
                     </div>
 
                     <h4 className="font-bold text-sm text-[#0F2942] group-hover:text-blue-900 transition-colors line-clamp-2 leading-snug thai-wrap">
-                      <Link href={`/news/${item.id}`}>{item.title}</Link>
+                      <Link href={`/news/${item.id}`}>{formatThaiTitle(item.title)}</Link>
                     </h4>
                   </div>
                 </div>

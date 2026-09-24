@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import InnerPageLayout from "@/components/layout/InnerPageLayout";
 import { useNews, sortNewsByDateDesc } from "@/hooks/useNews";
+import { formatThaiTitle } from "@/lib/thaiTypography";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -127,7 +128,7 @@ export default function NewsListPage() {
                 </div>
 
                 <h2 className="text-lg sm:text-xl font-bold text-[#0F2942] group-hover:text-blue-900 transition-colors leading-snug thai-wrap">
-                  <Link href={`/news/${featured.id}`}>{featured.title}</Link>
+                  <Link href={`/news/${featured.id}`}>{formatThaiTitle(featured.title)}</Link>
                 </h2>
 
                 <p className="text-xs sm:text-sm text-slate-600 mt-2.5 line-clamp-3 leading-relaxed thai-wrap">
@@ -216,7 +217,7 @@ export default function NewsListPage() {
                   </div>
 
                   <h3 className="font-bold text-sm text-[#0F2942] group-hover:text-blue-900 transition-colors line-clamp-2 leading-snug thai-wrap">
-                    <Link href={`/news/${news.id}`}>{news.title}</Link>
+                    <Link href={`/news/${news.id}`}>{formatThaiTitle(news.title)}</Link>
                   </h3>
 
                   <p className="mt-2 text-xs text-slate-500 line-clamp-2 leading-relaxed thai-wrap">
