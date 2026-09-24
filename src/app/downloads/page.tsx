@@ -13,8 +13,7 @@ import {
   Users,
   CheckCircle2,
   AlertTriangle,
-  XCircle,
-  HardDrive
+  XCircle
 } from "lucide-react";
 import InnerPageLayout from "@/components/layout/InnerPageLayout";
 import DocumentViewerModal from "@/components/common/DocumentViewerModal";
@@ -295,33 +294,6 @@ export default function DownloadsPage() {
       description="ศูนย์กลางดาวน์โหลดแบบฟอร์ม แผนพัฒนาการจัดการศึกษา ทะเบียนสินทรัพย์ และข้อมูลสถิติการศึกษา โรงเรียนบ้านหนองหัวหมู สพป. บุรีรัมย์ เขต 3"
       toolbar={toolbar}
     >
-      {/* Cloud Drive Notice Header */}
-      <div className="mb-5 p-4 rounded-2xl bg-gradient-to-r from-blue-50/80 via-white to-slate-50 border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#0F2942] text-white flex items-center justify-center shrink-0">
-            <HardDrive className="w-4 h-4" />
-          </div>
-          <div>
-            <span className="text-xs font-bold text-[#0F2942] block">
-              ระบบเชื่อมต่อเอกสาร Google Drive & Google Workspace for Education
-            </span>
-            <p className="text-[11px] text-slate-500">
-              เอกสารทางการถูกจัดเก็บไว้บนคลาวด์ไดรฟ์ของโรงเรียนบ้านหนองหัวหมู ท่านสามารถกด &ldquo;เปิดดูตัวอย่าง&rdquo; เพื่อเปิดอ่านแบบเต็มจอ หรือดาวน์โหลดไฟล์ได้ทันที
-            </p>
-          </div>
-        </div>
-
-        <a
-          href="https://drive.google.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 hover:text-blue-900 bg-white px-3 py-1.5 rounded-xl border border-blue-200 shadow-2xs shrink-0 self-start sm:self-center"
-        >
-          <span>เปิดโฟลเดอร์ Google Drive รวม</span>
-          <ExternalLink className="w-3.5 h-3.5" />
-        </a>
-      </div>
-
       {/* TAB 1: Documents & Forms with Drive Reader */}
       {activeTab === "documents" && (
         <div className="space-y-4">
