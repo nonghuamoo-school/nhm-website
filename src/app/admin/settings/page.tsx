@@ -38,6 +38,7 @@ import { schoolInfo } from "@/data/schoolInfo";
 import { defaultSchoolSettings, saveSchoolSettingsCloud, SchoolSettingsData } from "@/hooks/useSchoolSettings";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { getGoogleMapsEmbedUrl, getGoogleMapsNavigationUrl } from "@/lib/maps";
+import { compressImageFile } from "@/utils/imageCompressor";
 import { setAdminPassword, getAdminPassword, DEFAULT_ADMIN_PASSWORD } from "@/components/admin/AdminAuthGuard";
 import Swal from "sweetalert2";
 
@@ -261,21 +262,34 @@ export default function AdminSettingsPage() {
     }
   };
 
-  const handleHeroImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleHeroImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setHeroImageFileName(file.name);
-      const reader = new FileReader();
-      reader.onload = (loadEvt) => {
-        const result = loadEvt.target?.result;
-        if (typeof result === "string") {
-          setFormData((prev) => ({
-            ...prev,
-            heroImageUrl: result,
-          }));
-        }
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    setHeroImageFileName(file.name);
+    try {
+      const compressed = await compressImageFile(file, { maxWidth: 1600, maxHeight: 1000, quality: 0.82 });
+      setFormData((prev) => ({
+        ...prev,
+        heroImageUrl: compressed,
+      }));
+      await Swal.fire({
+        icon: "success",
+        title: "อัปโหลดภาพแบนเนอร์สำเร็จ!",
+        text: `อัปโหลดภาพส่วนหัว "${file.name}" เรียบร้อยแล้ว (บีบอัดขนาดเหมาะสม อย่าลืมกดบันทึกการตั้งค่า)`,
+        confirmButtonColor: "#0F2942",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (err: any) {
+      console.error("Hero image upload error:", err);
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาดในการโหลดรูปภาพ",
+        text: err?.message || "กรุณาลองใหม่อีกครั้ง",
+        confirmButtonColor: "#0F2942",
+      });
+    } finally {
+      e.target.value = "";
     }
   };
 
@@ -296,40 +310,66 @@ export default function AdminSettingsPage() {
     });
   };
 
-  const handleCustomLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCustomLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setCustomLogoFileName(file.name);
-      const reader = new FileReader();
-      reader.onload = (loadEvt) => {
-        const result = loadEvt.target?.result;
-        if (typeof result === "string") {
-          setFormData((prev) => ({
-            ...prev,
-            emblemType: "custom",
-            customLogoUrl: result,
-          }));
-        }
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    setCustomLogoFileName(file.name);
+    try {
+      const compressed = await compressImageFile(file, { maxWidth: 600, maxHeight: 600, quality: 0.85 });
+      setFormData((prev) => ({
+        ...prev,
+        emblemType: "custom",
+        customLogoUrl: compressed,
+      }));
+      await Swal.fire({
+        icon: "success",
+        title: "อัปโหลดตราสัญลักษณ์สำเร็จ!",
+        text: `อัปโหลดตราสัญลักษณ์โรงเรียน "${file.name}" เรียบร้อยแล้ว (อย่าลืมกดบันทึกการตั้งค่า)`,
+        confirmButtonColor: "#0F2942",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (err: any) {
+      console.error("Custom logo upload error:", err);
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาดในการโหลดรูปภาพ",
+        text: err?.message || "กรุณาลองใหม่อีกครั้ง",
+        confirmButtonColor: "#0F2942",
+      });
+    } finally {
+      e.target.value = "";
     }
   };
 
-  const handleDirectorImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDirectorImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setDirectorImageFileName(file.name);
-      const reader = new FileReader();
-      reader.onload = (loadEvt) => {
-        const result = loadEvt.target?.result;
-        if (typeof result === "string") {
-          setFormData((prev) => ({
-            ...prev,
-            directorImageUrl: result,
-          }));
-        }
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    setDirectorImageFileName(file.name);
+    try {
+      const compressed = await compressImageFile(file, { maxWidth: 800, maxHeight: 800, quality: 0.85 });
+      setFormData((prev) => ({
+        ...prev,
+        directorImageUrl: compressed,
+      }));
+      await Swal.fire({
+        icon: "success",
+        title: "อัปโหลดรูปถ่าย ผอ. สำเร็จ!",
+        text: `อัปโหลดรูปถ่ายผู้อำนวยการ "${file.name}" เรียบร้อยแล้ว (อย่าลืมกดบันทึกการตั้งค่า)`,
+        confirmButtonColor: "#0F2942",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (err: any) {
+      console.error("Director image upload error:", err);
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาดในการโหลดรูปภาพ",
+        text: err?.message || "กรุณาลองใหม่อีกครั้ง",
+        confirmButtonColor: "#0F2942",
+      });
+    } finally {
+      e.target.value = "";
     }
   };
 

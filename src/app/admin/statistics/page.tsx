@@ -33,6 +33,7 @@ import {
   defaultSchoolStudentStats
 } from "@/data/studentStats";
 import { StudentYearStat, StudentGradeStat } from "@/types";
+import Swal from "sweetalert2";
 
 const defaultGradeTemplate: StudentGradeStat[] = [
   { grade: "อนุบาล 2 (4 ขวบ)", male: 5, female: 5, total: 10, classrooms: 1 },
@@ -191,10 +192,29 @@ export default function AdminStatisticsPage() {
   };
 
   // Save student stats
-  const handleSaveStudentStats = () => {
-    saveStoredStudentStats(allStudentStats);
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3500);
+  const handleSaveStudentStats = async () => {
+    try {
+      await saveStoredStudentStats(allStudentStats);
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 3500);
+      await Swal.fire({
+        icon: "success",
+        title: "บันทึกข้อมูลสถิตินักเรียนสำเร็จ!",
+        text: `บันทึกข้อมูลสถิตินักเรียนปีการศึกษา ${selectedStudentYear} และทุกปีการศึกษา ซิงค์ Cloud Database เรียบร้อยแล้ว`,
+        confirmButtonColor: "#0F2942",
+        confirmButtonText: "ตกลง",
+        timer: 2500,
+        timerProgressBar: true,
+      });
+    } catch (err) {
+      console.error("Save error:", err);
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาดในการบันทึก",
+        text: "กรุณาลองใหม่อีกครั้ง",
+        confirmButtonColor: "#0F2942",
+      });
+    }
   };
 
   // Reset student stats

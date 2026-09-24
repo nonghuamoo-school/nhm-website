@@ -29,6 +29,7 @@ import {
 import { usePersonnel } from "@/hooks/usePersonnel";
 import { PersonnelMember } from "@/types";
 import Swal from "sweetalert2";
+import { compressImageFile } from "@/utils/imageCompressor";
 
 const DEPARTMENT_OPTIONS = [
   "ฝ่ายบริหารสถานศึกษา",
@@ -103,49 +104,27 @@ export default function AdminPersonnelPage() {
   const [isProcessingAvatar, setIsProcessingAvatar] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      alert("กรุณาเลือกไฟล์รูปภาพ");
-      return;
-    }
 
     setIsProcessingAvatar(true);
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        let width = img.width;
-        let height = img.height;
-        const maxDimension = 800;
-
-        if (width > maxDimension || height > maxDimension) {
-          if (width > height) {
-            height = Math.round((height * maxDimension) / width);
-            width = maxDimension;
-          } else {
-            width = Math.round((width * maxDimension) / height);
-            height = maxDimension;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
-          setFormData((prev) => ({ ...prev, imageUrl: dataUrl }));
-        } else {
-          setFormData((prev) => ({ ...prev, imageUrl: event.target?.result as string }));
-        }
-        setIsProcessingAvatar(false);
-      };
-      img.src = event.target?.result as string;
-    };
-    reader.readAsDataURL(file);
+    try {
+      const dataUrl = await compressImageFile(file, { maxWidth: 800, maxHeight: 800, quality: 0.85 });
+      setFormData((prev) => ({ ...prev, imageUrl: dataUrl }));
+      showToast("อัปโหลดและปรับขนาดรูปถ่ายเรียบร้อย");
+    } catch (err: any) {
+      console.error("Avatar upload error:", err);
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาดในการโหลดรูปภาพ",
+        text: err?.message || "กรุณาลองใหม่อีกครั้ง",
+        confirmButtonColor: "#0F2942",
+      });
+    } finally {
+      setIsProcessingAvatar(false);
+      e.target.value = "";
+    }
   };
 
   // Direct Row-level instant photo upload (no modal needed!)
@@ -157,48 +136,34 @@ export default function AdminPersonnelPage() {
     rowFileInputRef.current?.click();
   };
 
-  const handleRowFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRowFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !uploadingMemberId) return;
-    if (!file.type.startsWith("image/")) {
-      alert("กรุณาเลือกไฟล์รูปภาพ (JPG, PNG, WebP)");
-      return;
-    }
 
     const target = personnelList.find((p) => p.id === uploadingMemberId);
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        let width = img.width;
-        let height = img.height;
-        const maxDimension = 800;
-
-        if (width > maxDimension || height > maxDimension) {
-          if (width > height) {
-            height = Math.round((height * maxDimension) / width);
-            width = maxDimension;
-          } else {
-            width = Math.round((width * maxDimension) / height);
-            height = maxDimension;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
-          updateMember(uploadingMemberId, { imageUrl: dataUrl });
-          showToast(`อัปโหลดและบันทึกรูปถ่ายของ "${target?.name || 'บุคลากร'}" เรียบร้อยแล้ว`);
-        }
-      };
-      img.src = event.target?.result as string;
-    };
-    reader.readAsDataURL(file);
-    e.target.value = "";
+    try {
+      const dataUrl = await compressImageFile(file, { maxWidth: 800, maxHeight: 800, quality: 0.85 });
+      await updateMember(uploadingMemberId, { imageUrl: dataUrl });
+      showToast(`อัปโหลดและบันทึกรูปถ่ายของ "${target?.name || 'บุคลากร'}" เรียบร้อยแล้ว`);
+      await Swal.fire({
+        icon: "success",
+        title: "เปลี่ยนรูปถ่ายสำเร็จ!",
+        text: `บันทึกรูปถ่ายใหม่ของ "${target?.name || 'บุคลากร'}" เรียบร้อยแล้ว`,
+        confirmButtonColor: "#0F2942",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (err: any) {
+      console.error("Row avatar upload error:", err);
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาดในการโหลดรูปภาพ",
+        text: err?.message || "กรุณาลองใหม่อีกครั้ง",
+        confirmButtonColor: "#0F2942",
+      });
+    } finally {
+      e.target.value = "";
+    }
   };
 
   const showToast = (msg: string) => {

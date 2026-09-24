@@ -41,45 +41,8 @@ import {
   OnetPosterItem
 } from "@/data/academicScores";
 import AcademicPerformanceChart from "@/components/academic/AcademicPerformanceChart";
-
-// Helper: Compress and resize image file to base64 DataURL (prevents localStorage quota errors)
-function compressImageFile(file: File, maxWidth = 1200, quality = 0.85): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        let width = img.width;
-        let height = img.height;
-
-        if (width > maxWidth || height > maxWidth) {
-          if (width > height) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
-          } else {
-            width = Math.round((width * maxWidth) / height);
-            height = maxWidth;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL("image/jpeg", quality));
-        } else {
-          resolve(e.target?.result as string);
-        }
-      };
-      img.onerror = () => resolve(e.target?.result as string);
-      img.src = e.target?.result as string;
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
+import Swal from "sweetalert2";
+import { compressImageFile, optimizeBase64OrUrl } from "@/utils/imageCompressor";
 
 export default function AdminAcademicPage() {
   const [activeMainTab, setActiveMainTab] = useState<"scores" | "posters">("scores");
@@ -329,28 +292,87 @@ export default function AdminAcademicPage() {
 
     try {
       setUploadingPosterIndex(index);
-      const dataUrl = await compressImageFile(file, 1200, 0.85);
+      const dataUrl = await compressImageFile(file, { maxWidth: 1200, maxHeight: 1200, quality: 0.82 });
       const updated = [...posters];
       updated[index] = { ...updated[index], image: dataUrl };
       setPosters(updated);
-    } catch {
-      alert("เกิดข้อผิดพลาดในการโหลดรูปภาพ กรุณาลองใหม่อีกครั้ง");
+      
+      // Auto-save immediately to localStorage so user doesn't lose upload
+      await saveStoredOnetPosters(updated);
+
+      await Swal.fire({
+        icon: "success",
+        title: "อัปโหลดภาพสำเร็จ!",
+        text: `อัปโหลดภาพผลสอบ O-NET ปี ${updated[index].year} เรียบร้อยแล้ว (บีบอัดขนาดเหมาะสม พร้อมบันทึกออนไลน์)`,
+        confirmButtonColor: "#0F2942",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (err: any) {
+      console.error("Poster upload error:", err);
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาดในการโหลดรูปภาพ",
+        text: err?.message || "กรุณาลองใหม่อีกครั้ง หรือเลือกไฟล์รูปภาพอื่น",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#0F2942",
+      });
     } finally {
       setUploadingPosterIndex(null);
+      e.target.value = "";
     }
+  };
+
+  const handlePosterUrlChange = async (index: number, val: string) => {
+    let finalVal = val.trim();
+    if (finalVal.startsWith("data:image/")) {
+      try {
+        finalVal = await optimizeBase64OrUrl(finalVal, { maxWidth: 1200, quality: 0.82 });
+      } catch (err) {
+        console.warn("Could not optimize pasted base64:", err);
+      }
+    }
+    const updated = [...posters];
+    updated[index] = { ...updated[index], image: finalVal };
+    setPosters(updated);
   };
 
   // ================= 3. SAVE / RESET LOGIC =================
   const handleSaveAll = async () => {
-    await saveStoredAcademicScores(datasets);
-    await saveStoredOnetPosters(posters);
-    setSavedMessage(
-      activeMainTab === "scores"
-        ? `บันทึกข้อมูลคะแนน ${activeExam} ปีการศึกษา ${activeYear} และทุกปีเรียบร้อยแล้ว! ข้อมูลซิงค์ Cloud Database แบบ Real-time`
-        : "บันทึกภาพประกาศผลสอบ O-NET และข้อมูลเรียบร้อยแล้ว! ซิงค์ Real-time ทันที"
-    );
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3500);
+    try {
+      await saveStoredAcademicScores(datasets);
+      await saveStoredOnetPosters(posters);
+
+      const successTitle = activeMainTab === "scores"
+        ? `บันทึกคะแนน ${activeExam} สำเร็จ!`
+        : "บันทึกภาพและประกาศผลสอบ O-NET สำเร็จ!";
+      const successDetail = activeMainTab === "scores"
+        ? `ข้อมูลคะแนน ${activeExam} ปีการศึกษา ${activeYear} และทุกปีการศึกษา ซิงค์ Cloud Database (Real-time) เรียบร้อยแล้ว`
+        : `บันทึกภาพประกาศผลสอบ O-NET และข้อมูล (${posters.length} ปี) เรียบร้อยแล้ว พร้อมซิงค์ออนไลน์ทันที`;
+
+      setSavedMessage(successDetail);
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 3500);
+
+      await Swal.fire({
+        icon: "success",
+        title: successTitle,
+        text: successDetail,
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#0F2942",
+        timer: 2500,
+        timerProgressBar: true,
+      });
+    } catch (err) {
+      console.error("Save all error:", err);
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาดในการบันทึก",
+        text: "กรุณาลองใหม่อีกครั้ง หรือตรวจสอบขนาดไฟล์รูปภาพ",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#0F2942",
+      });
+    }
   };
 
   const handleResetCurrent = async () => {
@@ -835,7 +857,11 @@ export default function AdminAcademicPage() {
                       รูปภาพโปสเตอร์ประกาศผลสอบ (ภาพจริง/อินโฟกราฟิก):
                     </label>
 
-                    <div className="relative aspect-[4/3] bg-slate-100 rounded-2xl border-2 border-dashed border-slate-300 overflow-hidden flex items-center justify-center group">
+                    <div
+                      onClick={() => fileInputRefs.current[pIdx]?.click()}
+                      className="relative aspect-[4/3] bg-slate-100 hover:bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300 hover:border-blue-400 overflow-hidden flex items-center justify-center group cursor-pointer transition-all shadow-2xs"
+                      title="คลิกเพื่อเลือกไฟล์รูปภาพ"
+                    >
                       {poster.image ? (
                         <>
                           <img
@@ -843,12 +869,15 @@ export default function AdminAcademicPage() {
                             alt={poster.title}
                             className="w-full h-full object-contain p-2"
                           />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-3">
+                          <div
+                            className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-3"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <a
                               href={poster.image}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="p-2 rounded-xl bg-white/90 text-[#0F2942] hover:bg-white text-xs font-bold flex items-center gap-1 shadow-md"
+                              className="p-2 rounded-xl bg-white/95 text-[#0F2942] hover:bg-white text-xs font-bold flex items-center gap-1 shadow-md"
                             >
                               <ExternalLink className="w-3.5 h-3.5" />
                               <span>ดูรูปเต็ม</span>
@@ -861,12 +890,21 @@ export default function AdminAcademicPage() {
                               <Upload className="w-3.5 h-3.5" />
                               <span>เปลี่ยนรูปภาพ</span>
                             </button>
+                            <button
+                              type="button"
+                              onClick={() => handlePosterFieldChange(pIdx, "image", "")}
+                              className="p-2 rounded-xl bg-rose-600 text-white hover:bg-rose-700 text-xs font-bold flex items-center gap-1 shadow-md cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span>ลบรูป</span>
+                            </button>
                           </div>
                         </>
                       ) : (
-                        <div className="text-center p-6 text-slate-400">
-                          <ImageIcon className="w-10 h-10 mx-auto mb-2 text-slate-300" />
-                          <p className="text-xs">ยังไม่มีรูปภาพ</p>
+                        <div className="text-center p-6 text-slate-500 group-hover:text-blue-700 transition-colors">
+                          <Upload className="w-10 h-10 mx-auto mb-2 text-blue-500 group-hover:scale-110 transition-transform" />
+                          <p className="text-xs font-bold text-[#0F2942]">คลิกเพื่อเลือกไฟล์รูปภาพจากเครื่อง</p>
+                          <p className="text-[11px] text-slate-400 mt-1">รองรับ JPG, PNG, WebP (ระบบย่อขนาดให้อัตโนมัติ)</p>
                         </div>
                       )}
                     </div>
@@ -920,11 +958,11 @@ export default function AdminAcademicPage() {
                         </div>
                       ) : (
                         <>
-                          <span className="text-[11px] text-slate-400">หรือระบุ URL รูปภาพ:</span>
+                          <span className="text-[11px] text-slate-400">หรือระบุ URL รูปภาพ (หรือวาง Base64):</span>
                           <input
                             type="text"
                             value={poster.image}
-                            onChange={(e) => handlePosterFieldChange(pIdx, "image", e.target.value)}
+                            onChange={(e) => handlePosterUrlChange(pIdx, e.target.value)}
                             placeholder="เช่น /images/onet-2567.png หรือ https://..."
                             className="w-full py-1.5 px-3 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-600 focus:outline-hidden focus:ring-1 focus:ring-blue-500"
                           />

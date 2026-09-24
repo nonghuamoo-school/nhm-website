@@ -33,6 +33,7 @@ import {
 import { NewsItem } from "@/types";
 import { useNews, toIsoDate, formatThaiDate } from "@/hooks/useNews";
 import Swal from "sweetalert2";
+import { compressImageFile } from "@/utils/imageCompressor";
 
 interface NewsEditorProps {
   initialData?: NewsItem;
@@ -125,58 +126,21 @@ export default function NewsEditor({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
-  // Compress image helper (target < 120KB WebP/JPEG)
-  const compressImageFile = (file: File, maxDimension = 1200): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          let width = img.width;
-          let height = img.height;
-
-          if (width > maxDimension || height > maxDimension) {
-            if (width > height) {
-              height = Math.round((height * maxDimension) / width);
-              width = maxDimension;
-            } else {
-              width = Math.round((width * maxDimension) / height);
-              height = maxDimension;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          if (ctx) {
-            ctx.drawImage(img, 0, 0, width, height);
-            const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
-            resolve(dataUrl);
-          } else {
-            resolve(e.target?.result as string);
-          }
-        };
-        img.onerror = reject;
-        img.src = e.target?.result as string;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
-
   // Cover image upload
   const handleCoverFileUpload = async (file: File) => {
-    if (!file.type.startsWith("image/")) {
-      alert("กรุณาเลือกไฟล์รูปภาพ (JPG, PNG, WebP)");
-      return;
-    }
     setIsProcessingImage(true);
     try {
-      const dataUrl = await compressImageFile(file, 1280);
+      const dataUrl = await compressImageFile(file, { maxWidth: 1280, maxHeight: 960, quality: 0.82 });
       setImageUrl(dataUrl);
-    } catch (err) {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } catch (err: any) {
       console.error("Error processing cover image:", err);
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาดในการโหลดรูปภาพหน้าปก",
+        text: err?.message || "กรุณาลองใหม่อีกครั้ง หรือเลือกไฟล์อื่น",
+        confirmButtonColor: "#0F2942",
+      });
     } finally {
       setIsProcessingImage(false);
     }
@@ -190,16 +154,25 @@ export default function NewsEditor({
       const newImages: string[] = [];
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        if (file.type.startsWith("image/")) {
-          const dataUrl = await compressImageFile(file, 1000);
+        try {
+          const dataUrl = await compressImageFile(file, { maxWidth: 1000, maxHeight: 1000, quality: 0.80 });
           newImages.push(dataUrl);
+        } catch (itemErr) {
+          console.warn("Could not compress gallery item:", itemErr);
         }
       }
       if (newImages.length > 0) {
         setGalleryImages((prev) => [...prev, ...newImages]);
       }
-    } catch (err) {
+      if (galleryInputRef.current) galleryInputRef.current.value = "";
+    } catch (err: any) {
       console.error("Error processing gallery images:", err);
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาดในการโหลดรูปภาพกิจกรรม",
+        text: err?.message || "กรุณาลองใหม่อีกครั้ง",
+        confirmButtonColor: "#0F2942",
+      });
     } finally {
       setIsProcessingGallery(false);
     }

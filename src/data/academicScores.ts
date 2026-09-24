@@ -214,10 +214,10 @@ export const defaultHistoricalOnetScores: OnetPosterItem[] = [
     image: "/images/onet-2567.png",
     highlight: "ผลการทดสอบระดับชาติ",
     subjects: [
-      { name: "ภาษาไทย", school: 0, national: 0, diff: "0.00", higher: true },
-      { name: "คณิตศาสตร์", school: 0, national: 0, diff: "0.00", higher: true },
-      { name: "วิทยาศาสตร์", school: 0, national: 0, diff: "0.00", higher: true },
-      { name: "ภาษาอังกฤษ", school: 0, national: 0, diff: "0.00", higher: true },
+      { name: "ภาษาไทย", school: 67.5, national: 47.6, diff: "+19.90", higher: true },
+      { name: "คณิตศาสตร์", school: 31.34, national: 24.9, diff: "+6.44", higher: true },
+      { name: "วิทยาศาสตร์", school: 43.13, national: 35.43, diff: "+7.70", higher: true },
+      { name: "ภาษาอังกฤษ", school: 24.22, national: 33.58, diff: "-9.36", higher: false },
     ],
   },
   {
@@ -403,11 +403,16 @@ export function getStoredOnetPosters(): OnetPosterItem[] {
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
       // Ensure 2568 template is present if missing
-      const has2568 = parsed.some(p => p.year === "2568");
+      const has2568 = parsed.some((p: any) => p.year === "2568");
+      let list = parsed;
       if (!has2568 && defaultHistoricalOnetScores.length > 0) {
-        return [defaultHistoricalOnetScores[0], ...parsed];
+        list = [defaultHistoricalOnetScores[0], ...parsed];
       }
-      return parsed;
+      // Fill fallback image if image was cleared to blank
+      return list.map((item: any) => ({
+        ...item,
+        image: item.image || (item.year === "2566" ? "/images/onet-2566.png" : "/images/onet-2567.png"),
+      }));
     }
     return defaultHistoricalOnetScores;
   } catch {
@@ -427,14 +432,10 @@ export async function saveStoredOnetPosters(posters: OnetPosterItem[]): Promise<
 
   if (isSupabaseConfigured() && supabase) {
     try {
-      // Filter out base64 images for cloud storage (too large)
-      const cloudPosters = posters.map(p => ({
-        ...p,
-        image: p.image.startsWith("data:") ? "" : p.image,
-      }));
+      // Store full poster array with optimized compressed images into Supabase JSONB
       await supabase
         .from("school_settings")
-        .upsert({ key: CLOUD_KEY_POSTERS, value: cloudPosters, updated_at: new Date().toISOString() });
+        .upsert({ key: CLOUD_KEY_POSTERS, value: posters, updated_at: new Date().toISOString() });
     } catch (cloudErr) {
       console.warn("Could not sync O-NET posters to Supabase:", cloudErr);
     }
@@ -450,12 +451,26 @@ export async function fetchOnetPostersCloud(): Promise<OnetPosterItem[] | null> 
       .eq("key", CLOUD_KEY_POSTERS)
       .single();
     if (!error && data && Array.isArray(data.value) && data.value.length > 0) {
+      const local = getStoredOnetPosters();
+      // Safely merge cloud with local so empty cloud images never wipe out user uploaded images
+      const merged: OnetPosterItem[] = (data.value as OnetPosterItem[]).map((cloudItem) => {
+        const localMatch = local.find((l) => l.year === cloudItem.year);
+        if (!cloudItem.image && localMatch?.image) {
+          return { ...cloudItem, image: localMatch.image };
+        }
+        return cloudItem;
+      });
+
       if (typeof window !== "undefined") {
-        localStorage.setItem(POSTERS_STORAGE_KEY, JSON.stringify(data.value));
-        window.dispatchEvent(new Event("academic_posters_updated"));
-        window.dispatchEvent(new Event("academic_scores_updated"));
+        try {
+          localStorage.setItem(POSTERS_STORAGE_KEY, JSON.stringify(merged));
+          window.dispatchEvent(new Event("academic_posters_updated"));
+          window.dispatchEvent(new Event("academic_scores_updated"));
+        } catch (e) {
+          console.warn("Could not write merged posters to localStorage:", e);
+        }
       }
-      return data.value as OnetPosterItem[];
+      return merged;
     }
     return null;
   } catch {
