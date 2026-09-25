@@ -10,13 +10,44 @@ import {
   Sparkles,
   ChevronRight,
   Megaphone,
-  BookOpen
 } from "lucide-react";
 import { useNews, sortNewsByDateDesc } from "@/hooks/useNews";
 import { formatThaiTitle } from "@/lib/thaiTypography";
 
+/** Skeleton card shown while news loads — prevents layout shift */
+function NewsCardSkeleton() {
+  return (
+    <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-xs overflow-hidden animate-pulse">
+      <div className="aspect-[16/10] bg-slate-200 w-full" />
+      <div className="p-5 space-y-3">
+        <div className="h-3 bg-slate-200 rounded w-1/3" />
+        <div className="h-5 bg-slate-200 rounded w-5/6" />
+        <div className="h-4 bg-slate-200 rounded w-full" />
+        <div className="h-4 bg-slate-200 rounded w-4/5" />
+        <div className="pt-3 border-t border-slate-100 flex justify-between">
+          <div className="h-3 bg-slate-200 rounded w-24" />
+          <div className="h-3 bg-slate-200 rounded w-32" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SideNewsSkeleton() {
+  return (
+    <div className="flex gap-3.5 bg-white rounded-2xl p-3.5 border border-[#E5E7EB] animate-pulse">
+      <div className="w-24 h-20 rounded-xl bg-slate-200 shrink-0" />
+      <div className="flex-1 space-y-2 py-1">
+        <div className="h-3 bg-slate-200 rounded w-1/2" />
+        <div className="h-4 bg-slate-200 rounded w-full" />
+        <div className="h-4 bg-slate-200 rounded w-3/4" />
+      </div>
+    </div>
+  );
+}
+
 export default function LatestNews() {
-  const { newsList } = useNews();
+  const { newsList, isLoaded } = useNews();
 
   // Strictly sort news by newest date first
   const sortedNews = useMemo(() => sortNewsByDateDesc(newsList), [newsList]);
@@ -54,119 +85,137 @@ export default function LatestNews() {
         </div>
       </div>
 
-      {/* Main Grid: Asymmetric 7/5 or Full 12 when single */}
-      {featured ? (
-        <div className={`grid grid-cols-1 ${sideNews.length > 0 ? "lg:grid-cols-12" : ""} gap-5 items-start`}>
-          {/* Featured Flagship Story */}
-          <div className={`${sideNews.length > 0 ? "lg:col-span-7" : "w-full"} bg-white rounded-2xl border border-[#E5E7EB] shadow-xs overflow-hidden group hover:border-slate-300 transition-colors flex flex-col`}>
-            <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100">
-              <img
-                src={featured.imageUrl || "/images/school-emblem-doc.png"}
-                alt={featured.title}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-70" />
+      {/* Loading skeleton — while hook fetches from localStorage/Supabase */}
+      {!isLoaded && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+          <div className="lg:col-span-7">
+            <NewsCardSkeleton />
+          </div>
+          <div className="lg:col-span-5 flex flex-col gap-2.5">
+            {[1, 2, 3].map((i) => (
+              <SideNewsSkeleton key={i} />
+            ))}
+          </div>
+        </div>
+      )}
 
-              <div className="absolute top-3 left-3 flex items-center gap-2">
-                <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-[#0F2942] text-white shadow-xs flex items-center gap-1">
-                  <Megaphone className="w-3 h-3 text-amber-400" />
-                  <span>ข่าวประชาสัมพันธ์</span>
-                </span>
-                {featured.issueNumber && (
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-amber-500 text-white shadow-xs">
-                    {featured.issueNumber}
-                  </span>
-                )}
-              </div>
+      {/* Main Grid: only shown after data is ready */}
+      {isLoaded && (
+        <>
+          {featured ? (
+            <div className={`grid grid-cols-1 ${sideNews.length > 0 ? "lg:grid-cols-12" : ""} gap-5 items-start`}>
+              {/* Featured Flagship Story */}
+              <div className={`${sideNews.length > 0 ? "lg:col-span-7" : "w-full"} bg-white rounded-2xl border border-[#E5E7EB] shadow-xs overflow-hidden group hover:border-slate-300 transition-colors flex flex-col`}>
+                <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100">
+                  <img
+                    src={featured.imageUrl || "/images/school-emblem-doc.png"}
+                    alt={featured.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-70" />
 
-              <div className="absolute bottom-3 right-3 flex items-center gap-1 text-[11px] text-white/90 bg-black/50 backdrop-blur-xs px-2 py-0.5 rounded-md">
-                <Eye className="w-3 h-3" />
-                <span>{featured.views} ครั้ง</span>
-              </div>
-            </div>
+                  <div className="absolute top-3 left-3 flex items-center gap-2">
+                    <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-[#0F2942] text-white shadow-xs flex items-center gap-1">
+                      <Megaphone className="w-3 h-3 text-amber-400" />
+                      <span>ข่าวประชาสัมพันธ์</span>
+                    </span>
+                    {featured.issueNumber && (
+                      <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-amber-500 text-white shadow-xs">
+                        {featured.issueNumber}
+                      </span>
+                    )}
+                  </div>
 
-            <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-2 text-xs text-slate-400 mb-2">
-                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                  <span>{featured.date}</span>
-                  <span>•</span>
-                  <span>{featured.author}</span>
+                  <div className="absolute bottom-3 right-3 flex items-center gap-1 text-[11px] text-white/90 bg-black/50 backdrop-blur-xs px-2 py-0.5 rounded-md">
+                    <Eye className="w-3 h-3" />
+                    <span>{featured.views} ครั้ง</span>
+                  </div>
                 </div>
 
-                <h3 className="text-base sm:text-lg font-bold text-[#0F2942] group-hover:text-blue-900 transition-colors leading-snug thai-wrap">
-                  <Link href={`/news/${featured.id}`}>{formatThaiTitle(featured.title)}</Link>
-                </h3>
-
-                <p className="mt-2 text-xs sm:text-sm text-slate-600 line-clamp-2 sm:line-clamp-3 leading-relaxed thai-wrap">
-                  {featured.excerpt}
-                </p>
-              </div>
-
-              <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
-                <Link
-                  href={`/news/${featured.id}`}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0F2942] group-hover:text-blue-900"
-                >
-                  <span>อ่านรายละเอียด</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
-
-                <span className="text-[11px] text-slate-400 font-mono">
-                  โรงเรียนบ้านหนองหัวหมู
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right: 4 Balanced Compact Stories (5 cols) */}
-          {sideNews.length > 0 && (
-            <div className="lg:col-span-5 flex flex-col gap-2.5">
-              {sideNews.map((news) => (
-                <Link
-                  key={news.id}
-                  href={`/news/${news.id}`}
-                  className="bg-white rounded-2xl p-3 sm:p-3.5 border border-[#E5E7EB] shadow-xs hover:border-slate-300 hover:bg-slate-50/70 transition-all flex items-center gap-3.5 group"
-                >
-                  <div className="w-24 h-20 sm:w-28 sm:h-20 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-100 relative">
-                    <img
-                      src={news.imageUrl || "/images/school-emblem-doc.png"}
-                      alt={news.title}
-                      className="w-full h-full object-cover"
-                    />
-                    {news.newsletterPosterUrl && (
-                      <span className="absolute top-1 left-1 px-1.5 py-0.5 bg-amber-500/90 text-white rounded text-[8px] font-bold shadow-2xs" title="มีป้ายวารสาร A4">
-                        A4
-                      </span>
-                    )}
-                    {news.attachments && news.attachments.length > 0 && (
-                      <span className="absolute bottom-1 right-1 p-1 bg-black/60 rounded text-white" title="มีไฟล์แนบ">
-                        <Paperclip className="w-2.5 h-2.5" />
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1 text-[11px]">
-                      <span className="font-bold px-2 py-0.5 rounded text-[10px] bg-blue-50 text-blue-900 border border-blue-200">
-                        {news.issueNumber || "ข่าวประชาสัมพันธ์"}
-                      </span>
-                      <span className="text-slate-400">• {news.date}</span>
+                <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 text-xs text-slate-400 mb-2">
+                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                      <span>{featured.date}</span>
+                      <span>•</span>
+                      <span>{featured.author}</span>
                     </div>
 
-                    <h4 className="text-xs sm:text-[13px] font-bold text-[#0F2942] group-hover:text-blue-900 transition-colors line-clamp-2 leading-snug thai-wrap">
-                      {formatThaiTitle(news.title)}
-                    </h4>
+                    <h3 className="text-base sm:text-lg font-bold text-[#0F2942] group-hover:text-blue-900 transition-colors leading-snug thai-wrap">
+                      <Link href={`/news/${featured.id}`}>{formatThaiTitle(featured.title)}</Link>
+                    </h3>
+
+                    <p className="mt-2 text-xs sm:text-sm text-slate-600 line-clamp-2 sm:line-clamp-3 leading-relaxed thai-wrap">
+                      {featured.excerpt}
+                    </p>
                   </div>
-                </Link>
-              ))}
+
+                  <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
+                    <Link
+                      href={`/news/${featured.id}`}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0F2942] group-hover:text-blue-900"
+                    >
+                      <span>อ่านรายละเอียด</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      โรงเรียนบ้านหนองหัวหมู
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: Compact Side Stories */}
+              {sideNews.length > 0 && (
+                <div className="lg:col-span-5 flex flex-col gap-2.5">
+                  {sideNews.map((news) => (
+                    <Link
+                      key={news.id}
+                      href={`/news/${news.id}`}
+                      className="bg-white rounded-2xl p-3 sm:p-3.5 border border-[#E5E7EB] shadow-xs hover:border-slate-300 hover:bg-slate-50/70 transition-all flex items-center gap-3.5 group"
+                    >
+                      <div className="w-24 h-20 sm:w-28 sm:h-20 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-100 relative">
+                        <img
+                          src={news.imageUrl || "/images/school-emblem-doc.png"}
+                          alt={news.title}
+                          className="w-full h-full object-cover"
+                        />
+                        {news.newsletterPosterUrl && (
+                          <span className="absolute top-1 left-1 px-1.5 py-0.5 bg-amber-500/90 text-white rounded text-[8px] font-bold shadow-2xs" title="มีป้ายวารสาร A4">
+                            A4
+                          </span>
+                        )}
+                        {news.attachments && news.attachments.length > 0 && (
+                          <span className="absolute bottom-1 right-1 p-1 bg-black/60 rounded text-white" title="มีไฟล์แนบ">
+                            <Paperclip className="w-2.5 h-2.5" />
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 text-[11px]">
+                          <span className="font-bold px-2 py-0.5 rounded text-[10px] bg-blue-50 text-blue-900 border border-blue-200">
+                            {news.issueNumber || "ข่าวประชาสัมพันธ์"}
+                          </span>
+                          <span className="text-slate-400">• {news.date}</span>
+                        </div>
+
+                        <h4 className="text-xs sm:text-[13px] font-bold text-[#0F2942] group-hover:text-blue-900 transition-colors line-clamp-2 leading-snug thai-wrap">
+                          {formatThaiTitle(news.title)}
+                        </h4>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 text-slate-400 text-sm">
+              ยังไม่มีข่าวประชาสัมพันธ์ในระบบ
             </div>
           )}
-        </div>
-      ) : (
-        <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 text-slate-400 text-sm">
-          ยังไม่มีข่าวประชาสัมพันธ์ในระบบ
-        </div>
+        </>
       )}
     </section>
   );

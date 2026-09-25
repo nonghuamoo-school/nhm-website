@@ -185,7 +185,7 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Bottom Bar: Copyright & Attribution (Clean mobile responsive wrapping) */}
+      {/* Bottom Bar: Copyright & Attribution */}
       <div className="bg-[#091A2B] py-4 px-4 border-t border-slate-800/80 text-xs text-slate-400">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2.5 text-center sm:text-left">
           <div className="leading-relaxed">
@@ -200,8 +200,17 @@ export default function Footer() {
               พัฒนาระบบโดย &quot;นายธนาธิป คุณวงศ์&quot; คุณครูโรงเรียนบ้านหนองหัวหมู
             </p>
           </div>
-          <div className="text-slate-400 text-center sm:text-right leading-relaxed whitespace-nowrap">
-            <span>{schoolInfo.subAffiliation.replace("เขต 3", "เขต\u00A03")}</span>
+          <div className="flex items-center gap-4 text-slate-500">
+            <span className="text-center sm:text-right leading-relaxed whitespace-nowrap">
+              {schoolInfo.subAffiliation.replace("เขต 3", "เขต\u00A03")}
+            </span>
+            <Link
+              href="/admin"
+              className="text-[10px] text-slate-600 hover:text-slate-400 transition-colors whitespace-nowrap"
+              title="สำหรับผู้ดูแลระบบ"
+            >
+              เข้าระบบจัดการ
+            </Link>
           </div>
         </div>
       </div>

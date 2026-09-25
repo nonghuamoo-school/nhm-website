@@ -160,31 +160,6 @@ export default function Header() {
                   <ChevronRight className="w-4 h-4 opacity-50" />
                 </Link>
               ))}
-
-              {/* Extra External Link in Mobile Menu */}
-              <div className="pt-3 mt-2 border-t border-slate-100 space-y-2">
-                <a
-                  href="https://www.brm3.go.th"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-blue-50 text-blue-900 text-xs font-bold border border-blue-200"
-                >
-                  <span className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-blue-700" />
-                    <span>เว็บไซต์ สพป. บุรีรัมย์ เขต 3</span>
-                  </span>
-                  <ExternalLink className="w-3.5 h-3.5 text-blue-500" />
-                </a>
-
-                <Link
-                  href="/admin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-bold"
-                >
-                  <span>ระบบจัดการสถานศึกษา (Admin)</span>
-                  <ChevronRight className="w-4 h-4 opacity-50" />
-                </Link>
-              </div>
             </div>
           </div>
         )}
@@ -208,15 +183,6 @@ export default function Header() {
                   {link.name}
                 </Link>
               ))}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Link
-                href="/admin"
-                className="text-[11px] font-bold text-amber-300 hover:text-amber-200 hover:underline px-2 py-1"
-              >
-                เข้าสู่ระบบผู้ดูแล (Admin)
-              </Link>
             </div>
           </div>
         </div>

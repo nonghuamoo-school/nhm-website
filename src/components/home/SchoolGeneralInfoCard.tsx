@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { ReactNode } from "react";
 import Link from "next/link";
 import {
   Info,
@@ -8,6 +8,7 @@ import {
   MapPin,
   Phone,
   Mail,
+  Globe,
   GraduationCap,
   Calendar,
   Compass,
@@ -17,7 +18,9 @@ import {
   Users,
   FolderDown,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Landmark,
+  Car,
 } from "lucide-react";
 import SchoolLogo from "@/components/common/SchoolLogo";
 import { useSchoolSettings } from "@/hooks/useSchoolSettings";
@@ -36,15 +39,15 @@ export default function SchoolGeneralInfoCard() {
     .join(" ") || `ตำบลท่าโพธิ์ชัย อำเภอหนองกี่ จังหวัดบุรีรัมย์ 31210`;
 
   const infoRows = [
-    { label: "รหัส Smis 8 หลัก", value: settings.smisCode8 || "31030078", icon: "#" },
-    { label: "รหัส Obec 6 หลัก", value: settings.obecCode6 || "260613", icon: "#" },
-    { label: "ชื่อสถานศึกษา (ไทย)", value: settings.name, icon: "📖" },
-    { label: "ชื่อสถานศึกษา (อังกฤษ)", value: settings.nameEn, icon: "📖" },
-    { label: "ที่อยู่", value: formattedAddress, icon: "📍" },
-    { label: "โทรศัพท์", value: settings.phone || "081-743-2407", icon: "📞" },
-    { label: "ระดับที่เปิดสอน", value: settings.schoolLevels || "อนุบาล 2 – ประถมศึกษาปีที่ 6", icon: "🎓" },
-    { label: "วัน-เดือน-ปี ก่อตั้ง", value: `พ.ศ. ${settings.establishedYear || "2517"}`, icon: "📅" },
-    { label: "อีเมล", value: settings.email || "31030078@brm3.go.th", icon: "✉️" },
+    { label: "รหัส Smis 8 หลัก", value: settings.smisCode8 || "31030078", icon: <span className="font-mono text-slate-400 text-[10px] font-bold">#</span> },
+    { label: "รหัส Obec 6 หลัก", value: settings.obecCode6 || "260613", icon: <span className="font-mono text-slate-400 text-[10px] font-bold">#</span> },
+    { label: "ชื่อสถานศึกษา (ไทย)", value: settings.name, icon: <Building2 className="w-3.5 h-3.5 text-slate-400" /> },
+    { label: "ชื่อสถานศึกษา (อังกฤษ)", value: settings.nameEn, icon: <Building2 className="w-3.5 h-3.5 text-slate-400" /> },
+    { label: "ที่อยู่", value: formattedAddress, icon: <MapPin className="w-3.5 h-3.5 text-slate-400" /> },
+    { label: "โทรศัพท์", value: settings.phone || "081-743-2407", icon: <Phone className="w-3.5 h-3.5 text-slate-400" /> },
+    { label: "ระดับที่เปิดสอน", value: settings.schoolLevels || "อนุบาล 2 – ประถมศึกษาปีที่ 6", icon: <GraduationCap className="w-3.5 h-3.5 text-slate-400" /> },
+    { label: "วัน-เดือน-ปี ก่อตั้ง", value: `พ.ศ. ${settings.establishedYear || "2517"}`, icon: <Calendar className="w-3.5 h-3.5 text-slate-400" /> },
+    { label: "อีเมล", value: settings.email || "31030078@brm3.go.th", icon: <Mail className="w-3.5 h-3.5 text-slate-400" /> },
     {
       label: "Facebook",
       value: settings.facebook && settings.facebook.startsWith("http")
@@ -52,13 +55,13 @@ export default function SchoolGeneralInfoCard() {
         : "https://www.facebook.com/profile.php?id=100071517975903",
       displayValue: "โรงเรียนบ้านหนองหัวหมู (Facebook Page)",
       isLink: true,
-      icon: "🌐",
+      icon: <Globe className="w-3.5 h-3.5 text-slate-400" />,
     },
-    { label: "หน่วยงานต้นสังกัด", value: settings.subAffiliation, icon: "🏢" },
-    { label: "กลุ่มโรงเรียน", value: settings.schoolGroup || "ดอนอะรางทุ่งกระเต็น", icon: "👥" },
-    { label: "อปท.", value: settings.localGov || "องค์การบริหารส่วนตำบลทุ่งกระเต็น", icon: "🏛️" },
-    { label: "ระยะทางจาก รร. ถึง สพท.", value: settings.distanceFromOffice || "26 กม.", icon: "🚗" },
-    { label: "ระยะทางจาก รร. ถึง อำเภอ", value: settings.distanceFromDistrict || "12 กม.", icon: "🚗" },
+    { label: "หน่วยงานต้นสังกัด", value: settings.subAffiliation, icon: <Building2 className="w-3.5 h-3.5 text-slate-400" /> },
+    { label: "กลุ่มโรงเรียน", value: settings.schoolGroup || "ดอนอะรางทุ่งกระเต็น", icon: <Users className="w-3.5 h-3.5 text-slate-400" /> },
+    { label: "อปท.", value: settings.localGov || "องค์การบริหารส่วนตำบลทุ่งกระเต็น", icon: <Landmark className="w-3.5 h-3.5 text-slate-400" /> },
+    { label: "ระยะทางจาก รร. ถึง สพท.", value: settings.distanceFromOffice || "26 กม.", icon: <Car className="w-3.5 h-3.5 text-slate-400" /> },
+    { label: "ระยะทางจาก รร. ถึง อำเภอ", value: settings.distanceFromDistrict || "12 กม.", icon: <Car className="w-3.5 h-3.5 text-slate-400" /> },
   ];
 
   return (

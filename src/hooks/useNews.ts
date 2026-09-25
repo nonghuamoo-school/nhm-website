@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { schoolNews } from "@/data/news";
+import { schoolNews } from "@/data/news"; // kept for resetToDefault() reference only
 import { NewsItem } from "@/types";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
@@ -129,7 +129,9 @@ function newsToRow(item: NewsItem) {
 }
 
 export function useNews() {
-  const [newsList, setNewsList] = useState<NewsItem[]>(schoolNews);
+  // Start with EMPTY array — never show mock data before client mounts.
+  // This prevents hydration mismatch between server render and client state.
+  const [newsList, setNewsList] = useState<NewsItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isCloudSynced, setIsCloudSynced] = useState(false);
 
@@ -146,17 +148,17 @@ export function useNews() {
           const cleaned = parsed.filter((n) => !deletedIds.has(n.id));
           if (cleaned.length > 0) {
             setNewsList(sortNewsByDateDesc(cleaned));
+            setIsLoaded(true);
             return;
           }
         }
       }
 
-      // Fallback: If no saved list or empty without intentional deletions, load default schoolNews
-      const initialCleaned = schoolNews.filter((n) => !deletedIds.has(n.id));
-      setNewsList(sortNewsByDateDesc(initialCleaned));
+      // No saved list in localStorage — show empty (user hasn't added news yet)
+      setNewsList([]);
     } catch (err) {
       console.error("Error reading nhm_school_news from localStorage", err);
-      setNewsList(sortNewsByDateDesc(schoolNews));
+      setNewsList([]);
     } finally {
       setIsLoaded(true);
     }

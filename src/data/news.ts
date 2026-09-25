@@ -1,5 +1,10 @@
 import { NewsItem } from "@/types";
 
+/**
+ * Default news items used as REFERENCE DATA only.
+ * These are NOT loaded as initial state in useNews hook.
+ * They serve only as template/fallback for resetToDefault() function.
+ */
 export const schoolNews: NewsItem[] = [
   {
     id: "news-reading-test-p13",
