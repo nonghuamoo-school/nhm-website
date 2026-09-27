@@ -5,6 +5,7 @@ import { Filter, Users, ChevronDown, Check, Sparkles, LayoutList, LayoutGrid } f
 import InnerPageLayout from "@/components/layout/InnerPageLayout";
 import PersonnelCard from "@/components/home/PersonnelCard";
 import { usePersonnel } from "@/hooks/usePersonnel";
+import { PersonnelGridSkeleton } from "@/components/ui/Skeleton";
 
 const DEPARTMENTS = [
   "ทั้งหมด",
@@ -25,7 +26,7 @@ const DEPARTMENTS = [
 ];
 
 export default function PersonnelPage() {
-  const { personnelList } = usePersonnel();
+  const { personnelList, isLoaded } = usePersonnel();
   const [selectedDept, setSelectedDept] = useState<string>("ทั้งหมด");
   const [mobileLayout, setMobileLayout] = useState<"single" | "grid">("single");
 
@@ -45,12 +46,12 @@ export default function PersonnelPage() {
       {/* Mobile View: Clean Dropdown, View Mode Toggle, and Single-Line Horizontal Swipeable Pills */}
       <div className="sm:hidden space-y-2.5">
         <div className="flex items-center justify-between text-xs">
-          <span className="flex items-center gap-1.5 font-bold text-[#0F2942]">
-            <Filter className="w-3.5 h-3.5 text-blue-600" />
+          <span className="flex items-center gap-1.5 font-bold text-[#1E3A5F]">
+            <Filter className="w-3.5 h-3.5 text-[#2F6FED]" />
             <span>เลือกฝ่ายงาน / กลุ่มสาระ:</span>
           </span>
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+            <span className="text-[11px] font-semibold text-slate-500 bg-white/80 px-2 py-0.5 rounded-full border border-[#D1DFF0]">
               {filtered.length} ท่าน
             </span>
             {/* View Mode Toggle for mobile */}
@@ -60,7 +61,7 @@ export default function PersonnelPage() {
                 onClick={() => setMobileLayout("single")}
                 className={`p-1 rounded-md transition-colors ${
                   mobileLayout === "single"
-                    ? "bg-white text-[#0F2942] shadow-2xs"
+                    ? "bg-white text-[#1E3A5F] shadow-xs"
                     : "text-slate-400 hover:text-slate-700"
                 }`}
                 title="มุมมองรายการเต็ม (อ่านง่าย สบายตา)"
@@ -72,7 +73,7 @@ export default function PersonnelPage() {
                 onClick={() => setMobileLayout("grid")}
                 className={`p-1 rounded-md transition-colors ${
                   mobileLayout === "grid"
-                    ? "bg-white text-[#0F2942] shadow-2xs"
+                    ? "bg-white text-[#1E3A5F] shadow-xs"
                     : "text-slate-400 hover:text-slate-700"
                 }`}
                 title="มุมมองตารางคู่ (2 คอลัมน์)"
@@ -88,7 +89,7 @@ export default function PersonnelPage() {
           <select
             value={selectedDept}
             onChange={(e) => setSelectedDept(e.target.value)}
-            className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-[#0F2942] font-bold text-xs py-2.5 pl-3.5 pr-10 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500 shadow-2xs appearance-none transition-colors"
+            className="w-full bg-white/90 hover:bg-white border border-[#D1DFF0] text-[#1E3A5F] font-bold text-xs py-2.5 pl-3.5 pr-10 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#2F6FED] shadow-xs appearance-none transition-colors"
           >
             {DEPARTMENTS.map((dept) => {
               const count =
@@ -118,8 +119,8 @@ export default function PersonnelPage() {
               onClick={() => setSelectedDept(dept)}
               className={`shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all min-h-[32px] ${
                 selectedDept === dept
-                  ? "bg-[#0F2942] text-white shadow-2xs"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200/80 border border-slate-200/80"
+                  ? "bg-[#1E3A5F] text-white shadow-xs"
+                  : "bg-white/80 text-slate-600 hover:bg-white border border-[#D1DFF0]"
               }`}
             >
               {dept}
@@ -132,8 +133,8 @@ export default function PersonnelPage() {
       <div className="hidden sm:block space-y-2">
         <div className="flex items-center justify-between text-xs text-slate-500 pb-1">
           <div className="flex items-center gap-1.5">
-            <Filter className="w-3.5 h-3.5 text-blue-600" />
-            <span className="font-bold text-[#0F2942]">เลือกกลุ่มสาระ / ฝ่ายงาน:</span>
+            <Filter className="w-3.5 h-3.5 text-[#2F6FED]" />
+            <span className="font-bold text-[#1E3A5F]">เลือกกลุ่มสาระ / ฝ่ายงาน:</span>
           </div>
           <span className="font-semibold text-slate-500">
             แสดง {filtered.length} จากทั้งหมด {personnelList.length} ท่าน
@@ -158,8 +159,8 @@ export default function PersonnelPage() {
                 onClick={() => setSelectedDept(dept)}
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all min-h-[34px] ${
                   selectedDept === dept
-                    ? "bg-[#0F2942] text-white shadow-2xs"
-                    : "bg-[#F8FAFC] text-slate-600 hover:bg-slate-200/80 border border-[#E5E7EB]"
+                    ? "bg-[#1E3A5F] text-white shadow-xs"
+                    : "bg-white/80 text-slate-600 hover:bg-white border border-[#D1DFF0]"
                 }`}
               >
                 <span>{dept}</span>
@@ -188,33 +189,39 @@ export default function PersonnelPage() {
       toolbar={toolbar}
     >
       <div className="space-y-6 pb-20 sm:pb-8">
-        {/* Personnel Grid: Configurable 1 col or 2 cols on mobile, 3-4 cols on desktop */}
-        <div
-          className={`grid gap-3 sm:gap-4 ${
-            mobileLayout === "single"
-              ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-              : "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-          }`}
-        >
-          {filtered.map((person) => (
-            <PersonnelCard
-              key={person.id}
-              person={person}
-              layout={mobileLayout === "single" ? "auto" : "vertical"}
-            />
-          ))}
-        </div>
-
-        {filtered.length === 0 && (
-          <div className="text-center py-16 bg-white rounded-2xl border border-[#E5E7EB] p-8 text-slate-500 text-sm space-y-2">
-            <Users className="w-10 h-10 text-slate-300 mx-auto" />
-            <p className="font-semibold text-slate-700">ไม่พบบุคลากรในกลุ่มสาระ / ฝ่ายงานที่เลือก</p>
-            <button
-              onClick={() => setSelectedDept("ทั้งหมด")}
-              className="mt-2 text-xs font-bold text-blue-600 hover:underline"
+        {!isLoaded ? (
+          <PersonnelGridSkeleton count={8} />
+        ) : (
+          <div className="space-y-6 animate-fade-in">
+            {/* Personnel Grid: Configurable 1 col or 2 cols on mobile, 3-4 cols on desktop */}
+            <div
+              className={`grid gap-3 sm:gap-4 ${
+                mobileLayout === "single"
+                  ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+                  : "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+              }`}
             >
-              กลับไปดูบุคลากรทั้งหมด
-            </button>
+              {filtered.map((person) => (
+                <PersonnelCard
+                  key={person.id}
+                  person={person}
+                  layout={mobileLayout === "single" ? "auto" : "vertical"}
+                />
+              ))}
+            </div>
+
+            {filtered.length === 0 && (
+              <div className="text-center py-16 glass-card rounded-2xl border border-[#D1DFF0] p-8 text-slate-500 text-sm space-y-2">
+                <Users className="w-10 h-10 text-slate-300 mx-auto" />
+                <p className="font-semibold text-slate-700">ไม่พบบุคลากรในกลุ่มสาระ / ฝ่ายงานที่เลือก</p>
+                <button
+                  onClick={() => setSelectedDept("ทั้งหมด")}
+                  className="mt-2 text-xs font-bold text-[#2F6FED] hover:underline"
+                >
+                  กลับไปดูบุคลากรทั้งหมด
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

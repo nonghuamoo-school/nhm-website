@@ -58,7 +58,7 @@ export default function GrandPortalLayout() {
     { label: "มาตรฐานการปฏิบัติงาน", href: "/downloads", icon: CheckSquare },
     { label: "คู่มือบริการประชาชน", href: "/downloads", icon: FileText },
     { label: "ข่าวประชาสัมพันธ์", href: "/news", icon: Megaphone },
-    { label: "สพป. บุรีรัมย์ เขต 3", href: "https://www.brm3.go.th", icon: Globe, external: true },
+    { label: "สพป. บุรีรัมย์ เขต\u00A03", href: "https://www.brm3.go.th", icon: Globe, external: true },
   ];
 
   const facultyTeachers = [
@@ -122,7 +122,7 @@ export default function GrandPortalLayout() {
           
           {/* Box 1: ข้อมูลพื้นฐาน */}
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-            <div className="bg-[#0c3759] text-white px-4 py-3 flex items-center gap-2 font-bold text-sm">
+            <div className="bg-[#1E3A5F] text-white px-4 py-3 flex items-center gap-2 font-bold text-sm">
               <Home className="w-4 h-4 text-sky-300" />
               <span>ข้อมูลพื้นฐาน</span>
             </div>
@@ -159,7 +159,7 @@ export default function GrandPortalLayout() {
 
           {/* Box 2: ข้อมูลสารสนเทศ */}
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-            <div className="bg-[#0c3759] text-white px-4 py-3 flex items-center gap-2 font-bold text-sm">
+            <div className="bg-[#1E3A5F] text-white px-4 py-3 flex items-center gap-2 font-bold text-sm">
               <Database className="w-4 h-4 text-amber-300" />
               <span>ข้อมูลสารสนเทศ</span>
             </div>
@@ -167,7 +167,7 @@ export default function GrandPortalLayout() {
             <div className="p-4 space-y-3 text-xs">
               {/* ข้อมูลนักเรียน (Demographics Mini Widget) */}
               <div className="p-3 rounded-xl bg-blue-50/50 border border-blue-100 space-y-2">
-                <div className="flex items-center justify-between font-bold text-[#0F2942]">
+                <div className="flex items-center justify-between font-bold text-[#1E3A5F]">
                   <span className="flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5 text-blue-700" />
                     ข้อมูลนักเรียน
@@ -265,7 +265,7 @@ export default function GrandPortalLayout() {
           {/* Card 2: เพจโรงเรียนบ้านหนองหัวหมู (Facebook Style Showcase) */}
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
             {/* Header */}
-            <div className="bg-[#0c3759] text-white px-4 py-3 flex items-center justify-between">
+            <div className="bg-[#1E3A5F] text-white px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-2 font-bold text-sm">
                 <FileText className="w-4 h-4 text-sky-300" />
                 <span>เพจโรงเรียนบ้านหนองหัวหมู</span>
@@ -280,11 +280,11 @@ export default function GrandPortalLayout() {
                   <SchoolLogo size={46} />
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm text-[#0F2942]">
+                  <h4 className="font-bold text-sm text-[#1E3A5F]">
                     โรงเรียนบ้านหนองหัวหมู
                   </h4>
                   <p className="text-[11px] text-slate-500">
-                    433 ผู้ติดตาม • สพป. บุรีรัมย์ เขต 3
+                    433 ผู้ติดตาม • สพป. บุรีรัมย์ เขต&nbsp;3
                   </p>
                 </div>
               </div>
@@ -312,11 +312,11 @@ export default function GrandPortalLayout() {
                   <span className="text-xs font-bold text-amber-900 tracking-wider">
                     ขอแสดงความยินดี
                   </span>
-                  <h4 className="text-lg sm:text-xl font-black text-[#0F2942]">
+                  <h4 className="text-lg sm:text-xl font-black text-[#1E3A5F]">
                     โรงเรียนบ้านหนองหัวหมู
                   </h4>
                   <p className="text-xs text-slate-600">
-                    สำนักงานเขตพื้นที่การศึกษาประถมศึกษาบุรีรัมย์ เขต 3
+                    สำนักงานเขตพื้นที่การศึกษาประถมศึกษาบุรีรัมย์ เขต&nbsp;3
                   </p>
                 </div>
 
@@ -336,7 +336,7 @@ export default function GrandPortalLayout() {
 
           {/* Card 3: ข่าวประชาสัมพันธ์ & จัดซื้อจัดจ้าง */}
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-            <div className="bg-[#0c3759] text-white px-4 py-3 flex items-center justify-between">
+            <div className="bg-[#1E3A5F] text-white px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-2 font-bold text-sm">
                 <Megaphone className="w-4 h-4 text-amber-300" />
                 <span>ข่าวประชาสัมพันธ์ จัดซื้อจัดจ้าง</span>
@@ -370,7 +370,7 @@ export default function GrandPortalLayout() {
                         </span>
                         <span>• {item.date}</span>
                       </div>
-                      <h4 className="text-xs sm:text-sm font-bold text-[#0F2942] group-hover:text-blue-800 transition-colors line-clamp-2 leading-snug thai-wrap">
+                      <h4 className="text-xs sm:text-sm font-bold text-[#1E3A5F] group-hover:text-blue-800 transition-colors line-clamp-2 leading-snug thai-wrap">
                         {item.title}
                       </h4>
                     </div>
@@ -398,7 +398,7 @@ export default function GrandPortalLayout() {
           
           {/* Box 1: ผู้อำนวยการโรงเรียน (เหมือน รร.บ้านลุงขี้หนู เป๊ะ) */}
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden text-center">
-            <div className="bg-[#0c3759] text-white px-4 py-3 flex items-center justify-center gap-2 font-bold text-sm">
+            <div className="bg-[#1E3A5F] text-white px-4 py-3 flex items-center justify-center gap-2 font-bold text-sm">
               <User className="w-4 h-4 text-sky-300" />
               <span>ผู้อำนวยการโรงเรียน</span>
             </div>
@@ -418,7 +418,7 @@ export default function GrandPortalLayout() {
               </div>
 
               <div>
-                <h4 className="font-black text-sm sm:text-base text-[#0F2942]">
+                <h4 className="font-black text-sm sm:text-base text-[#1E3A5F]">
                   {settings.directorName || schoolInfo.director.name}
                 </h4>
                 <p className="text-xs text-blue-800 font-semibold mt-0.5">
@@ -446,7 +446,7 @@ export default function GrandPortalLayout() {
 
           {/* Box 2: แนะนำบุคลากร (Staff Column) */}
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-            <div className="bg-[#0c3759] text-white px-4 py-3 flex items-center justify-between">
+            <div className="bg-[#1E3A5F] text-white px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-2 font-bold text-sm">
                 <Users className="w-4 h-4 text-amber-300" />
                 <span>แนะนำบุคลากร</span>
@@ -469,7 +469,7 @@ export default function GrandPortalLayout() {
                     />
                   </div>
                   <div className="leading-tight truncate">
-                    <h5 className="font-bold text-xs text-[#0F2942] truncate">
+                    <h5 className="font-bold text-xs text-[#1E3A5F] truncate">
                       {teacher.name}
                     </h5>
                     <p className="text-[11px] text-blue-800 font-medium truncate mt-0.5">

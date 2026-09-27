@@ -22,7 +22,8 @@ import {
   Info,
   Calendar,
   Layers,
-  X
+  X,
+  Loader2
 } from "lucide-react";
 import {
   getStoredAcademicScores,
@@ -44,6 +45,78 @@ import AcademicPerformanceChart from "@/components/academic/AcademicPerformanceC
 import Swal from "sweetalert2";
 import { compressImageFile, optimizeBase64OrUrl } from "@/utils/imageCompressor";
 
+interface ScoreInputProps {
+  value: number;
+  onChange: (val: number) => void;
+  className?: string;
+  placeholder?: string;
+}
+
+/**
+ * ScoreInput: Formats scores strictly to 2 decimal places (including trailing zeros e.g. 67.50, 47.60).
+ * Handles user typing gracefully without premature truncation, formatting to .toFixed(2) on blur.
+ */
+function ScoreInput({ value, onChange, className, placeholder = "0.00" }: ScoreInputProps) {
+  const formatScore = (val: number | undefined | null) => {
+    if (val === undefined || val === null || isNaN(val)) return "0.00";
+    return Number(val).toFixed(2);
+  };
+
+  const [localText, setLocalText] = useState<string>(() => formatScore(value));
+  const [isFocused, setIsFocused] = useState(false);
+
+  useEffect(() => {
+    if (!isFocused) {
+      setLocalText(formatScore(value));
+    }
+  }, [value, isFocused]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    if (raw === "" || /^\d*\.?\d{0,2}$/.test(raw)) {
+      const parsed = parseFloat(raw);
+      if (!isNaN(parsed) && parsed > 100) return;
+      setLocalText(raw);
+      if (!isNaN(parsed)) {
+        onChange(parsed);
+      } else if (raw === "") {
+        onChange(0);
+      }
+    }
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    const parsed = parseFloat(localText);
+    if (!isNaN(parsed)) {
+      const formatted = parsed.toFixed(2);
+      setLocalText(formatted);
+      onChange(parseFloat(formatted));
+    } else {
+      setLocalText("0.00");
+      onChange(0);
+    }
+  };
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setIsFocused(true);
+    e.target.select();
+  };
+
+  return (
+    <input
+      type="text"
+      inputMode="decimal"
+      value={localText}
+      onFocus={handleFocus}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      className={className}
+    />
+  );
+}
+
 export default function AdminAcademicPage() {
   const [activeMainTab, setActiveMainTab] = useState<"scores" | "posters">("scores");
   const [activeExam, setActiveExam] = useState<"O-NET" | "RT" | "NT">("O-NET");
@@ -59,6 +132,7 @@ export default function AdminAcademicPage() {
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [savedMessage, setSavedMessage] = useState("");
   const [resetSuccess, setResetSuccess] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [uploadingPosterIndex, setUploadingPosterIndex] = useState<number | null>(null);
 
   // Hidden file inputs mapped by poster index
@@ -99,9 +173,9 @@ export default function AdminAcademicPage() {
   const handleScoreChange = (
     index: number,
     level: "school" | "area" | "national",
-    value: string
+    value: string | number
   ) => {
-    const numValue = value === "" ? 0 : parseFloat(value);
+    const numValue = typeof value === "number" ? value : (value === "" ? 0 : parseFloat(value));
     const updatedSubjects = [...currentExamData.subjects];
     updatedSubjects[index] = {
       ...updatedSubjects[index],
@@ -267,9 +341,9 @@ export default function AdminAcademicPage() {
     posterIndex: number,
     subIndex: number,
     field: "school" | "national",
-    val: string
+    val: string | number
   ) => {
-    const num = val === "" ? 0 : parseFloat(val);
+    const num = typeof val === "number" ? val : (val === "" ? 0 : parseFloat(val));
     const updated = [...posters];
     const poster = { ...updated[posterIndex] };
     const subs = [...poster.subjects];
@@ -304,7 +378,7 @@ export default function AdminAcademicPage() {
         icon: "success",
         title: "อัปโหลดภาพสำเร็จ!",
         text: `อัปโหลดภาพผลสอบ O-NET ปี ${updated[index].year} เรียบร้อยแล้ว (บีบอัดขนาดเหมาะสม พร้อมบันทึกออนไลน์)`,
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#2F6FED",
         timer: 2000,
         showConfirmButton: false,
       });
@@ -315,7 +389,7 @@ export default function AdminAcademicPage() {
         title: "เกิดข้อผิดพลาดในการโหลดรูปภาพ",
         text: err?.message || "กรุณาลองใหม่อีกครั้ง หรือเลือกไฟล์รูปภาพอื่น",
         confirmButtonText: "ตกลง",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#2F6FED",
       });
     } finally {
       setUploadingPosterIndex(null);
@@ -339,9 +413,45 @@ export default function AdminAcademicPage() {
 
   // ================= 3. SAVE / RESET LOGIC =================
   const handleSaveAll = async () => {
+    setIsSaving(true);
     try {
-      await saveStoredAcademicScores(datasets);
-      await saveStoredOnetPosters(posters);
+      // Ensure all numeric scores are cleanly formatted to 2 decimals
+      const sanitizedDatasets: AllAcademicScores = {};
+      for (const [examKey, yearMap] of Object.entries(datasets)) {
+        sanitizedDatasets[examKey] = {};
+        for (const [yrKey, examData] of Object.entries(yearMap)) {
+          sanitizedDatasets[examKey][yrKey] = {
+            ...examData,
+            subjects: examData.subjects.map((s) => ({
+              ...s,
+              school: parseFloat(Number(s.school || 0).toFixed(2)),
+              area: parseFloat(Number(s.area || 0).toFixed(2)),
+              national: parseFloat(Number(s.national || 0).toFixed(2)),
+            })),
+          };
+        }
+      }
+
+      const sanitizedPosters = posters.map((p) => ({
+        ...p,
+        subjects: p.subjects.map((s) => {
+          const sc = parseFloat(Number(s.school || 0).toFixed(2));
+          const nat = parseFloat(Number(s.national || 0).toFixed(2));
+          const diffNum = sc - nat;
+          return {
+            ...s,
+            school: sc,
+            national: nat,
+            diff: (diffNum >= 0 ? "+" : "") + diffNum.toFixed(2),
+            higher: diffNum >= 0,
+          };
+        }),
+      }));
+
+      await saveStoredAcademicScores(sanitizedDatasets);
+      await saveStoredOnetPosters(sanitizedPosters);
+      setDatasets(sanitizedDatasets);
+      setPosters(sanitizedPosters);
 
       const successTitle = activeMainTab === "scores"
         ? `บันทึกคะแนน ${activeExam} สำเร็จ!`
@@ -359,7 +469,7 @@ export default function AdminAcademicPage() {
         title: successTitle,
         text: successDetail,
         confirmButtonText: "ตกลง",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#2F6FED",
         timer: 2500,
         timerProgressBar: true,
       });
@@ -370,8 +480,10 @@ export default function AdminAcademicPage() {
         title: "เกิดข้อผิดพลาดในการบันทึก",
         text: "กรุณาลองใหม่อีกครั้ง หรือตรวจสอบขนาดไฟล์รูปภาพ",
         confirmButtonText: "ตกลง",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#2F6FED",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -405,10 +517,10 @@ export default function AdminAcademicPage() {
               <ArrowLeft className="w-3 h-3" /> แดชบอร์ด
             </Link>
             <span>/</span>
-            <span className="text-[#0F2942] font-semibold">งานวัดผลและวิชาการ</span>
+            <span className="text-[#1E3A5F] font-semibold">งานวัดผลและวิชาการ</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-[#0F2942] flex items-center gap-2.5">
-            <span className="p-2 rounded-2xl bg-blue-100 text-blue-900">
+          <h1 className="text-xl sm:text-2xl font-black text-[#1E3A5F] flex items-center gap-2.5">
+            <span className="p-2 rounded-2xl bg-[#2F6FED]/10 text-[#2F6FED]">
               <Award className="w-6 h-6" />
             </span>
             จัดการคะแนน O-NET / NT / RT และภาพประกาศผลสอบ
@@ -419,11 +531,11 @@ export default function AdminAcademicPage() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
           <button
             onClick={handleResetCurrent}
             type="button"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 shadow-2xs transition-all min-h-[38px]"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 shadow-2xs transition-all min-h-[40px]"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>รีเซ็ตค่ามาตรฐาน</span>
@@ -432,10 +544,15 @@ export default function AdminAcademicPage() {
           <button
             onClick={handleSaveAll}
             type="button"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 shadow-xs transition-all min-h-[38px]"
+            disabled={isSaving}
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#2F6FED] hover:bg-[#255bc4] shadow-sm transition-all min-h-[40px] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
           >
-            <Save className="w-4 h-4" />
-            <span>บันทึกข้อมูลทั้งหมด</span>
+            {isSaving ? (
+              <Loader2 className="w-4 h-4 animate-spin text-white" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            <span>{isSaving ? "กำลังบันทึกข้อมูล..." : "บันทึกข้อมูลทั้งหมด"}</span>
           </button>
         </div>
       </div>
@@ -456,12 +573,12 @@ export default function AdminAcademicPage() {
       )}
 
       {/* ================= 2 MAIN SECTION TABS ================= */}
-      <div className="flex items-center gap-2 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200">
+      <div className="flex items-center gap-2 p-1.5 glass-card-admin rounded-2xl border border-[#D1DFF0]">
         <button
           onClick={() => setActiveMainTab("scores")}
           className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
             activeMainTab === "scores"
-              ? "bg-[#0F2942] text-white shadow-md"
+              ? "bg-[#1E3A5F] text-white shadow-sm"
               : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
           }`}
         >
@@ -473,7 +590,7 @@ export default function AdminAcademicPage() {
           onClick={() => setActiveMainTab("posters")}
           className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
             activeMainTab === "posters"
-              ? "bg-[#0F2942] text-white shadow-md"
+              ? "bg-[#1E3A5F] text-white shadow-sm"
               : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
           }`}
         >
@@ -489,7 +606,7 @@ export default function AdminAcademicPage() {
       {activeMainTab === "scores" && (
         <div className="space-y-6">
           {/* Top Bar: Exam Subtabs + Academic Year Selector */}
-          <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+          <div className="glass-card-admin p-5 rounded-2xl border border-[#D1DFF0] shadow-sm space-y-4">
             
             {/* Exam Types Selector */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
@@ -500,7 +617,7 @@ export default function AdminAcademicPage() {
                     onClick={() => setActiveExam(tab)}
                     className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
                       activeExam === tab
-                        ? "bg-[#0F2942] text-white shadow-md"
+                        ? "bg-[#1E3A5F] text-white shadow-sm"
                         : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
                     }`}
                   >
@@ -521,7 +638,7 @@ export default function AdminAcademicPage() {
             <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5 mr-1">
-                  <Calendar className="w-4 h-4 text-blue-700" />
+                  <Calendar className="w-4 h-4 text-[#2F6FED]" />
                   เลือกปีการศึกษา:
                 </span>
 
@@ -534,12 +651,12 @@ export default function AdminAcademicPage() {
                       onClick={() => setSelectedYear(yearStr)}
                       className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                         isCurrent
-                          ? "bg-[#0F2942] text-white shadow-sm ring-2 ring-blue-500/30"
+                          ? "bg-[#2F6FED] text-white shadow-sm ring-2 ring-[#2F6FED]/40"
                           : "bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
                       }`}
                     >
                       <span>ปี {yearStr}</span>
-                      {isCurrent && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+                      {isCurrent && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
                     </button>
                   );
                 })}
@@ -547,7 +664,7 @@ export default function AdminAcademicPage() {
                 <button
                   type="button"
                   onClick={() => setIsAddingNewYear(!isAddingNewYear)}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all shadow-2xs"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-[#2F6FED] bg-[#2F6FED]/10 hover:bg-[#2F6FED]/20 border border-[#2F6FED]/30 transition-all shadow-2xs"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>+ เพิ่มปีการศึกษาใหม่</span>
@@ -570,10 +687,10 @@ export default function AdminAcademicPage() {
 
             {/* Inline Add Year Form */}
             {isAddingNewYear && (
-              <div className="p-4 bg-gradient-to-r from-blue-50 via-indigo-50/50 to-white rounded-2xl border border-blue-200 space-y-3 animate-in fade-in">
+              <div className="p-4 bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-white rounded-2xl border border-blue-200 space-y-3 animate-in fade-in">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-bold text-[#0F2942] flex items-center gap-1.5">
-                    <Plus className="w-4 h-4 text-blue-600" />
+                  <h4 className="text-xs font-bold text-[#1E3A5F] flex items-center gap-1.5">
+                    <Plus className="w-4 h-4 text-[#2F6FED]" />
                     เพิ่มปีการศึกษาใหม่สำหรับ {activeExam} ({currentExamData.grade})
                   </h4>
                   <button
@@ -594,7 +711,7 @@ export default function AdminAcademicPage() {
                       onClick={() => setNewYearInput(preset)}
                       className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-colors ${
                         newYearInput === preset
-                          ? "bg-blue-600 text-white border-blue-600"
+                          ? "bg-[#2F6FED] text-white border-[#2F6FED]"
                           : "bg-white text-slate-700 border-slate-200 hover:bg-blue-50"
                       }`}
                     >
@@ -628,7 +745,7 @@ export default function AdminAcademicPage() {
                   <button
                     type="button"
                     onClick={() => handleCreateNewExamYear()}
-                    className="px-4 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold shadow-xs transition-colors"
+                    className="px-4 py-2 rounded-xl bg-[#2F6FED] hover:bg-[#255bc4] text-white text-xs font-bold shadow-sm transition-colors"
                   >
                     ยืนยันเพิ่มปีการศึกษา
                   </button>
@@ -638,10 +755,10 @@ export default function AdminAcademicPage() {
           </div>
 
           {/* 3-Level Table Card */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+          <div className="glass-card-admin rounded-2xl border border-[#D1DFF0] shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/70">
               <div>
-                <h3 className="font-bold text-base text-[#0F2942] flex items-center gap-2">
+                <h3 className="font-bold text-base text-[#1E3A5F] flex items-center gap-2">
                   <span>ตารางกรอกคะแนน ({activeExam} {currentExamData.grade})</span>
                   <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 font-bold">
                     ปีการศึกษา {activeYear}
@@ -655,7 +772,7 @@ export default function AdminAcademicPage() {
               <button
                 onClick={handleAutoCalculateTotal}
                 type="button"
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all self-start sm:self-auto shadow-2xs"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#2F6FED] bg-[#2F6FED]/10 hover:bg-[#2F6FED]/20 border border-[#2F6FED]/30 transition-all self-start sm:self-auto shadow-2xs"
               >
                 <Calculator className="w-4 h-4" />
                 <span>คำนวณคะแนนแถว "รวม" อัตโนมัติ</span>
@@ -664,7 +781,10 @@ export default function AdminAcademicPage() {
 
             {/* Input Table */}
             <div className="overflow-x-auto p-4 sm:p-6">
-              <table className="w-full text-xs sm:text-sm border-collapse">
+              <p className="text-[11px] text-slate-500 sm:hidden mb-2 flex items-center gap-1">
+                <span>👉 เลื่อนซ้าย-ขวาเพื่อกรอกคะแนนให้ครบทุกระดับ</span>
+              </p>
+              <table className="w-full text-xs sm:text-sm border-collapse min-w-[560px]">
                 <thead>
                   <tr className="bg-slate-100/80 text-slate-700 font-bold border-b border-slate-200">
                     <th className="py-3 px-4 text-left font-bold">กลุ่มสาระ / สมรรถนะ</th>
@@ -674,10 +794,10 @@ export default function AdminAcademicPage() {
                         1. โรงเรียน (หนองหัวหมู)
                       </span>
                     </th>
-                    <th className="py-3 px-4 text-center text-amber-900 bg-amber-50/70 border-r border-amber-100">
-                      <span className="flex items-center justify-center gap-1.5 font-bold">
-                        <span className="w-3 h-3 rounded-xs bg-amber-500" />
-                        2. เขตพื้นที่ (บุรีรัมย์ เขต 3)
+                    <th className="py-3 px-4 text-center text-[#1E3A5F] bg-[#EBF2FF]/70 border-r border-[#D1DFF0]">
+                      <span className="flex items-center justify-center gap-1.5 font-bold whitespace-nowrap">
+                        <span className="w-3 h-3 rounded-xs bg-[#2F6FED]" />
+                        2. เขตพื้นที่ (บุรีรัมย์ เขต&nbsp;3)
                       </span>
                     </th>
                     <th className="py-3 px-4 text-center text-blue-900 bg-blue-50/70">
@@ -696,46 +816,37 @@ export default function AdminAcademicPage() {
                         key={item.name}
                         className={isTotal ? "bg-blue-50/50 font-bold" : "hover:bg-slate-50/60"}
                       >
-                        <td className="py-3 px-4 font-semibold text-[#0F2942]">
+                        <td className="py-3 px-4 font-semibold text-[#1E3A5F]">
                           {item.name} {isTotal && "(เฉลี่ยรวม)"}
                         </td>
 
                         {/* 1. โรงเรียน */}
                         <td className="py-2.5 px-3 text-center bg-emerald-50/20 border-x border-emerald-100/60">
-                          <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            max="100"
+                          <ScoreInput
+                            key={`${activeExam}-${activeYear}-${item.name}-school`}
                             value={item.school}
-                            onChange={(e) => handleScoreChange(idx, "school", e.target.value)}
-                            className="w-28 py-1.5 px-2 text-center font-bold text-emerald-900 bg-white border border-emerald-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-hidden shadow-2xs"
+                            onChange={(val) => handleScoreChange(idx, "school", val)}
+                            className="w-28 py-1.5 px-2 text-center font-bold text-emerald-900 bg-white border border-emerald-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-hidden shadow-2xs font-mono"
                           />
                         </td>
 
                         {/* 2. เขตพื้นที่ */}
                         <td className="py-2.5 px-3 text-center bg-amber-50/20 border-r border-amber-100/60">
-                          <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            max="100"
+                          <ScoreInput
+                            key={`${activeExam}-${activeYear}-${item.name}-area`}
                             value={item.area}
-                            onChange={(e) => handleScoreChange(idx, "area", e.target.value)}
-                            className="w-28 py-1.5 px-2 text-center font-medium text-amber-900 bg-white border border-amber-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-hidden shadow-2xs"
+                            onChange={(val) => handleScoreChange(idx, "area", val)}
+                            className="w-28 py-1.5 px-2 text-center font-medium text-amber-900 bg-white border border-amber-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-hidden shadow-2xs font-mono"
                           />
                         </td>
 
                         {/* 3. ประเทศ */}
                         <td className="py-2.5 px-3 text-center bg-blue-50/20">
-                          <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            max="100"
+                          <ScoreInput
+                            key={`${activeExam}-${activeYear}-${item.name}-national`}
                             value={item.national}
-                            onChange={(e) => handleScoreChange(idx, "national", e.target.value)}
-                            className="w-28 py-1.5 px-2 text-center font-medium text-blue-900 bg-white border border-blue-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-hidden shadow-2xs"
+                            onChange={(val) => handleScoreChange(idx, "national", val)}
+                            className="w-28 py-1.5 px-2 text-center font-medium text-blue-900 bg-white border border-blue-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-hidden shadow-2xs font-mono"
                           />
                         </td>
                       </tr>
@@ -750,7 +861,7 @@ export default function AdminAcademicPage() {
               <button
                 onClick={handleSaveAll}
                 type="button"
-                className="inline-flex items-center gap-1.5 font-bold text-blue-700 hover:text-blue-900"
+                className="inline-flex items-center gap-1.5 font-bold text-[#2F6FED] hover:text-[#255bc4]"
               >
                 <Save className="w-4 h-4" />
                 <span>กดบันทึกข้อมูลคะแนน</span>
@@ -762,8 +873,8 @@ export default function AdminAcademicPage() {
           <div className="space-y-3 pt-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Eye className="w-5 h-5 text-blue-700" />
-                <h3 className="font-bold text-base text-[#0F2942]">
+                <Eye className="w-5 h-5 text-[#2F6FED]" />
+                <h3 className="font-bold text-base text-[#1E3A5F]">
                   ตัวอย่างการแสดงผลบนหน้าเว็บไซต์จริง (Live Preview)
                 </h3>
               </div>
@@ -784,13 +895,13 @@ export default function AdminAcademicPage() {
       {activeMainTab === "posters" && (
         <div className="space-y-6">
           {/* Guide Banner */}
-          <div className="p-5 bg-gradient-to-r from-blue-50 via-indigo-50 to-white rounded-3xl border border-blue-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-5 glass-card-admin rounded-2xl border border-[#D1DFF0] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-md">
+              <div className="w-10 h-10 rounded-xl bg-[#2F6FED] text-white flex items-center justify-center shrink-0 shadow-sm">
                 <ImageIcon className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-sm sm:text-base text-[#0F2942]">
+                <h3 className="font-bold text-sm sm:text-base text-[#1E3A5F]">
                   จัดการภาพโปสเตอร์ประกาศผลสอบ O-NET (Infographics)
                 </h3>
                 <p className="text-xs text-slate-600 mt-1 max-w-2xl leading-relaxed">
@@ -803,7 +914,7 @@ export default function AdminAcademicPage() {
               <button
                 onClick={() => handleAddPoster("2568")}
                 type="button"
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-900 text-xs font-bold transition-all shadow-2xs"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#2F6FED]/10 hover:bg-[#2F6FED]/20 text-[#2F6FED] border border-[#2F6FED]/30 text-xs font-bold transition-all shadow-2xs"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>+ เพิ่มปี 2568</span>
@@ -811,7 +922,7 @@ export default function AdminAcademicPage() {
               <button
                 onClick={() => handleAddPoster()}
                 type="button"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-md transition-all"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#2F6FED] hover:bg-[#255bc4] text-white text-xs font-bold shadow-sm transition-all"
               >
                 <Plus className="w-4 h-4" />
                 <span>+ เพิ่มภาพประกาศปีใหม่</span>
@@ -824,15 +935,15 @@ export default function AdminAcademicPage() {
             {posters.map((poster, pIdx) => (
               <div
                 key={pIdx}
-                className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden"
+                className="glass-card-admin rounded-2xl border border-[#D1DFF0] shadow-sm overflow-hidden"
               >
                 {/* Header Bar */}
                 <div className="px-6 py-4 bg-slate-50/80 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <span className="px-3 py-1 rounded-full bg-[#0F2942] text-white text-xs font-bold shadow-2xs">
+                    <span className="px-3 py-1 rounded-full bg-[#1E3A5F] text-white text-xs font-bold shadow-2xs">
                       ปีการศึกษา {poster.year}
                     </span>
-                    <span className="font-bold text-sm text-[#0F2942]">
+                    <span className="font-bold text-sm text-[#1E3A5F]">
                       {poster.title}
                     </span>
                   </div>
@@ -877,7 +988,7 @@ export default function AdminAcademicPage() {
                               href={poster.image}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="p-2 rounded-xl bg-white/95 text-[#0F2942] hover:bg-white text-xs font-bold flex items-center gap-1 shadow-md"
+                              className="p-2 rounded-xl bg-white/95 text-[#1E3A5F] hover:bg-white text-xs font-bold flex items-center gap-1 shadow-md"
                             >
                               <ExternalLink className="w-3.5 h-3.5" />
                               <span>ดูรูปเต็ม</span>
@@ -885,7 +996,7 @@ export default function AdminAcademicPage() {
                             <button
                               type="button"
                               onClick={() => fileInputRefs.current[pIdx]?.click()}
-                              className="p-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold flex items-center gap-1 shadow-md cursor-pointer"
+                              className="p-2 rounded-xl bg-[#2F6FED] text-white hover:bg-[#255bc4] text-xs font-bold flex items-center gap-1 shadow-md cursor-pointer"
                             >
                               <Upload className="w-3.5 h-3.5" />
                               <span>เปลี่ยนรูปภาพ</span>
@@ -902,8 +1013,8 @@ export default function AdminAcademicPage() {
                         </>
                       ) : (
                         <div className="text-center p-6 text-slate-500 group-hover:text-blue-700 transition-colors">
-                          <Upload className="w-10 h-10 mx-auto mb-2 text-blue-500 group-hover:scale-110 transition-transform" />
-                          <p className="text-xs font-bold text-[#0F2942]">คลิกเพื่อเลือกไฟล์รูปภาพจากเครื่อง</p>
+                          <Upload className="w-10 h-10 mx-auto mb-2 text-[#2F6FED] group-hover:scale-110 transition-transform" />
+                          <p className="text-xs font-bold text-[#1E3A5F]">คลิกเพื่อเลือกไฟล์รูปภาพจากเครื่อง</p>
                           <p className="text-[11px] text-slate-400 mt-1">รองรับ JPG, PNG, WebP (ระบบย่อขนาดให้อัตโนมัติ)</p>
                         </div>
                       )}
@@ -1010,7 +1121,7 @@ export default function AdminAcademicPage() {
                         value={poster.title}
                         onChange={(e) => handlePosterFieldChange(pIdx, "title", e.target.value)}
                         placeholder="เช่น ผลการทดสอบ O-NET ป.6 ปีการศึกษา 2569"
-                        className="w-full py-2 px-3 text-xs font-bold text-[#0F2942] bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                        className="w-full py-2 px-3 text-xs font-bold text-[#1E3A5F] bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                       />
                     </div>
 
@@ -1031,34 +1142,32 @@ export default function AdminAcademicPage() {
                             key={sIdx}
                             className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs"
                           >
-                            <span className="font-bold text-[#0F2942] w-24 shrink-0">
+                            <span className="font-bold text-[#1E3A5F] w-24 shrink-0">
                               {sub.name}
                             </span>
 
                             <div className="flex items-center gap-3">
                               <div className="flex items-center gap-1.5">
                                 <span className="text-[11px] text-slate-500">โรงเรียน:</span>
-                                <input
-                                  type="number"
-                                  step="0.01"
+                                <ScoreInput
+                                  key={`poster-${pIdx}-${sIdx}-school`}
                                   value={sub.school}
-                                  onChange={(e) =>
-                                    handlePosterSubjectChange(pIdx, sIdx, "school", e.target.value)
+                                  onChange={(val) =>
+                                    handlePosterSubjectChange(pIdx, sIdx, "school", val)
                                   }
-                                  className="w-20 py-1 px-2 text-center font-bold text-emerald-900 bg-white border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-500"
+                                  className="w-20 py-1 px-2 text-center font-bold text-emerald-900 bg-white border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-500 font-mono"
                                 />
                               </div>
 
                               <div className="flex items-center gap-1.5">
                                 <span className="text-[11px] text-slate-500">ประเทศ:</span>
-                                <input
-                                  type="number"
-                                  step="0.01"
+                                <ScoreInput
+                                  key={`poster-${pIdx}-${sIdx}-national`}
                                   value={sub.national}
-                                  onChange={(e) =>
-                                    handlePosterSubjectChange(pIdx, sIdx, "national", e.target.value)
+                                  onChange={(val) =>
+                                    handlePosterSubjectChange(pIdx, sIdx, "national", val)
                                   }
-                                  className="w-20 py-1 px-2 text-center font-medium text-blue-900 bg-white border border-slate-300 rounded-lg focus:ring-1 focus:ring-blue-500"
+                                  className="w-20 py-1 px-2 text-center font-medium text-blue-900 bg-white border border-slate-300 rounded-lg focus:ring-1 focus:ring-blue-500 font-mono"
                                 />
                               </div>
 

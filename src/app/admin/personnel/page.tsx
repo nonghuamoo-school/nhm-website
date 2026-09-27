@@ -24,7 +24,8 @@ import {
   MoveUp,
   MoveDown,
   Upload,
-  Camera
+  Camera,
+  Loader2
 } from "lucide-react";
 import { usePersonnel } from "@/hooks/usePersonnel";
 import { PersonnelMember } from "@/types";
@@ -77,6 +78,7 @@ export default function AdminPersonnelPage() {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState<{
@@ -119,7 +121,7 @@ export default function AdminPersonnelPage() {
         icon: "error",
         title: "เกิดข้อผิดพลาดในการโหลดรูปภาพ",
         text: err?.message || "กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
       });
     } finally {
       setIsProcessingAvatar(false);
@@ -149,7 +151,7 @@ export default function AdminPersonnelPage() {
         icon: "success",
         title: "เปลี่ยนรูปถ่ายสำเร็จ!",
         text: `บันทึกรูปถ่ายใหม่ของ "${target?.name || 'บุคลากร'}" เรียบร้อยแล้ว`,
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
         timer: 2000,
         showConfirmButton: false,
       });
@@ -159,7 +161,7 @@ export default function AdminPersonnelPage() {
         icon: "error",
         title: "เกิดข้อผิดพลาดในการโหลดรูปภาพ",
         text: err?.message || "กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
       });
     } finally {
       e.target.value = "";
@@ -219,53 +221,65 @@ export default function AdminPersonnelPage() {
     }));
   };
 
-  const handleSubmitForm = (e: React.FormEvent) => {
+  const handleSubmitForm = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim()) {
       alert("กรุณากรอกชื่อ-นามสกุล");
       return;
     }
 
-    const rolesToSave = formData.roles.length > 0 ? formData.roles : [formData.position];
-    const mainPos = formData.position.trim() || rolesToSave[0] || "ครูผู้สอน";
+    setIsSaving(true);
+    try {
+      const rolesToSave = formData.roles.length > 0 ? formData.roles : [formData.position];
+      const mainPos = formData.position.trim() || rolesToSave[0] || "ครูผู้สอน";
 
-    if (editingId) {
-      updateMember(editingId, {
-        name: formData.name.trim(),
-        position: mainPos,
-        department: formData.department,
-        subjectGroup: formData.subjectGroup.trim() || formData.department,
-        imageUrl: formData.imageUrl.trim() || PRESET_AVATARS[0].url,
-        order: Number(formData.order) || 1,
-        roles: rolesToSave
-      });
+      if (editingId) {
+        await updateMember(editingId, {
+          name: formData.name.trim(),
+          position: mainPos,
+          department: formData.department,
+          subjectGroup: formData.subjectGroup.trim() || formData.department,
+          imageUrl: formData.imageUrl.trim() || PRESET_AVATARS[0].url,
+          order: Number(formData.order) || 1,
+          roles: rolesToSave
+        });
+        await Swal.fire({
+          icon: "success",
+          title: "แก้ไขข้อมูลสำเร็จ",
+          text: `บันทึกการแก้ไขข้อมูล "${formData.name}" เรียบร้อยแล้ว`,
+          timer: 1800,
+          showConfirmButton: false,
+        });
+      } else {
+        await addMember({
+          name: formData.name.trim(),
+          position: mainPos,
+          department: formData.department,
+          subjectGroup: formData.subjectGroup.trim() || formData.department,
+          imageUrl: formData.imageUrl.trim() || PRESET_AVATARS[0].url,
+          order: Number(formData.order) || personnelList.length + 1,
+          roles: rolesToSave
+        });
+        await Swal.fire({
+          icon: "success",
+          title: "เพิ่มข้อมูลสำเร็จ",
+          text: `เพิ่มข้อมูลบุคลากร "${formData.name}" เรียบร้อยแล้ว`,
+          timer: 1800,
+          showConfirmButton: false,
+        });
+      }
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error("Save personnel error:", err);
       Swal.fire({
-        icon: "success",
-        title: "แก้ไขข้อมูลสำเร็จ",
-        text: `บันทึกการแก้ไขข้อมูล "${formData.name}" เรียบร้อยแล้ว`,
-        timer: 1800,
-        showConfirmButton: false,
+        icon: "error",
+        title: "เกิดข้อผิดพลาดในการบันทึก",
+        text: "กรุณาลองใหม่อีกครั้ง",
+        confirmButtonColor: "#1E3A5F",
       });
-    } else {
-      addMember({
-        name: formData.name.trim(),
-        position: mainPos,
-        department: formData.department,
-        subjectGroup: formData.subjectGroup.trim() || formData.department,
-        imageUrl: formData.imageUrl.trim() || PRESET_AVATARS[0].url,
-        order: Number(formData.order) || personnelList.length + 1,
-        roles: rolesToSave
-      });
-      Swal.fire({
-        icon: "success",
-        title: "เพิ่มข้อมูลสำเร็จ",
-        text: `เพิ่มข้อมูลบุคลากร "${formData.name}" เรียบร้อยแล้ว`,
-        timer: 1800,
-        showConfirmButton: false,
-      });
+    } finally {
+      setIsSaving(false);
     }
-
-    setIsModalOpen(false);
   };
 
   const handleDeleteConfirm = () => {
@@ -308,24 +322,24 @@ export default function AdminPersonnelPage() {
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-6 right-6 z-50 bg-[#0F2942] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-amber-400/40 animate-in fade-in slide-in-from-top-4">
-          <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0" />
+        <div className="fixed top-6 right-6 z-50 bg-[#1E3A5F] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-[#D96B34]/40 animate-in fade-in slide-in-from-top-4">
+          <CheckCircle2 className="w-5 h-5 text-[#D96B34] shrink-0" />
           <span className="text-xs sm:text-sm font-semibold">{toastMessage}</span>
         </div>
       )}
 
       {/* Header Bar */}
-      <div className="bg-white rounded-3xl p-6 border border-[#E5E7EB] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="glass-card-admin rounded-3xl p-6 border border-[#D1DFF0] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-amber-600 uppercase tracking-wide">
+            <span className="text-xs font-bold text-[#D96B34] uppercase tracking-wide">
               ระบบบริหารงานบุคคลสถานศึกษา
             </span>
             <span className="text-[11px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-bold border border-emerald-200">
               บันทึกจริง Real-time
             </span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#0F2942] mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-[#1E3A5F] mt-1">
             จัดการทำเนียบบุคลากร ({personnelList.length} ท่าน)
           </h1>
           <p className="text-xs text-slate-500 mt-1">
@@ -333,11 +347,11 @@ export default function AdminPersonnelPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
           <button
             type="button"
             onClick={() => setShowResetConfirm(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-colors min-h-[44px]"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-[#D1DFF0] hover:bg-[#EAF2FB]/50 text-slate-700 font-bold text-xs transition-colors min-h-[44px]"
             title="รีเซ็ตเป็น 12 รายชื่อตั้งต้น"
           >
             <RotateCcw className="w-4 h-4 text-slate-500" />
@@ -347,31 +361,31 @@ export default function AdminPersonnelPage() {
           <button
             type="button"
             onClick={handleOpenAdd}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white font-bold text-xs shadow-xs transition-colors min-h-[44px]"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#2F6FED] hover:bg-[#255bc4] text-white font-bold text-xs shadow-xs transition-colors min-h-[44px]"
           >
-            <Plus className="w-4 h-4 text-amber-400" />
+            <Plus className="w-4 h-4 text-white" />
             <span>เพิ่มบุคลากรใหม่</span>
           </button>
         </div>
       </div>
 
       {/* Seniority / Reordering Guide Banner */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50/60 border border-blue-200/90 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-[#0F2942]">
+      <div className="bg-[#EAF2FB]/80 border border-[#D1DFF0] rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-[#1E3A5F]">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-            <ArrowUpDown className="w-4 h-4" />
+          <div className="w-8 h-8 rounded-xl bg-[#1E3A5F] text-white flex items-center justify-center shrink-0 shadow-xs">
+            <ArrowUpDown className="w-4 h-4 text-[#D96B34]" />
           </div>
           <div>
-            <span className="font-bold text-blue-900">ฟังก์ชันจัดเรียงลำดับตามอายุ / อาวุโส:</span>
+            <span className="font-bold text-[#1E3A5F]">ฟังก์ชันจัดเรียงลำดับตามอายุ / อาวุโส:</span>
             <p className="text-[11px] text-slate-600 mt-0.5">
-              กดปุ่ม <span className="font-bold text-blue-700 bg-white px-1.5 py-0.5 rounded border border-blue-300">▲ เลื่อนขึ้น</span> เพื่อให้ครูผู้ใหญ่อยู่ลำดับบน หรือกด <span className="font-bold text-slate-700 bg-white px-1.5 py-0.5 rounded border border-slate-300">▼ เลื่อนลง</span> ระบบจะจัดลำดับและแสดงผลตามนี้ทันที
+              กดปุ่ม <span className="font-bold text-[#2F6FED] bg-white px-1.5 py-0.5 rounded border border-[#D1DFF0]">▲ เลื่อนขึ้น</span> เพื่อให้ครูผู้ใหญ่อยู่ลำดับบน หรือกด <span className="font-bold text-slate-700 bg-white px-1.5 py-0.5 rounded border border-[#D1DFF0]">▼ เลื่อนลง</span> ระบบจะจัดลำดับและแสดงผลตามนี้ทันที
             </p>
           </div>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#E5E7EB] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="glass-card-admin rounded-2xl p-4 sm:p-5 border border-[#D1DFF0] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -379,7 +393,7 @@ export default function AdminPersonnelPage() {
             placeholder="ค้นหาชื่อ, ตำแหน่ง, บทบาทหน้าที่..."
             value={searchWord}
             onChange={(e) => setSearchWord(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20"
+            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-[#D1DFF0] bg-white/80 focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/20"
           />
         </div>
 
@@ -388,7 +402,7 @@ export default function AdminPersonnelPage() {
           <select
             value={selectedDeptFilter}
             onChange={(e) => setSelectedDeptFilter(e.target.value)}
-            className="text-xs bg-[#F8FAFC] border border-[#E5E7EB] rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20 text-slate-700"
+            className="text-xs bg-white/80 border border-[#D1DFF0] rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/20 text-[#1E3A5F]"
           >
             <option value="ทั้งหมด">ทั้งหมด ({personnelList.length})</option>
             {DEPARTMENT_OPTIONS.map((dept) => (
@@ -400,11 +414,11 @@ export default function AdminPersonnelPage() {
         </div>
       </div>
 
-      {/* Personnel Table */}
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-xs overflow-hidden">
+      {/* Personnel Table (Desktop / Tablet >= sm) */}
+      <div className="hidden sm:block glass-card-admin rounded-2xl border border-[#D1DFF0] shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#F8FAFC] border-b border-[#E5E7EB] text-slate-500 font-bold uppercase tracking-wider">
+            <thead className="bg-[#EAF2FB]/70 border-b border-[#D1DFF0] text-[#1E3A5F] font-bold uppercase tracking-wider">
               <tr>
                 <th className="py-3.5 px-3 sm:px-4 w-28 text-center">ลำดับ / สลับที่</th>
                 <th className="py-3.5 px-4 sm:px-6">บุคลากร</th>
@@ -413,7 +427,7 @@ export default function AdminPersonnelPage() {
                 <th className="py-3.5 px-4 sm:px-6 text-right w-32">จัดการ</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-[#D1DFF0]/50">
               {filtered.map((p, idx) => {
                 // Find true index in complete personnelList
                 const globalIndex = personnelList.findIndex((item) => item.id === p.id);
@@ -421,17 +435,17 @@ export default function AdminPersonnelPage() {
                 const isLast = globalIndex === personnelList.length - 1;
 
                 return (
-                  <tr key={p.id} className="hover:bg-slate-50/80 transition-colors">
+                  <tr key={p.id} className="hover:bg-[#EAF2FB]/40 transition-colors">
                     {/* Reorder column with Up & Down buttons */}
                     <td className="py-3.5 px-3 sm:px-4 text-center">
                       <div className="flex items-center justify-center gap-2">
                         {/* Order Number Badge */}
-                        <span className="w-7 h-7 rounded-xl bg-slate-100 font-black text-xs text-[#0F2942] flex items-center justify-center border border-slate-200 shadow-2xs">
+                        <span className="w-7 h-7 rounded-xl bg-[#EAF2FB] font-black text-xs text-[#1E3A5F] flex items-center justify-center border border-[#D1DFF0] shadow-2xs">
                           {p.order || idx + 1}
                         </span>
 
                         {/* Move Up / Move Down Arrow Buttons */}
-                        <div className="flex items-center gap-0.5 bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+                        <div className="flex items-center gap-0.5 bg-[#EAF2FB]/70 p-0.5 rounded-lg border border-[#D1DFF0]">
                           <button
                             type="button"
                             disabled={isFirst}
@@ -442,7 +456,7 @@ export default function AdminPersonnelPage() {
                             className={`p-1.5 rounded-md transition-all ${
                               isFirst
                                 ? "text-slate-300 cursor-not-allowed opacity-40"
-                                : "text-blue-700 hover:bg-blue-600 hover:text-white active:scale-95"
+                                : "text-[#2F6FED] hover:bg-[#2F6FED] hover:text-white active:scale-95"
                             }`}
                             title={isFirst ? "อยู่ที่ลำดับบนสุดแล้ว" : `เลื่อน "${p.name}" ขึ้นด้านบน`}
                           >
@@ -498,7 +512,7 @@ export default function AdminPersonnelPage() {
                         </div>
 
                         <div>
-                          <div className="font-bold text-sm text-[#0F2942]">{p.name}</div>
+                          <div className="font-bold text-sm text-[#1E3A5F]">{p.name}</div>
                           <div className="text-[11px] text-slate-500 font-medium">
                             {p.position}
                           </div>
@@ -506,9 +520,9 @@ export default function AdminPersonnelPage() {
                           <button
                             type="button"
                             onClick={() => triggerRowUpload(p.id)}
-                            className="inline-flex items-center gap-1 px-2 py-0.5 mt-1 rounded-md bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[10.5px] border border-blue-200/80 transition-colors shadow-2xs cursor-pointer"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 mt-1 rounded-md bg-[#EAF2FB] hover:bg-[#D1DFF0]/60 text-[#2F6FED] font-bold text-[10.5px] border border-[#D1DFF0] transition-colors shadow-2xs cursor-pointer"
                           >
-                            <Camera className="w-3 h-3 text-blue-600" />
+                            <Camera className="w-3 h-3 text-[#2F6FED]" />
                             <span>
                               {p.imageUrl && !p.imageUrl.includes("school-emblem-doc")
                                 ? "เปลี่ยนรูป"
@@ -526,17 +540,17 @@ export default function AdminPersonnelPage() {
                           p.roles.map((r, rIdx) => (
                             <span
                               key={rIdx}
-                              className={`inline-block px-2 py-0.5 rounded-md text-[11px] font-semibold ${
+                              className={`inline-block px-2.5 py-1 rounded-lg text-[11px] leading-relaxed break-words thai-wrap font-semibold ${
                                 rIdx === 0
-                                  ? "bg-amber-50 text-amber-900 border border-amber-200"
-                                  : "bg-slate-100 text-slate-700 border border-slate-200"
+                                  ? "bg-[#1E3A5F] text-white shadow-2xs"
+                                  : "bg-[#EAF2FB] text-[#1E3A5F] border border-[#D1DFF0]"
                               }`}
                             >
                               {r}
                             </span>
                           ))
                         ) : (
-                          <span className="text-slate-600 font-medium">{p.position}</span>
+                          <span className="text-[#1E3A5F] font-semibold bg-[#EAF2FB] px-2.5 py-1 rounded-lg border border-[#D1DFF0] inline-block">{p.position}</span>
                         )}
                       </div>
                     </td>
@@ -552,7 +566,7 @@ export default function AdminPersonnelPage() {
                         <button
                           type="button"
                           onClick={() => handleOpenEdit(p)}
-                          className="p-2 rounded-xl text-slate-600 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+                          className="p-2 rounded-xl text-slate-600 hover:text-[#2F6FED] hover:bg-[#EAF2FB] transition-colors"
                           title="แก้ไขข้อมูล"
                         >
                           <Edit3 className="w-4 h-4" />
@@ -583,23 +597,166 @@ export default function AdminPersonnelPage() {
         </div>
       </div>
 
+      {/* ================= MOBILE VIEW (< sm): COMPACT CARDS ================= */}
+      <div className="sm:hidden space-y-2.5">
+        {filtered.map((p, idx) => {
+          const globalIndex = personnelList.findIndex((item) => item.id === p.id);
+          const isFirst = globalIndex === 0;
+          const isLast = globalIndex === personnelList.length - 1;
+
+          return (
+            <div
+              key={p.id}
+              className="glass-card-admin p-3 rounded-2xl border border-[#D1DFF0] shadow-xs space-y-2"
+            >
+              {/* Top Row: Circular Avatar with camera badge + Name/Group + Reorder & Action buttons */}
+              <div className="flex items-center justify-between gap-2">
+                {/* Avatar + Name Info */}
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  {/* Circular Avatar with Camera overlay badge */}
+                  <div
+                    onClick={() => triggerRowUpload(p.id)}
+                    className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-xs shrink-0 cursor-pointer bg-slate-100 group"
+                    title="แตะเพื่อเปลี่ยนรูปถ่าย"
+                  >
+                    {p.imageUrl && !p.imageUrl.includes("school-emblem-doc") ? (
+                      <img
+                        src={p.imageUrl}
+                        alt={p.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-[#EBF2FF] flex items-center justify-center text-[#2F6FED]">
+                        <Camera className="w-5 h-5 text-[#2F6FED]" />
+                      </div>
+                    )}
+                    {/* Camera icon badge overlay */}
+                    <div className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-[#1E3A5F] text-white flex items-center justify-center shadow-xs">
+                      <Camera className="w-2.5 h-2.5" />
+                    </div>
+                  </div>
+
+                  {/* Name, Order & Group */}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-5 h-5 rounded-md bg-[#EAF2FB] text-[10px] font-black text-[#1E3A5F] flex items-center justify-center shrink-0 border border-[#D1DFF0]">
+                        {p.order || idx + 1}
+                      </span>
+                      <h4 className="font-bold text-xs text-[#1E3A5F] truncate">
+                        {p.name}
+                      </h4>
+                    </div>
+                    <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                      {p.subjectGroup || p.department}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Reorder Buttons (>=40x40px) + Edit/Delete */}
+                <div className="flex items-center gap-1 shrink-0">
+                  <div className="flex items-center bg-[#EAF2FB]/80 p-0.5 rounded-xl border border-[#D1DFF0]">
+                    <button
+                      type="button"
+                      disabled={isFirst}
+                      onClick={() => {
+                        moveUp(p.id);
+                        showToast(`เลื่อน "${p.name}" ขึ้นแล้ว`);
+                      }}
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${
+                        isFirst
+                          ? "text-slate-300 opacity-40 cursor-not-allowed"
+                          : "text-[#2F6FED] hover:bg-[#2F6FED] hover:text-white active:scale-95"
+                      }`}
+                      title={isFirst ? "บนสุดแล้ว" : "เลื่อนขึ้น"}
+                    >
+                      <ChevronUp className="w-4 h-4 stroke-[2.5]" />
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isLast}
+                      onClick={() => {
+                        moveDown(p.id);
+                        showToast(`เลื่อน "${p.name}" ลงแล้ว`);
+                      }}
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${
+                        isLast
+                          ? "text-slate-300 opacity-40 cursor-not-allowed"
+                          : "text-slate-600 hover:bg-slate-700 hover:text-white active:scale-95"
+                      }`}
+                      title={isLast ? "ล่างสุดแล้ว" : "เลื่อนลง"}
+                    >
+                      <ChevronDown className="w-4 h-4 stroke-[2.5]" />
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleOpenEdit(p)}
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-600 hover:text-[#2F6FED] hover:bg-[#EAF2FB] active:scale-95 transition-colors border border-[#D1DFF0]/60 bg-white/60"
+                    title="แก้ไข"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDeleteConfirmTarget(p)}
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-red-600 hover:bg-red-50 active:scale-95 transition-colors border border-[#D1DFF0]/60 bg-white/60"
+                    title="ลบ"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Bottom Row: Position Badges wrapped cleanly with strict White-Navy palette */}
+              <div className="flex flex-wrap items-center gap-1.5 pt-1.5 border-t border-[#D1DFF0]/60">
+                {p.roles && p.roles.length > 0 ? (
+                  p.roles.map((r, rIdx) => (
+                    <span
+                      key={rIdx}
+                      className={`inline-block px-2.5 py-0.5 rounded-lg text-[10.5px] leading-tight font-semibold ${
+                        rIdx === 0
+                          ? "bg-[#1E3A5F] text-white shadow-2xs"
+                          : "bg-[#EBF2FF] text-[#1E3A5F] border border-[#2F6FED]/25"
+                      }`}
+                    >
+                      {r}
+                    </span>
+                  ))
+                ) : (
+                  <span className="bg-[#1E3A5F] text-white px-2.5 py-0.5 rounded-lg text-[10.5px] font-semibold shadow-2xs">
+                    {p.position}
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        {filtered.length === 0 && (
+          <div className="text-center py-8 glass-card-admin rounded-2xl border border-[#D1DFF0] text-slate-400 text-xs">
+            ไม่พบข้อมูลบุคลากรที่ตรงกับคำค้นหา
+          </div>
+        )}
+      </div>
+
       {/* ================= MODAL: ADD / EDIT PERSONNEL ================= */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 my-8 animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+        <div className="fixed inset-0 z-50 bg-[#0F2540]/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="glass-card-admin bg-white/95 backdrop-blur-md rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-[#D1DFF0] my-8 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-[#D1DFF0] pb-4 mb-5">
               <div>
-                <span className="text-xs font-bold text-amber-600 uppercase">
+                <span className="text-xs font-bold text-[#D96B34] uppercase">
                   {editingId ? "แก้ไขข้อมูลบุคลากร" : "เพิ่มบุคลากรใหม่"}
                 </span>
-                <h2 className="text-lg sm:text-xl font-bold text-[#0F2942]">
+                <h2 className="text-lg sm:text-xl font-bold text-[#1E3A5F]">
                   {editingId ? formData.name || "แก้ไขบุคลากร" : "บันทึกข้อมูลครูและบุคลากร"}
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 transition-colors"
+                className="p-2 rounded-xl text-slate-400 hover:bg-[#EAF2FB] hover:text-[#1E3A5F] transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -632,13 +789,13 @@ export default function AdminPersonnelPage() {
                   placeholder="เช่น ผู้อำนวยการโรงเรียนบ้านหนองหัวหมู, ครูผู้สอน, ครูชำนาญการพิเศษ"
                   value={formData.position}
                   onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                  className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[#D1DFF0] bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/20 focus:border-[#2F6FED]"
                 />
               </div>
 
               {/* Multiple Roles */}
-              <div className="bg-amber-50/50 p-3.5 rounded-2xl border border-amber-200/60">
-                <label className="block text-xs font-bold text-amber-900 mb-1">
+              <div className="bg-[#EAF2FB]/50 p-3.5 rounded-2xl border border-[#D1DFF0]">
+                <label className="block text-xs font-bold text-[#1E3A5F] mb-1">
                   หน้าที่และบทบาทที่ได้รับมอบหมาย (ใส่ได้หลายตำแหน่ง)
                 </label>
                 <p className="text-[11px] text-slate-500 mb-2">
@@ -650,7 +807,7 @@ export default function AdminPersonnelPage() {
                   {formData.roles.map((r, idx) => (
                     <span
                       key={idx}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-white text-slate-800 border border-amber-300 shadow-2xs"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-[#EAF2FB] text-[#1E3A5F] border border-[#D1DFF0] shadow-2xs"
                     >
                       <span>{r}</span>
                       <button
@@ -678,12 +835,12 @@ export default function AdminPersonnelPage() {
                         handleAddRole();
                       }
                     }}
-                    className="flex-1 px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                    className="flex-1 px-3 py-2 text-xs rounded-xl border border-[#D1DFF0] bg-white focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/20 focus:border-[#2F6FED]"
                   />
                   <button
                     type="button"
                     onClick={handleAddRole}
-                    className="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow-2xs transition-colors shrink-0"
+                    className="px-3.5 py-2 bg-[#2F6FED] hover:bg-[#255bc4] text-white font-bold text-xs rounded-xl shadow-2xs transition-colors shrink-0"
                   >
                     + เพิ่มตำแหน่ง
                   </button>
@@ -699,7 +856,7 @@ export default function AdminPersonnelPage() {
                   <select
                     value={formData.department}
                     onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-[#D1DFF0] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/20"
                   >
                     {DEPARTMENT_OPTIONS.map((dept) => (
                       <option key={dept} value={dept}>
@@ -716,7 +873,7 @@ export default function AdminPersonnelPage() {
                   <select
                     value={formData.subjectGroup}
                     onChange={(e) => setFormData({ ...formData, subjectGroup: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-[#D1DFF0] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/20"
                   >
                     {DEPARTMENT_OPTIONS.map((dept) => (
                       <option key={dept} value={dept}>
@@ -746,13 +903,13 @@ export default function AdminPersonnelPage() {
                 />
 
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-14 h-16 rounded-xl overflow-hidden bg-slate-100 border-2 border-slate-200 shrink-0 shadow-xs relative group cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
+                  <div className="w-14 h-16 rounded-xl overflow-hidden bg-slate-100 border-2 border-[#D1DFF0] shrink-0 shadow-xs relative group cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
                     <img
                       src={formData.imageUrl}
                       alt="Preview"
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                    <div className="absolute inset-0 bg-[#0F2540]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
                       <Camera className="w-4 h-4" />
                     </div>
                   </div>
@@ -762,9 +919,9 @@ export default function AdminPersonnelPage() {
                       type="button"
                       onClick={() => avatarInputRef.current?.click()}
                       disabled={isProcessingAvatar}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs transition-colors border border-amber-200"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#EAF2FB] hover:bg-[#D1DFF0]/60 text-[#2F6FED] font-bold text-xs transition-colors border border-[#D1DFF0]"
                     >
-                      <Upload className="w-3.5 h-3.5 text-amber-600" />
+                      <Upload className="w-3.5 h-3.5 text-[#2F6FED]" />
                       <span>{isProcessingAvatar ? "กำลังประมวลผลรูป..." : "เลือกรูปถ่ายจากเครื่อง"}</span>
                     </button>
                     <input
@@ -772,7 +929,7 @@ export default function AdminPersonnelPage() {
                       placeholder="หรือใส่ URL รูปภาพ..."
                       value={formData.imageUrl.startsWith("data:") ? "" : formData.imageUrl}
                       onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                      className="w-full px-2.5 py-1 text-[11px] rounded-lg border border-slate-200 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      className="w-full px-2.5 py-1 text-[11px] rounded-lg border border-[#D1DFF0] bg-slate-50 focus:outline-none focus:ring-1 focus:ring-[#2F6FED]"
                     />
                   </div>
                 </div>
@@ -786,7 +943,7 @@ export default function AdminPersonnelPage() {
                       type="button"
                       onClick={() => setFormData({ ...formData, imageUrl: av.url })}
                       className={`w-7 h-8 rounded-lg overflow-hidden border-2 shrink-0 transition-transform ${
-                        formData.imageUrl === av.url ? "border-amber-500 scale-105" : "border-slate-200"
+                        formData.imageUrl === av.url ? "border-[#2F6FED] scale-105" : "border-[#D1DFF0]"
                       }`}
                       title={av.label}
                     >
@@ -807,7 +964,7 @@ export default function AdminPersonnelPage() {
                   max="100"
                   value={formData.order}
                   onChange={(e) => setFormData({ ...formData, order: Number(e.target.value) })}
-                  className="w-28 px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 font-bold"
+                  className="w-28 px-3 py-2 text-xs rounded-xl border border-[#D1DFF0] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/20 font-bold"
                 />
                 <span className="text-[11px] text-slate-400 ml-2">
                   (หรือสามารถกดปุ่ม ▲ เลื่อนขึ้น-ลง ได้ทันทีที่ตาราง)
@@ -815,19 +972,21 @@ export default function AdminPersonnelPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#D1DFF0]">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold transition-colors"
+                  className="px-4 py-2.5 rounded-xl border border-[#D1DFF0] text-slate-600 hover:bg-[#EAF2FB] text-xs font-bold transition-colors"
                 >
                   ยกเลิก
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-xs transition-colors"
+                  disabled={isSaving}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#2F6FED] hover:bg-[#255bc4] disabled:opacity-50 text-white text-xs font-bold shadow-xs transition-colors"
                 >
-                  {editingId ? "บันทึกการแก้ไข" : "บันทึกบุคลากรใหม่"}
+                  {isSaving && <Loader2 className="w-4 h-4 animate-spin text-white" />}
+                  <span>{isSaving ? "กำลังบันทึก..." : (editingId ? "บันทึกการแก้ไข" : "บันทึกบุคลากรใหม่")}</span>
                 </button>
               </div>
             </form>
@@ -837,12 +996,12 @@ export default function AdminPersonnelPage() {
 
       {/* ================= MODAL: DELETE CONFIRM ================= */}
       {deleteConfirmTarget && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 text-center animate-in fade-in zoom-in-95">
-            <div className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="fixed inset-0 z-50 bg-[#0F2540]/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="glass-card-admin bg-white/95 backdrop-blur-md rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-[#D1DFF0] text-center animate-in fade-in zoom-in-95">
+            <div className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-200">
               <AlertTriangle className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-slate-900 mb-1">
+            <h3 className="text-base font-bold text-[#1E3A5F] mb-1">
               ยืนยันการลบข้อมูลบุคลากร?
             </h3>
             <p className="text-xs text-slate-500 mb-5">
@@ -852,7 +1011,7 @@ export default function AdminPersonnelPage() {
               <button
                 type="button"
                 onClick={() => setDeleteConfirmTarget(null)}
-                className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold transition-colors"
+                className="px-4 py-2.5 rounded-xl border border-[#D1DFF0] text-slate-600 hover:bg-[#EAF2FB] text-xs font-bold transition-colors"
               >
                 ยกเลิก
               </button>
@@ -870,12 +1029,12 @@ export default function AdminPersonnelPage() {
 
       {/* ================= MODAL: RESET CONFIRM ================= */}
       {showResetConfirm && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 text-center animate-in fade-in zoom-in-95">
-            <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="fixed inset-0 z-50 bg-[#0F2540]/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="glass-card-admin bg-white/95 backdrop-blur-md rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-[#D1DFF0] text-center animate-in fade-in zoom-in-95">
+            <div className="w-12 h-12 bg-[#EAF2FB] text-[#D96B34] rounded-full flex items-center justify-center mx-auto mb-4 border border-[#D1DFF0]">
               <RotateCcw className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-slate-900 mb-1">
+            <h3 className="text-base font-bold text-[#1E3A5F] mb-1">
               ยืนยันรีเซ็ตข้อมูลเป็นค่าเริ่มต้น?
             </h3>
             <p className="text-xs text-slate-500 mb-5">
@@ -885,14 +1044,14 @@ export default function AdminPersonnelPage() {
               <button
                 type="button"
                 onClick={() => setShowResetConfirm(false)}
-                className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold transition-colors"
+                className="px-4 py-2.5 rounded-xl border border-[#D1DFF0] text-slate-600 hover:bg-[#EAF2FB] text-xs font-bold transition-colors"
               >
                 ยกเลิก
               </button>
               <button
                 type="button"
                 onClick={handleResetConfirm}
-                className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-xs transition-colors"
+                className="px-5 py-2.5 rounded-xl bg-[#D96B34] hover:bg-[#c45a25] text-white text-xs font-bold shadow-xs transition-colors"
               >
                 ยืนยันการรีเซ็ต
               </button>

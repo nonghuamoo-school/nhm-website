@@ -52,8 +52,8 @@ export default function NewsAttachmentsView({
   return (
     <div className="pt-6 border-t border-[#E5E7EB] space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-[#0F2942] flex items-center gap-2">
-          <FileText className="w-4 h-4 text-[#0F2942]" />
+        <h3 className="text-sm font-bold text-[#1E3A5F] flex items-center gap-2">
+          <FileText className="w-4 h-4 text-[#1E3A5F]" />
           <span>เอกสารแนบสำหรับอ่านและดาวน์โหลด ({attachments.length} รายการ)</span>
         </h3>
 
@@ -105,7 +105,7 @@ export default function NewsAttachmentsView({
                 <button
                   type="button"
                   onClick={() => handleOpenPreview(file)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#0F2942] bg-white hover:bg-slate-100/80 rounded-lg border border-slate-200 shadow-2xs transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#1E3A5F] bg-white hover:bg-slate-100/80 rounded-lg border border-slate-200 shadow-2xs transition-colors cursor-pointer"
                 >
                   <Eye className="w-3.5 h-3.5 text-blue-700" />
                   <span>เปิดอ่านออนไลน์</span>
@@ -129,7 +129,7 @@ export default function NewsAttachmentsView({
                 <button
                   type="button"
                   onClick={() => triggerDocumentDownload(media.downloadUrl, media.fileName)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-[#0F2942] hover:bg-[#163C61] rounded-lg shadow-2xs transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-[#1E3A5F] hover:bg-[#2F6FED] rounded-lg shadow-2xs transition-colors cursor-pointer"
                   title={`ดาวน์โหลด ${media.fileName}`}
                 >
                   <Download className="w-3.5 h-3.5" />

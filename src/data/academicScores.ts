@@ -30,11 +30,11 @@ export const defaultAcademicScores: AllAcademicScores = {
       source: "สทศ.",
       posterImageUrl: "/images/onet-2567.png",
       subjects: [
-        { name: "ภาษาไทย", school: 0, area: 0, national: 0 },
-        { name: "คณิตศาสตร์", school: 0, area: 0, national: 0 },
-        { name: "วิทยาศาสตร์", school: 0, area: 0, national: 0 },
-        { name: "ภาษาอังกฤษ", school: 0, area: 0, national: 0 },
-        { name: "รวมเฉลี่ย 4 วิชา", school: 0, area: 0, national: 0 },
+        { name: "ภาษาไทย", school: 67.5, area: 45.97, national: 47.6 },
+        { name: "คณิตศาสตร์", school: 31.34, area: 22.84, national: 24.9 },
+        { name: "วิทยาศาสตร์", school: 43.13, area: 36.31, national: 35.43 },
+        { name: "ภาษาอังกฤษ", school: 24.22, area: 27.91, national: 33.58 },
+        { name: "รวมเฉลี่ย 4 วิชา", school: 41.55, area: 33.26, national: 35.38 },
       ],
     },
     "2567": {

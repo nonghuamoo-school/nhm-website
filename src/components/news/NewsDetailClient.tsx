@@ -22,6 +22,7 @@ import NewsAttachmentsView from "@/components/news/NewsAttachmentsView";
 import { useNews } from "@/hooks/useNews";
 import { NewsItem } from "@/types";
 import { formatThaiTitle } from "@/lib/thaiTypography";
+import OptimizedNewsImage from "@/components/common/OptimizedNewsImage";
 
 interface NewsDetailClientProps {
   id: string;
@@ -49,19 +50,19 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
         description="ข่าวสารนี้อาจถูกลบหรือยกเลิกการเผยแพร่โดยผู้ดูแลระบบแล้ว"
       >
         <div className="max-w-md mx-auto text-center py-16 space-y-4 bg-white rounded-3xl p-8 border border-slate-200 shadow-xs">
-          <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200">
+          <div className="w-16 h-16 rounded-2xl bg-[#EBF2FF] text-[#2F6FED] flex items-center justify-center mx-auto border border-[#2F6FED]/20">
             <FileText className="w-8 h-8" />
           </div>
-          <h2 className="text-lg font-bold text-[#0F2942]">
+          <h2 className="text-lg font-bold text-[#1E3A5F]">
             ข่าวประชาสัมพันธ์นี้ถูกลบแล้ว
           </h2>
-          <p className="text-xs text-slate-500 leading-relaxed">
+          <p className="text-xs text-[#4B6080] leading-relaxed">
             รายการข่าวที่คุณต้องการเข้าถึง ได้ถูกนำออกจากระบบแล้ว หรือไม่มีอยู่ในการเผยแพร่อีกต่อไป
           </p>
           <div className="pt-2">
             <Link
               href="/news"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-xs transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1E3A5F] hover:bg-[#2A5080] text-white text-xs font-bold shadow-xs transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>ย้อนกลับไปหน้ารวมข่าวประชาสัมพันธ์</span>
@@ -91,13 +92,13 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
       description={`ข่าวประชาสัมพันธ์ โรงเรียนบ้านหนองหัวหมู • เผยแพร่เมื่อ ${news.date}`}
     >
       <div className="space-y-8 max-w-4xl mx-auto">
-        {/* Main Article Container */}
-        <article className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E5E7EB] shadow-xs space-y-6">
+        {/* Main Article Container: Glassmorphism */}
+        <article className="bg-white/80 backdrop-blur-md rounded-3xl p-6 sm:p-8 border border-[#D1DFF0] shadow-xs space-y-6">
           {/* Metadata Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#E5E7EB] text-xs text-slate-500">
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#D1DFF0] text-xs text-[#6B7FA0]">
             <div className="flex items-center gap-4">
-              <span className="font-bold text-white bg-[#0F2942] px-3 py-1 rounded-xl flex items-center gap-1.5 shadow-2xs">
-                <Megaphone className="w-3.5 h-3.5 text-amber-400" />
+              <span className="font-bold text-white bg-[#1E3A5F] px-3 py-1 rounded-xl flex items-center gap-1.5 shadow-2xs border border-white/10">
+                <Megaphone className="w-3.5 h-3.5 text-[#D96B34]" />
                 <span>ข่าวประชาสัมพันธ์</span>
               </span>
               <span className="flex items-center gap-1">
@@ -123,18 +124,21 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
               {/* Right on PC (7 cols), First on Mobile (order-1 md:order-2): Landscape Activity Photo + Excerpt */}
               <div className="order-1 md:order-2 md:col-span-7 space-y-4">
                 <div className="rounded-2xl overflow-hidden aspect-[16/10] bg-slate-100 border border-slate-200 relative group shadow-xs">
-                  <img
+                  <OptimizedNewsImage
                     src={news.imageUrl || "/images/school-emblem-doc.png"}
                     alt={news.title}
+                    fill
+                    priority
+                    sizes="(max-width: 768px) 100vw, 60vw"
                     className="w-full h-full object-cover"
                   />
-                  <span className="absolute top-2.5 left-2.5 text-[10px] font-bold px-2 py-0.5 rounded bg-black/60 text-white backdrop-blur-2xs">
+                  <span className="absolute top-2.5 left-2.5 text-[10px] font-bold px-2 py-0.5 rounded bg-black/60 text-white backdrop-blur-2xs z-10">
                     ภาพบรรยากาศกิจกรรม
                   </span>
                   <button
                     type="button"
                     onClick={() => setLightboxImage(news.imageUrl || "/images/school-emblem-doc.png")}
-                    className="absolute bottom-2.5 right-2.5 p-2 rounded-xl bg-black/60 hover:bg-black/80 text-white backdrop-blur-2xs transition-all cursor-pointer"
+                    className="absolute bottom-2.5 right-2.5 p-2 rounded-xl bg-black/60 hover:bg-black/80 text-white backdrop-blur-2xs transition-all cursor-pointer z-10"
                     title="ดูภาพขยาย"
                   >
                     <Maximize2 className="w-3.5 h-3.5" />
@@ -142,39 +146,41 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
                 </div>
 
                 {news.excerpt && (
-                  <p className="font-medium text-slate-800 bg-[#F8FAFC] p-3.5 sm:p-5 rounded-2xl border border-[#E5E7EB] leading-relaxed text-xs sm:text-sm thai-wrap">
+                  <p className="font-medium text-[#0F1F30] bg-[#EAF2FB]/50 p-3.5 sm:p-5 rounded-2xl border border-[#D1DFF0] leading-[1.8] text-left text-xs sm:text-sm thai-wrap">
                     {news.excerpt}
                   </p>
                 )}
               </div>
 
               {/* Left on PC (5 cols), Second on Mobile (order-2 md:order-1): Vertical A4 Poster */}
-              <div className="order-2 md:order-1 md:col-span-5 bg-gradient-to-b from-emerald-50/60 to-slate-50 rounded-2xl sm:rounded-3xl border border-emerald-200/90 p-3.5 sm:p-4 shadow-xs flex flex-col items-center">
-                <div className="flex items-center justify-between w-full pb-2 mb-2.5 border-b border-emerald-200/80 text-xs font-bold text-emerald-950">
+              <div className="order-2 md:order-1 md:col-span-5 bg-gradient-to-b from-[#EBF2FF] to-white rounded-2xl sm:rounded-3xl border border-[#D1DFF0] p-3.5 sm:p-4 shadow-xs flex flex-col items-center">
+                <div className="flex items-center justify-between w-full pb-2 mb-2.5 border-b border-[#D1DFF0] text-xs font-bold text-[#1E3A5F]">
                   <span className="flex items-center gap-1.5">
-                    <Megaphone className="w-4 h-4 text-emerald-600" />
+                    <Megaphone className="w-4 h-4 text-[#2F6FED]" />
                     <span>ป้ายวารสารประชาสัมพันธ์ A4</span>
                   </span>
                   {news.issueNumber && (
-                    <span className="px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[10px]">
+                    <span className="px-2 py-0.5 rounded-md bg-[#D96B34] text-white text-[10px]">
                       {news.issueNumber}
                     </span>
                   )}
                 </div>
 
                 {/* Poster Frame */}
-                <div className="relative w-full aspect-[1414/2000] max-h-[460px] sm:max-h-none rounded-xl sm:rounded-2xl overflow-hidden shadow-md group bg-slate-900 border border-slate-200 flex items-center justify-center">
-                  <img
+                <div className="relative w-full aspect-[1414/2000] max-h-[460px] sm:max-h-none rounded-xl sm:rounded-2xl overflow-hidden shadow-md group bg-[#0F2540] border border-[#D1DFF0] flex items-center justify-center">
+                  <OptimizedNewsImage
                     src={news.newsletterPosterUrl}
                     alt={news.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 40vw"
                     className="w-full h-full object-contain"
                   />
                   {/* Desktop Hover Controls */}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex items-center justify-center gap-2">
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex items-center justify-center gap-2 z-10">
                     <button
                       type="button"
                       onClick={() => setLightboxImage(news.newsletterPosterUrl!)}
-                      className="px-3.5 py-2 rounded-xl bg-white text-[#0F2942] font-bold text-xs shadow-md flex items-center gap-1.5 hover:bg-slate-100 transition-colors cursor-pointer"
+                      className="px-3.5 py-2 rounded-xl bg-white text-[#1E3A5F] hover:text-[#2F6FED] font-bold text-xs shadow-md flex items-center gap-1.5 hover:bg-slate-50 transition-colors cursor-pointer"
                     >
                       <Maximize2 className="w-3.5 h-3.5" />
                       <span>ซูมดูป้าย A4 เต็มจอ</span>
@@ -187,7 +193,7 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
                   <button
                     type="button"
                     onClick={() => setLightboxImage(news.newsletterPosterUrl!)}
-                    className="w-full py-2.5 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-2.5 px-3 rounded-xl bg-[#2F6FED] hover:bg-[#1f5bcc] text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Maximize2 className="w-3.5 h-3.5" />
                     <span>ซูมดูป้ายเต็มจอ</span>
@@ -198,13 +204,18 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
           ) : (
             <>
               {/* Standard Single Cover Image / Poster with Lightbox */}
-              <div className="rounded-2xl overflow-hidden bg-slate-50 border border-[#E5E7EB] relative group flex items-center justify-center p-2 sm:p-4">
-                <img
-                  src={news.imageUrl || "/images/school-emblem-doc.png"}
-                  alt={news.title}
-                  className="max-h-[650px] w-auto object-contain rounded-xl shadow-xs"
-                />
-                <div className="absolute bottom-4 right-4 flex items-center gap-2">
+              <div className="rounded-2xl overflow-hidden bg-slate-50 border border-[#D1DFF0] relative group flex items-center justify-center p-2 sm:p-4">
+                <div className="relative w-full aspect-[16/10] max-h-[600px]">
+                  <OptimizedNewsImage
+                    src={news.imageUrl || "/images/school-emblem-doc.png"}
+                    alt={news.title}
+                    fill
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 900px"
+                    className="object-contain rounded-xl"
+                  />
+                </div>
+                <div className="absolute bottom-4 right-4 flex items-center gap-2 z-10">
                   <button
                     type="button"
                     onClick={() => setLightboxImage(news.imageUrl || "/images/school-emblem-doc.png")}
@@ -219,7 +230,7 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
 
               {/* Excerpt Callout */}
               {news.excerpt && (
-                <p className="font-medium text-slate-800 bg-[#F8FAFC] p-4 sm:p-5 rounded-xl border border-[#E5E7EB] leading-relaxed text-sm sm:text-base thai-wrap">
+                <p className="font-medium text-[#0F1F30] bg-[#EAF2FB]/50 p-4 sm:p-5 rounded-xl border border-[#D1DFF0] leading-[1.8] text-left text-sm sm:text-base thai-wrap">
                   {news.excerpt}
                 </p>
               )}
@@ -227,22 +238,22 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
           )}
 
           {/* Article Body Content */}
-          <div className="text-sm sm:text-base text-slate-700 leading-relaxed whitespace-pre-line space-y-4 thai-wrap">
+          <div className="text-sm sm:text-base text-[#334155] leading-[1.8] text-left whitespace-pre-line space-y-4 thai-wrap">
             {news.content}
           </div>
 
           {/* Facebook Link Banner (If provided) */}
           {news.facebookUrl && (
-            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#EAF2FB]/60 border border-[#D1DFF0] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-11 h-11 rounded-xl bg-[#1877F2] text-white flex items-center justify-center font-bold text-xl shrink-0 shadow-xs">
                   f
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-[#0F2942]">
+                  <h4 className="text-sm font-bold text-[#1E3A5F]">
                     รับชมโพสต์และรูปภาพเพิ่มเติมบน Facebook
                   </h4>
-                  <p className="text-xs text-slate-600 mt-0.5">
+                  <p className="text-xs text-[#4B6080] mt-0.5">
                     โพสต์ประชาสัมพันธ์และร่วมแสดงความคิดเห็นทางเพจโรงเรียนบ้านหนองหัวหมู
                   </p>
                 </div>
@@ -262,13 +273,13 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
 
           {/* Photo Gallery Section (If attached) */}
           {news.galleryImages && news.galleryImages.length > 0 && (
-            <div className="pt-6 border-t border-[#E5E7EB] space-y-4">
+            <div className="pt-6 border-t border-[#D1DFF0] space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-bold text-[#0F2942] flex items-center gap-2">
-                  <Images className="w-5 h-5 text-amber-500" />
+                <h3 className="text-base font-bold text-[#1E3A5F] flex items-center gap-2">
+                  <Images className="w-5 h-5 text-[#D96B34]" />
                   <span>ภาพบรรยากาศและกิจกรรม ({news.galleryImages.length} ภาพ)</span>
                 </h3>
-                <span className="text-[11px] text-slate-400">
+                <span className="text-[11px] text-[#6B7FA0]">
                   คลิกที่รูปภาพเพื่อขยายดูขนาดเต็ม
                 </span>
               </div>
@@ -278,15 +289,18 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
                   <div
                     key={idx}
                     onClick={() => setLightboxImage(imgUrl)}
-                    className="group relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 border border-slate-200 cursor-pointer shadow-2xs hover:shadow-md transition-all"
+                    className="group relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 border border-[#D1DFF0] cursor-pointer shadow-2xs hover:shadow-md transition-all"
                   >
-                    <img
+                    <OptimizedNewsImage
                       src={imgUrl}
                       alt={`ภาพกิจกรรมที่ ${idx + 1}`}
+                      fill
+                      loading="lazy"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
-                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="p-2 rounded-xl bg-white/90 text-slate-900 shadow-xs">
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
+                      <span className="p-2 rounded-xl bg-white/90 text-[#0F1F30] shadow-xs">
                         <Maximize2 className="w-4 h-4" />
                       </span>
                     </div>
@@ -308,7 +322,7 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
         {/* Lightbox Modal for Fullscreen Photo Viewing */}
         {lightboxImage && (
           <div
-            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
+            className="fixed inset-0 z-50 bg-[#0F2540]/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
             onClick={() => setLightboxImage(null)}
           >
             <div
@@ -317,7 +331,7 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
             >
               {/* Lightbox Toolbar */}
               <div className="w-full flex items-center justify-between pb-3 text-white">
-                <span className="text-xs sm:text-sm font-semibold truncate max-w-[70%]">
+                <span className="text-xs sm:text-sm font-semibold truncate max-w-[70%] text-slate-200">
                   {news.title}
                 </span>
                 <div className="flex items-center gap-2 shrink-0">
@@ -344,35 +358,39 @@ export default function NewsDetailClient({ id, initialNews }: NewsDetailClientPr
           </div>
         )}
 
-        {/* Related News (Only existing, non-deleted news!) */}
+        {/* Related News */}
         {relatedNews.length > 0 && (
           <div className="space-y-4 pt-2">
-            <h3 className="text-base font-bold text-[#0F2942]">
-              ข่าวสารอื่นที่เกี่ยวข้อง
+            <h3 className="text-base font-bold text-[#1E3A5F] flex items-center gap-2">
+              <span className="w-1.5 h-4 bg-[#D96B34] rounded-full inline-block" />
+              <span>ข่าวสารอื่นที่เกี่ยวข้อง</span>
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {relatedNews.map((item) => (
                 <Link
                   key={item.id}
                   href={`/news/${item.id}`}
-                  className="bg-white rounded-2xl p-4 border border-[#E5E7EB] shadow-xs hover:border-slate-300 transition-colors flex flex-col justify-between group"
+                  className="bg-white/80 backdrop-blur-md rounded-2xl p-4 border border-[#D1DFF0] shadow-xs hover:border-[#2F6FED]/40 hover:shadow-md transition-all flex flex-col justify-between group"
                 >
                   <div>
-                    <div className="aspect-[16/10] rounded-xl overflow-hidden bg-slate-100 mb-2.5">
-                      <img
+                    <div className="aspect-[16/10] rounded-xl overflow-hidden bg-slate-100 mb-2.5 border border-[#D1DFF0] relative">
+                      <OptimizedNewsImage
                         src={item.imageUrl || "/images/school-emblem-doc.png"}
                         alt={item.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        loading="lazy"
+                        sizes="(max-width: 640px) 100vw, 33vw"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                       />
                     </div>
-                    <span className="text-[10px] font-bold text-slate-500 block mb-1">
+                    <span className="text-[10px] font-bold text-[#D96B34] block mb-1">
                       {item.category} • {item.date}
                     </span>
-                    <h4 className="text-xs font-bold text-[#0F2942] group-hover:text-blue-900 transition-colors line-clamp-2 leading-snug thai-wrap">
+                    <h4 className="text-xs font-bold text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors line-clamp-2 leading-snug thai-wrap">
                       {formatThaiTitle(item.title)}
                     </h4>
                   </div>
-                  <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-[#0F2942]">
+                  <div className="mt-3 pt-2 border-t border-[#D1DFF0] flex items-center justify-between text-[11px] font-bold text-[#2F6FED]">
                     <span>อ่านต่อ</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </div>

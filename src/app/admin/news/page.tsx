@@ -63,7 +63,7 @@ export default function AdminNewsListPage() {
       showCancelButton: true,
       confirmButtonText: "ตกลง กู้คืน",
       cancelButtonText: "ยกเลิก",
-      confirmButtonColor: "#0F2942",
+      confirmButtonColor: "#1E3A5F",
     });
 
     if (res.isConfirmed) {
@@ -80,7 +80,7 @@ export default function AdminNewsListPage() {
   return (
     <div className="space-y-6">
       {/* Header Bar */}
-      <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="glass-card-admin rounded-2xl p-6 border border-[#D1DFF0] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
@@ -91,7 +91,7 @@ export default function AdminNewsListPage() {
               <span>Real-time Sync</span>
             </span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#0F2942]">
+          <h1 className="text-xl sm:text-2xl font-bold text-[#1E3A5F]">
             จัดการข่าวประชาสัมพันธ์และกิจกรรม
           </h1>
           <p className="text-xs text-slate-500 mt-1">
@@ -99,11 +99,11 @@ export default function AdminNewsListPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
           <button
             type="button"
             onClick={handleResetDefaults}
-            className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-semibold text-xs shadow-2xs transition-colors min-h-[44px]"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-[#D1DFF0] bg-white hover:bg-slate-50 text-slate-600 font-semibold text-xs shadow-2xs transition-colors min-h-[44px] box-border"
             title="กู้คืนข่าวตัวอย่างเริ่มต้นหากตารางว่าง"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -112,20 +112,20 @@ export default function AdminNewsListPage() {
 
           <Link
             href="/admin/news/new"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white font-bold text-xs shadow-xs transition-colors min-h-[44px]"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#2F6FED] hover:bg-[#2558CA] text-white font-bold text-xs shadow-xs transition-colors min-h-[44px] box-border"
           >
-            <Plus className="w-4 h-4 text-amber-400" />
+            <Plus className="w-4 h-4 text-white" />
             <span>สร้างข่าวประชาสัมพันธ์ใหม่</span>
           </Link>
         </div>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#E5E7EB] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="glass-card-admin rounded-2xl p-4 sm:p-5 border border-[#D1DFF0] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
         {/* News Count Summary */}
         <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-          <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 text-[#0F2942] border border-slate-200">
-            <Megaphone className="w-3.5 h-3.5 text-amber-500" />
+          <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#1E3A5F] text-white border border-[#1E3A5F] shadow-xs">
+            <Megaphone className="w-3.5 h-3.5 text-[#D96B34]" />
             <span>ข่าวประชาสัมพันธ์ทั้งหมด ({filteredNews.length} รายการ)</span>
           </span>
         </div>
@@ -138,16 +138,16 @@ export default function AdminNewsListPage() {
             placeholder="ค้นหาชื่อข่าว..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20 focus:border-[#0F2942] min-h-[38px]"
+            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-[#D1DFF0] bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/20 focus:border-[#2F6FED] min-h-[38px]"
           />
         </div>
       </div>
 
       {/* News Table */}
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-xs overflow-hidden">
+      <div className="glass-card-admin rounded-2xl border border-[#D1DFF0] shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#F8FAFC] border-b border-[#E5E7EB] text-slate-500 font-semibold uppercase">
+            <thead className="bg-[#1E3A5F]/5 border-b border-[#D1DFF0] text-[#1E3A5F] font-semibold uppercase">
               <tr>
                 <th className="py-3.5 px-4 sm:px-6">หัวข้อข่าวและสิ่งที่แนบ</th>
                 <th className="py-3.5 px-4 hidden md:table-cell">หมวดหมู่</th>
@@ -157,9 +157,14 @@ export default function AdminNewsListPage() {
                 <th className="py-3.5 px-4 sm:px-6 text-right">การจัดการ</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredNews.map((news) => (
-                <tr key={news.id} className="hover:bg-slate-50/70 transition-colors">
+            <tbody className="divide-y divide-[#D1DFF0]">
+              {filteredNews.map((news, idx) => (
+                <tr
+                  key={news.id}
+                  className={`transition-colors ${
+                    idx % 2 === 0 ? "bg-white" : "bg-[#EAF2FB]/35"
+                  } hover:bg-[#EBF2FF]/60`}
+                >
                   <td className="py-3.5 px-4 sm:px-6 max-w-sm sm:max-w-xl">
                     <div className="flex items-start gap-3">
                       <div className="w-14 h-12 rounded-lg overflow-hidden bg-slate-100 shrink-0 border border-slate-200 mt-0.5">
@@ -170,7 +175,7 @@ export default function AdminNewsListPage() {
                         />
                       </div>
                       <div className="min-w-0 space-y-1">
-                        <span className="font-bold text-slate-900 block leading-snug line-clamp-2 thai-wrap">
+                        <span className="font-bold text-[#1E3A5F] block leading-snug line-clamp-2 thai-wrap">
                           {news.title}
                         </span>
                         
@@ -184,8 +189,8 @@ export default function AdminNewsListPage() {
                           )}
 
                           {news.galleryImages && news.galleryImages.length > 0 && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                              <Images className="w-3 h-3 text-amber-600" />
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#D96B34] bg-orange-50 px-2 py-0.5 rounded border border-orange-200">
+                              <Images className="w-3 h-3 text-[#D96B34]" />
                               <span>{news.galleryImages.length} รูปกิจกรรม</span>
                             </span>
                           )}
@@ -205,14 +210,14 @@ export default function AdminNewsListPage() {
                     </div>
                   </td>
                   <td className="py-3.5 px-4 hidden md:table-cell">
-                    <span className="font-bold px-2 py-0.5 rounded bg-[#0F2942]/5 text-[#0F2942]">
+                    <span className="font-bold px-2 py-0.5 rounded bg-[#1E3A5F]/10 text-[#1E3A5F]">
                       {news.category}
                     </span>
                   </td>
-                  <td className="py-3.5 px-4 text-slate-500 hidden sm:table-cell">
+                  <td className="py-3.5 px-4 text-[#4B6080] hidden sm:table-cell">
                     {news.date}
                   </td>
-                  <td className="py-3.5 px-4 text-slate-500 hidden lg:table-cell">
+                  <td className="py-3.5 px-4 text-[#4B6080] hidden lg:table-cell">
                     {news.views} ครั้ง
                   </td>
                   <td className="py-3.5 px-4">
@@ -225,28 +230,29 @@ export default function AdminNewsListPage() {
                     </span>
                   </td>
                   <td className="py-3.5 px-4 sm:px-6 text-right">
-                    <div className="flex items-center justify-end gap-1">
+                    <div className="flex items-center justify-end gap-1.5">
                       <Link
                         href={`/admin/news/${news.id}/edit`}
-                        className="p-2 rounded-lg text-slate-600 hover:text-[#0F2942] hover:bg-slate-100 transition-colors"
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#2F6FED] bg-[#EBF2FF] hover:bg-[#2F6FED] hover:text-white transition-colors border border-[#2F6FED]/25 shadow-2xs"
                         title="แก้ไขเนื้อหา"
                       >
-                        <Edit3 className="w-4 h-4" />
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">แก้ไข</span>
                       </Link>
                       <Link
                         href={`/news/${news.id}`}
                         target="_blank"
-                        className="p-2 rounded-lg text-slate-400 hover:text-[#0F2942] hover:bg-slate-100 transition-colors"
+                        className="p-1.5 rounded-lg text-[#1E3A5F] bg-[#EAF2FB] hover:bg-[#1E3A5F] hover:text-white transition-colors border border-[#D1DFF0]"
                         title="ดูหน้าจริง"
                       >
-                        <ExternalLink className="w-4 h-4" />
+                        <ExternalLink className="w-3.5 h-3.5" />
                       </Link>
                       <button
                         onClick={() => handleDelete(news)}
-                        className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                        className="p-1.5 rounded-lg text-rose-600 bg-rose-50 hover:bg-rose-600 hover:text-white transition-colors border border-rose-200 cursor-pointer"
                         title="ลบข่าว"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </td>
@@ -277,7 +283,7 @@ export default function AdminNewsListPage() {
               </button>
               <Link
                 href="/admin/news/new"
-                className="px-4 py-2 rounded-xl bg-[#0F2942] text-white text-xs font-bold hover:bg-[#163C61] transition-colors"
+                className="px-4 py-2 rounded-xl bg-[#2F6FED] text-white text-xs font-bold hover:bg-[#2558CA] transition-colors"
               >
                 สร้างข่าวประชาสัมพันธ์ใหม่
               </Link>

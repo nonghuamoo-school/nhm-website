@@ -24,19 +24,19 @@ export default function SectionTitle({
       }`}
     >
       <div>
-        <div className="flex items-center gap-2 mb-1">
-          <span className="w-2.5 h-2.5 rounded-full bg-blue-600 ring-4 ring-blue-100" />
-          <h2 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900">
+        <div className="flex items-center gap-2.5 mb-1">
+          <span className="w-1.5 h-5 rounded-full bg-[#D96B34] shrink-0" />
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight text-[#1E3A5F]">
             {title}
           </h2>
         </div>
-        {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
+        {subtitle && <p className="text-xs sm:text-sm text-[#4B6080] pl-4">{subtitle}</p>}
       </div>
 
       {actionText && actionHref && (
         <Link
           href={actionHref}
-          className="inline-flex items-center gap-1 text-sm font-medium text-blue-700 hover:text-blue-900 transition-colors group"
+          className="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-[#2F6FED] hover:text-[#1f5bcc] transition-colors group"
         >
           <span>{actionText}</span>
           <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />

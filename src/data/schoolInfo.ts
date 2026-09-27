@@ -4,7 +4,7 @@ export const schoolInfo: SchoolInfo = {
   name: "โรงเรียนบ้านหนองหัวหมู",
   nameEn: "Ban Nong Hua Moo School",
   affiliation: "สำนักงานคณะกรรมการการศึกษาขั้นพื้นฐาน (สพฐ.)",
-  subAffiliation: "สำนักงานเขตพื้นที่การศึกษาประถมศึกษาบุรีรัมย์ เขต 3",
+  subAffiliation: "สำนักงานเขตพื้นที่การศึกษาประถมศึกษาบุรีรัมย์ เขต\u00A03",
   province: "บุรีรัมย์",
   district: "หนองกี่",
   subDistrict: "ทุ่งกระเต็น",

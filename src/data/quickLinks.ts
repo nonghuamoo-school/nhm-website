@@ -48,7 +48,7 @@ export const quickLinks: QuickLinkItem[] = [
   },
   {
     id: "area-office",
-    title: "สพป. บุรีรัมย์ เขต 3",
+    title: "สพป. บุรีรัมย์ เขต\u00A03",
     subtitle: "เว็บไซต์สำนักงานเขตพื้นที่การศึกษา",
     href: "https://www.brm3.go.th",
     icon: "Building2",
@@ -69,7 +69,7 @@ export const externalUsefulLinks = [
     category: "สังกัดหลัก"
   },
   {
-    name: "สพป. บุรีรัมย์ เขต 3",
+    name: "สพป. บุรีรัมย์ เขต\u00A03",
     url: "https://www.brm3.go.th",
     category: "เขตพื้นที่การศึกษา"
   },

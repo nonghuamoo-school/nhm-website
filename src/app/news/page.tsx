@@ -19,11 +19,13 @@ import {
 import InnerPageLayout from "@/components/layout/InnerPageLayout";
 import { useNews, sortNewsByDateDesc } from "@/hooks/useNews";
 import { formatThaiTitle } from "@/lib/thaiTypography";
+import OptimizedNewsImage from "@/components/common/OptimizedNewsImage";
+import { NewsGridSkeleton, Skeleton } from "@/components/ui/Skeleton";
 
 const ITEMS_PER_PAGE = 6;
 
 export default function NewsListPage() {
-  const { newsList } = useNews();
+  const { newsList, isLoaded } = useNews();
   const [searchWord, setSearchWord] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
@@ -63,16 +65,16 @@ export default function NewsListPage() {
   const toolbar = (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
       {/* News Count Badge */}
-      <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F2942] text-white shadow-2xs">
-          <Megaphone className="w-4 h-4 text-amber-400" />
+      <div className="flex items-center gap-2 text-xs font-semibold text-[#1E3A5F]">
+        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1E3A5F] text-white shadow-2xs">
+          <Megaphone className="w-4 h-4 text-[#D96B34]" />
           <span>ข่าวประชาสัมพันธ์ทั้งหมด ({filtered.length} รายการ)</span>
         </span>
       </div>
 
       {/* Search Input */}
       <div className="relative w-full sm:w-80">
-        <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-[#6B7FA0] absolute left-3 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           placeholder="ค้นหาชื่อเรื่องข่าวประชาสัมพันธ์..."
@@ -81,7 +83,7 @@ export default function NewsListPage() {
             setSearchWord(e.target.value);
             setCurrentPage(1);
           }}
-          className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20 focus:border-[#0F2942] min-h-[38px]"
+          className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-[#D1DFF0] bg-[#EAF2FB]/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/25 focus:border-[#2F6FED] min-h-[38px] text-[#0F1F30]"
         />
       </div>
     </div>
@@ -94,18 +96,47 @@ export default function NewsListPage() {
       description="จดหมายข่าวประชาสัมพันธ์ กิจกรรม และประกาศสำคัญ โรงเรียนบ้านหนองหัวหมู"
       toolbar={toolbar}
     >
-      <div className="space-y-8">
-        {/* Featured Article Banner */}
-        {currentPage === 1 && !searchWord && featured && (
-          <div className="bg-white rounded-3xl border border-[#E5E7EB] shadow-xs overflow-hidden grid grid-cols-1 lg:grid-cols-12 group">
+      {!isLoaded ? (
+        <div className="space-y-8">
+          {/* Featured Banner Skeleton */}
+          <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-[#D1DFF0] shadow-xs overflow-hidden grid grid-cols-1 lg:grid-cols-12 p-4 sm:p-6 gap-6">
+            <div className="lg:col-span-6 aspect-[16/11]">
+              <Skeleton className="w-full h-full rounded-2xl" />
+            </div>
+            <div className="lg:col-span-6 flex flex-col justify-between py-2 space-y-4">
+              <div className="space-y-3">
+                <Skeleton className="h-4 w-32 rounded-md" />
+                <Skeleton className="h-6 w-5/6 rounded-md" />
+                <Skeleton className="h-4 w-full rounded-md" />
+                <Skeleton className="h-4 w-3/4 rounded-md" />
+              </div>
+              <div className="pt-4 border-t border-[#D1DFF0] flex justify-between items-center">
+                <Skeleton className="h-5 w-28 rounded-md" />
+                <Skeleton className="h-8 w-36 rounded-xl" />
+              </div>
+            </div>
+          </div>
+          {/* News Grid Skeleton */}
+          <NewsGridSkeleton count={6} />
+        </div>
+      ) : (
+        <div className="space-y-8 animate-fade-in">
+          {/* Featured Article Banner: Glassmorphism */}
+          {currentPage === 1 && !searchWord && featured && (
+          <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-[#D1DFF0] shadow-xs overflow-hidden grid grid-cols-1 lg:grid-cols-12 group hover:border-[#2F6FED]/40 transition-all">
             <div className="lg:col-span-6 aspect-[16/11] bg-slate-50 relative overflow-hidden flex items-center justify-center p-2 sm:p-3">
-              <img
-                src={featured.imageUrl}
-                alt={featured.title}
-                className="w-full h-full object-contain sm:object-cover rounded-2xl"
-              />
-              <span className="absolute top-4 left-4 text-[11px] font-bold px-3 py-1 rounded-xl bg-[#0F2942]/90 backdrop-blur-xs text-white shadow-sm flex items-center gap-1.5">
-                <Megaphone className="w-3 h-3 text-amber-400" />
+              <div className="relative w-full h-full rounded-2xl overflow-hidden">
+                <OptimizedNewsImage
+                  src={featured.imageUrl}
+                  alt={featured.title}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-contain sm:object-cover"
+                />
+              </div>
+              <span className="absolute top-4 left-4 text-[11px] font-bold px-3 py-1 rounded-xl bg-[#1E3A5F]/95 backdrop-blur-xs text-white shadow-sm flex items-center gap-1.5 border border-white/10 z-10">
+                <Megaphone className="w-3 h-3 text-[#D96B34]" />
                 <span>ข่าวประชาสัมพันธ์ล่าสุด</span>
               </span>
 
@@ -128,19 +159,19 @@ export default function NewsListPage() {
                   <span>{featured.author}</span>
                 </div>
 
-                <h2 className="text-lg sm:text-xl font-bold text-[#0F2942] group-hover:text-blue-900 transition-colors leading-snug thai-wrap">
+                <h2 className="text-lg sm:text-xl font-bold text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors leading-snug thai-wrap">
                   <Link href={`/news/${featured.id}`}>{formatThaiTitle(featured.title)}</Link>
                 </h2>
 
-                <p className="text-xs sm:text-sm text-slate-600 mt-2.5 line-clamp-3 leading-relaxed thai-wrap">
+                <p className="text-xs sm:text-sm text-[#334155] mt-2.5 line-clamp-3 leading-relaxed thai-wrap">
                   {featured.excerpt}
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 mt-4 flex flex-wrap items-center justify-between gap-3">
+              <div className="pt-4 border-t border-[#D1DFF0] mt-4 flex flex-wrap items-center justify-between gap-3">
                 <Link
                   href={`/news/${featured.id}`}
-                  className="inline-flex items-center gap-2 text-xs font-bold text-[#0F2942] hover:text-blue-700"
+                  className="inline-flex items-center gap-2 text-xs font-bold text-[#2F6FED] hover:text-[#1f5bcc]"
                 >
                   <span>อ่านรายละเอียดข่าว</span>
                   <ArrowRight className="w-4 h-4" />
@@ -162,22 +193,27 @@ export default function NewsListPage() {
           </div>
         )}
 
-        {/* News Grid */}
+        {/* News Grid: Glassmorphism */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {paginatedNews.map((news) => (
             <div
               key={news.id}
-              className="bg-white rounded-3xl border border-[#E5E7EB] shadow-xs hover:border-slate-300 hover:shadow-md transition-all overflow-hidden flex flex-col justify-between group"
+              className="bg-white/80 backdrop-blur-md rounded-3xl border border-[#D1DFF0] shadow-xs hover:border-[#2F6FED]/40 hover:shadow-md transition-all overflow-hidden flex flex-col justify-between group"
             >
               <div>
                 {/* Poster / News Image with Lightbox Zoom Trigger */}
                 <div className="relative aspect-[16/11] bg-slate-50 overflow-hidden flex items-center justify-center p-2">
-                  <img
-                    src={news.imageUrl || "/images/school-emblem-doc.png"}
-                    alt={news.title}
-                    className="w-full h-full object-contain sm:object-cover rounded-2xl"
-                  />
-                  <span className="absolute top-3.5 left-3.5 text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-[#0F2942]/90 backdrop-blur-2xs text-white">
+                  <div className="relative w-full h-full rounded-2xl overflow-hidden">
+                    <OptimizedNewsImage
+                      src={news.imageUrl || "/images/school-emblem-doc.png"}
+                      alt={news.title}
+                      fill
+                      loading="lazy"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-contain sm:object-cover group-hover:scale-102 transition-transform duration-300"
+                    />
+                  </div>
+                  <span className="absolute top-3.5 left-3.5 text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-[#1E3A5F]/95 backdrop-blur-2xs text-white border border-white/10 z-10">
                     ข่าวประชาสัมพันธ์
                   </span>
 
@@ -195,7 +231,7 @@ export default function NewsListPage() {
                       </a>
                     )}
                     {news.galleryImages && news.galleryImages.length > 0 && (
-                      <span className="px-2 py-0.5 rounded-lg bg-amber-500 text-white font-bold text-[10px] shadow-xs flex items-center gap-1" title={`มีรูปกิจกรรม ${news.galleryImages.length} รูป`}>
+                      <span className="px-2 py-0.5 rounded-lg bg-[#D96B34] text-white font-bold text-[10px] shadow-xs flex items-center gap-1" title={`มีรูปกิจกรรม ${news.galleryImages.length} รูป`}>
                         <Camera className="w-3 h-3" />
                         <span>{news.galleryImages.length}</span>
                       </span>
@@ -212,25 +248,25 @@ export default function NewsListPage() {
                 </div>
 
                 <div className="p-5">
-                  <div className="flex items-center gap-2 text-[11px] text-slate-400 mb-1.5">
-                    <Calendar className="w-3 h-3 text-slate-400" />
+                  <div className="flex items-center gap-2 text-[11px] text-[#6B7FA0] mb-1.5">
+                    <Calendar className="w-3 h-3 text-[#D96B34]" />
                     <span>{news.date}</span>
                   </div>
 
-                  <h3 className="font-bold text-sm text-[#0F2942] group-hover:text-blue-900 transition-colors line-clamp-2 leading-snug thai-wrap">
+                  <h3 className="font-bold text-sm text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors line-clamp-2 leading-snug thai-wrap">
                     <Link href={`/news/${news.id}`}>{formatThaiTitle(news.title)}</Link>
                   </h3>
 
-                  <p className="mt-2 text-xs text-slate-500 line-clamp-2 leading-relaxed thai-wrap">
+                  <p className="mt-2 text-xs text-[#4B6080] line-clamp-2 leading-relaxed thai-wrap">
                     {news.excerpt}
                   </p>
                 </div>
               </div>
 
-              <div className="p-5 pt-0 border-t border-slate-100 mt-2 flex items-center justify-between">
+              <div className="p-5 pt-0 border-t border-[#D1DFF0] mt-2 flex items-center justify-between">
                 <Link
                   href={`/news/${news.id}`}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0F2942] group-hover:text-blue-900 pt-2"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2F6FED] group-hover:text-[#1f5bcc] pt-2"
                 >
                   <span>อ่านต่อ</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -239,7 +275,7 @@ export default function NewsListPage() {
                 <button
                   type="button"
                   onClick={() => setLightboxImage(news.imageUrl || "/images/school-emblem-doc.png")}
-                  className="text-[11px] text-slate-500 hover:text-blue-700 font-semibold pt-2 flex items-center gap-1 cursor-pointer"
+                  className="text-[11px] text-[#6B7FA0] hover:text-[#2F6FED] font-semibold pt-2 flex items-center gap-1 cursor-pointer"
                 >
                   <Maximize2 className="w-3 h-3" />
                   <span>ดูป้าย</span>
@@ -250,7 +286,7 @@ export default function NewsListPage() {
         </div>
 
         {filtered.length === 0 && (
-          <div className="text-center py-16 bg-white rounded-3xl border border-[#E5E7EB] p-8 text-slate-500 text-sm">
+          <div className="text-center py-16 bg-white/80 backdrop-blur-md rounded-3xl border border-[#D1DFF0] p-8 text-[#6B7FA0] text-sm">
             ไม่พบข่าวประชาสัมพันธ์ที่ตรงกับคำค้นหา
           </div>
         )}
@@ -261,7 +297,7 @@ export default function NewsListPage() {
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="p-2 rounded-xl border border-[#E5E7EB] bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
+              className="p-2 rounded-xl border border-[#D1DFF0] bg-white text-[#1E3A5F] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
               aria-label="หน้าก่อนหน้า"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -273,8 +309,8 @@ export default function NewsListPage() {
                 onClick={() => setCurrentPage(page)}
                 className={`px-3.5 py-2 rounded-xl text-xs font-bold min-h-[40px] min-w-[40px] transition-colors ${
                   currentPage === page
-                    ? "bg-[#0F2942] text-white shadow-xs"
-                    : "bg-white text-slate-600 border border-[#E5E7EB] hover:bg-slate-50"
+                    ? "bg-[#1E3A5F] text-white shadow-xs"
+                    : "bg-white text-[#1E3A5F] border border-[#D1DFF0] hover:bg-[#EAF2FB]"
                 }`}
               >
                 {page}
@@ -284,14 +320,15 @@ export default function NewsListPage() {
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="p-2 rounded-xl border border-[#E5E7EB] bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
+              className="p-2 rounded-xl border border-[#D1DFF0] bg-white text-[#1E3A5F] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
               aria-label="หน้าถัดไป"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         )}
-      </div>
+        </div>
+      )}
 
       {/* Lightbox Modal for Fullscreen Poster / Image Viewing */}
       {lightboxImage && (

@@ -56,7 +56,7 @@ export default function StudentAnalyticsWidget() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base sm:text-lg font-black text-[#0F2942]">
+              <h3 className="text-base sm:text-lg font-black text-[#1E3A5F]">
                 สถิตินักเรียนและโครงสร้างชั้นเรียน
               </h3>
               <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -78,7 +78,7 @@ export default function StudentAnalyticsWidget() {
                 onClick={() => setSelectedYear(yr)}
                 className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                   activeYear === yr
-                    ? "bg-[#1D4ED8] text-white shadow-xs"
+                    ? "bg-[#2F6FED] text-white shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
@@ -91,18 +91,18 @@ export default function StudentAnalyticsWidget() {
 
       {/* 4 Quick Stat Badges */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {/* Total Students matching blue card */}
-        <div className="bg-gradient-to-br from-[#1D4ED8] to-[#1E40AF] text-white rounded-2xl p-4 shadow-sm">
+        {/* Total Students matching navy brand */}
+        <div className="bg-gradient-to-br from-[#1E3A5F] to-[#0F2540] text-white rounded-2xl p-4 shadow-sm border border-white/10">
           <span className="text-xs font-medium text-white/80 block">นักเรียนทั้งหมด</span>
           <div className="flex items-baseline gap-1 mt-1">
             <span className="text-2xl sm:text-3xl font-black text-white">{stats.summary.totalStudents}</span>
             <span className="text-xs text-white/90">คน</span>
           </div>
-          <span className="text-[10px] text-white/70 block mt-1">{stats.summary.totalClassrooms} ห้องเรียน</span>
+          <span className="text-[10px] text-[#7EB8E0] block mt-1">{stats.summary.totalClassrooms} ห้องเรียน</span>
         </div>
 
         {/* Male */}
-        <div className="bg-gradient-to-br from-sky-600 to-blue-700 text-white rounded-2xl p-4 shadow-sm">
+        <div className="bg-gradient-to-br from-[#2F6FED] to-[#1E3A5F] text-white rounded-2xl p-4 shadow-sm border border-white/10">
           <span className="text-xs font-medium text-white/80 block">นักเรียนชาย</span>
           <div className="flex items-baseline gap-1 mt-1">
             <span className="text-2xl sm:text-3xl font-black text-white">{stats.summary.totalMale}</span>
@@ -112,7 +112,7 @@ export default function StudentAnalyticsWidget() {
         </div>
 
         {/* Female */}
-        <div className="bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-2xl p-4 shadow-sm">
+        <div className="bg-gradient-to-br from-[#D96B34] to-[#B35222] text-white rounded-2xl p-4 shadow-sm border border-white/10">
           <span className="text-xs font-medium text-white/80 block">นักเรียนหญิง</span>
           <div className="flex items-baseline gap-1 mt-1">
             <span className="text-2xl sm:text-3xl font-black text-white">{stats.summary.totalFemale}</span>
@@ -122,13 +122,13 @@ export default function StudentAnalyticsWidget() {
         </div>
 
         {/* Classrooms */}
-        <div className="bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-2xl p-4 shadow-sm">
+        <div className="bg-gradient-to-br from-[#0F2540] to-[#1E3A5F] text-white rounded-2xl p-4 shadow-sm border border-white/10">
           <span className="text-xs font-medium text-white/80 block">ห้องเรียนทั้งหมด</span>
           <div className="flex items-baseline gap-1 mt-1">
             <span className="text-2xl sm:text-3xl font-black text-white">{stats.summary.totalClassrooms}</span>
             <span className="text-xs text-white/90">ห้อง</span>
           </div>
-          <span className="text-[10px] text-emerald-100 block mt-1">เฉลี่ย {avgPerRoom} คน/ห้อง</span>
+          <span className="text-[10px] text-[#7EB8E0] block mt-1">เฉลี่ย {avgPerRoom} คน/ห้อง</span>
         </div>
       </div>
 
@@ -137,14 +137,14 @@ export default function StudentAnalyticsWidget() {
         {/* Left: Capsule Bars (8 cols) */}
         <div className="lg:col-span-8 space-y-3">
           <div className="flex items-center justify-between text-xs text-slate-500">
-            <span className="font-bold text-[#0F2942] flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+            <span className="font-bold text-[#1E3A5F] flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#2F6FED]" />
               <span>จำนวนนักเรียนแยกตามระดับชั้น (คน)</span>
             </span>
-            <span className="text-[11px] text-slate-400">เฉลี่ย {avgPerRoom} คน / ห้อง</span>
+            <span className="text-[11px] text-[#6B7FA0]">เฉลี่ย {avgPerRoom} คน / ห้อง</span>
           </div>
 
-          <div className="h-48 sm:h-56 pt-6 pb-2 grid grid-cols-8 gap-1 sm:gap-2.5 items-end bg-slate-50/70 p-2 sm:p-4 rounded-2xl border border-slate-200 overflow-hidden">
+          <div className="h-48 sm:h-56 pt-6 pb-2 grid grid-cols-8 gap-1 sm:gap-2.5 items-end bg-[#EAF2FB]/50 p-2 sm:p-4 rounded-2xl border border-[#D1DFF0] overflow-hidden">
             {stats.grades.map((grade) => {
               const heightPercent = Math.min(100, Math.round((grade.total / maxStudentCount) * 85) + 15);
               const shortLabel = grade.grade
@@ -159,20 +159,20 @@ export default function StudentAnalyticsWidget() {
                   className="flex flex-col items-center h-full justify-end group cursor-pointer"
                   title={`${grade.grade}: รวม ${grade.total} คน (ชาย ${grade.male}, หญิง ${grade.female})`}
                 >
-                  <span className="text-[10px] sm:text-[11px] font-bold font-mono text-[#0F2942] mb-1.5 group-hover:scale-110 transition-all">
+                  <span className="text-[10px] sm:text-[11px] font-bold font-mono text-[#1E3A5F] mb-1.5 group-hover:scale-110 transition-all">
                     {grade.total}
                   </span>
 
-                  <div className="w-full max-w-[24px] sm:max-w-[34px] h-full flex items-end justify-center bg-slate-200/80 rounded-full p-1 overflow-hidden">
+                  <div className="w-full max-w-[24px] sm:max-w-[34px] h-full flex items-end justify-center bg-[#D1DFF0]/60 rounded-full p-1 overflow-hidden">
                     <div
                       style={{ height: `${heightPercent}%` }}
-                      className="w-full bg-gradient-to-t from-blue-700 via-sky-500 to-cyan-400 rounded-full group-hover:from-blue-600 group-hover:to-emerald-400 transition-all duration-500 shadow-sm relative"
+                      className="w-full bg-gradient-to-t from-[#1E3A5F] via-[#2F6FED] to-[#7EB8E0] rounded-full group-hover:from-[#2F6FED] group-hover:to-[#D96B34] transition-all duration-500 shadow-sm relative"
                     >
                       <div className="absolute top-1 left-0.5 right-0.5 h-1 bg-white/50 rounded-full" />
                     </div>
                   </div>
 
-                  <span className="text-[10px] sm:text-xs font-bold text-slate-600 mt-2 text-center w-full">
+                  <span className="text-[10px] sm:text-xs font-bold text-[#4B6080] mt-2 text-center w-full">
                     {shortLabel}
                   </span>
                 </div>
@@ -182,8 +182,8 @@ export default function StudentAnalyticsWidget() {
         </div>
 
         {/* Right: Donut Chart for Male/Female ratio (4 cols) */}
-        <div className="lg:col-span-4 bg-slate-50/70 p-5 rounded-2xl border border-slate-200 flex flex-col items-center justify-center space-y-4">
-          <span className="text-xs font-bold text-[#0F2942]">สัดส่วนนักเรียนตามเพศ</span>
+        <div className="lg:col-span-4 bg-[#EAF2FB]/50 p-5 rounded-2xl border border-[#D1DFF0] flex flex-col items-center justify-center space-y-4">
+          <span className="text-xs font-bold text-[#1E3A5F]">สัดส่วนนักเรียนตามเพศ</span>
 
           {/* SVG Donut */}
           <div className="relative flex items-center justify-center">
@@ -193,15 +193,16 @@ export default function StudentAnalyticsWidget() {
                 cy={size / 2}
                 r={radius}
                 fill="none"
-                stroke="#C7D2FE"
+                stroke="#D96B34"
                 strokeWidth={strokeWidth}
+                opacity={0.85}
               />
               <circle
                 cx={size / 2}
                 cy={size / 2}
                 r={radius}
                 fill="none"
-                stroke="#1D4ED8"
+                stroke="#2F6FED"
                 strokeWidth={strokeWidth}
                 strokeDasharray={circumference}
                 strokeDashoffset={maleStrokeDashoffset}
@@ -212,20 +213,20 @@ export default function StudentAnalyticsWidget() {
 
             {/* Donut Center Count */}
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-              <span className="text-2xl font-black text-[#0F2942] tracking-tight">{stats.summary.totalStudents}</span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase">นักเรียนทั้งหมด</span>
+              <span className="text-2xl font-black text-[#1E3A5F] tracking-tight">{stats.summary.totalStudents}</span>
+              <span className="text-[10px] font-bold text-[#6B7FA0] uppercase">นักเรียนทั้งหมด</span>
             </div>
           </div>
 
           {/* Legend */}
           <div className="flex items-center gap-4 text-xs">
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-[#1D4ED8]" />
-              <span className="text-slate-700 font-medium">ชาย: {stats.summary.totalMale} ({malePercent}%)</span>
+              <span className="w-3 h-3 rounded-full bg-[#2F6FED]" />
+              <span className="text-[#1E3A5F] font-semibold">ชาย: {stats.summary.totalMale} ({malePercent}%)</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-[#C7D2FE]" />
-              <span className="text-slate-700 font-medium">หญิง: {stats.summary.totalFemale} ({femalePercent}%)</span>
+              <span className="w-3 h-3 rounded-full bg-[#D96B34]" />
+              <span className="text-[#1E3A5F] font-semibold">หญิง: {stats.summary.totalFemale} ({femalePercent}%)</span>
             </div>
           </div>
         </div>

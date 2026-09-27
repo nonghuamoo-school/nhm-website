@@ -35,10 +35,10 @@ export default function DMCVerificationCard({
 
       {/* Database Title */}
       <div className="mt-5 space-y-1">
-        <h3 className="text-base sm:text-lg font-black tracking-wider text-[#0F2942] uppercase">
+        <h3 className="text-base sm:text-lg font-black tracking-wider text-[#1E3A5F] uppercase">
           DMC STUDENT DATABASE
         </h3>
-        <p className="text-xs sm:text-sm font-bold text-blue-600">
+        <p className="text-xs sm:text-sm font-bold text-[#2F6FED]">
           โรงเรียนบ้านหนองหัวหมู • ปีการศึกษา {year}
         </p>
       </div>

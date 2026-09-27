@@ -6,20 +6,18 @@ import { schoolInfo } from "@/data/schoolInfo";
 import { visitorService } from "@/services/visitorService";
 
 export default function TopBar() {
-  const [visitorCount, setVisitorCount] = useState<number | null>(null);
+  const [visitorCount, setVisitorCount] = useState<number>(() => visitorService.getCurrentCount());
   const [currentDate, setCurrentDate] = useState<string>("");
   const [fontSizeIndex, setFontSizeIndex] = useState<number>(0);
 
   useEffect(() => {
-    // Record visit (increments if new session)
-    visitorService.recordVisit();
-
-    // Subscribe to global real-time visitor updates
+    visitorService.recordVisit().then((count) => {
+      setVisitorCount(count);
+    });
     const unsubscribe = visitorService.subscribeToVisitorCount((count) => {
       setVisitorCount(count);
     });
 
-    // Official Thai Buddhist calendar date (e.g. วันพุธที่ 24 ก.ย. 2569)
     try {
       const now = new Date();
       const formatted = now.toLocaleDateString("th-TH", {
@@ -33,69 +31,64 @@ export default function TopBar() {
       // Fallback
     }
 
-    return () => {
-      unsubscribe();
-    };
+    return () => { unsubscribe(); };
   }, []);
 
   const cycleFontSize = () => {
     const next = (fontSizeIndex + 1) % 3;
     setFontSizeIndex(next);
     const root = document.documentElement;
-    if (next === 0) {
-      root.removeAttribute("data-font-size");
-    } else if (next === 1) {
-      root.setAttribute("data-font-size", "large");
-    } else {
-      root.setAttribute("data-font-size", "xlarge");
-    }
+    if (next === 0) root.removeAttribute("data-font-size");
+    else if (next === 1) root.setAttribute("data-font-size", "large");
+    else root.setAttribute("data-font-size", "xlarge");
   };
 
   return (
-    <div className="h-8 sm:h-9 bg-[#091A2B] text-slate-300 text-[11px] sm:text-xs border-b border-slate-800 flex items-center overflow-hidden">
-      <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2">
-        {/* Left: Official Affiliation (Responsive: Short on mobile, full on desktop) */}
-        <div className="flex items-center gap-1.5 text-slate-300 font-medium truncate">
-          <span className="font-bold text-sky-400">สพฐ.</span>
-          <span className="text-slate-600">•</span>
-          <span className="hidden sm:inline truncate">{schoolInfo.subAffiliation}</span>
-          <span className="sm:hidden truncate">สพป. บุรีรัมย์ เขต 3</span>
+    <div className="h-8 sm:h-9 bg-[#0F2540] text-slate-300 text-[11px] sm:text-xs border-b-2 border-[#D96B34]/40 flex items-center overflow-hidden">
+      <div className="max-w-[1400px] w-full mx-auto px-3 sm:px-6 lg:px-8 xl:px-10 flex items-center justify-between gap-2">
+        {/* Left: Official Affiliation (สพป. บุรีรัมย์ เขต 3 ก่อน สพฐ.) */}
+        <div className="flex items-center gap-2 text-slate-200 font-medium whitespace-nowrap min-w-0">
+          <span className="font-semibold text-white hidden sm:inline truncate">
+            {schoolInfo.subAffiliation}
+          </span>
+          <span className="font-semibold text-white sm:hidden truncate">
+            สพป. บุรีรัมย์ เขต&nbsp;3
+          </span>
+          <span className="text-slate-500">•</span>
+          <span className="font-bold text-[#7EB8E0] shrink-0">สพฐ.</span>
         </div>
 
-        {/* Right: Visitor Counter, Current Thai Date & Accessibility */}
+        {/* Right: Visitor Counter, Date, Accessibility */}
         <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-          {/* Global Visitor count */}
           <div className="flex items-center gap-1 text-slate-300 font-medium" title="จำนวนผู้เข้าชมรวมทั้งหมดทั่วโลก (Real-time Cloud Sync)">
-            <Eye className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+            <Eye className="w-3.5 h-3.5 text-[#7EB8E0] shrink-0" />
             <span className="hidden md:inline">ผู้เข้าชม</span>
             <strong className="text-white font-bold font-mono">
-              {(visitorCount ?? 1259).toLocaleString()}
+              {(visitorCount ?? 1310).toLocaleString()}
             </strong>
             <span className="hidden md:inline">ครั้ง</span>
           </div>
 
-          {/* Official Current Thai Date */}
           {currentDate && (
             <div className="hidden lg:flex items-center gap-1.5 text-slate-300 font-medium">
               <span className="text-slate-700">|</span>
-              <Calendar className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <Calendar className="w-3.5 h-3.5 text-[#D96B34] shrink-0" />
               <span>{currentDate}</span>
             </div>
           )}
 
           <span className="text-slate-700">|</span>
 
-          {/* Accessibility Font Size Toggle */}
           <button
             type="button"
             onClick={cycleFontSize}
-            className="flex items-center gap-0.5 px-1 py-0.5 rounded hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
+            className="flex items-center gap-0.5 px-1 py-0.5 rounded hover:bg-[#1E3A5F] text-slate-300 hover:text-white transition-colors"
             title="ปรับขนาดตัวอักษร"
             aria-label="ปรับขนาดตัวอักษร"
           >
             <span className="font-bold text-[10px]">A</span>
             <span className="font-bold text-xs">A</span>
-            <span className="text-[10px] text-amber-400 font-sans ml-0.5">
+            <span className="text-[10px] text-[#D96B34] font-sans ml-0.5">
               {fontSizeIndex === 0 ? "ปกติ" : fontSizeIndex === 1 ? "+1" : "+2"}
             </span>
           </button>

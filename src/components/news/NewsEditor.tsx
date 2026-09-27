@@ -147,7 +147,7 @@ export default function NewsEditor({
         icon: "error",
         title: "เกิดข้อผิดพลาดในการโหลดรูปภาพหน้าปก",
         text: err?.message || "กรุณาลองใหม่อีกครั้ง หรือเลือกไฟล์อื่น",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
       });
     } finally {
       setIsProcessingImage(false);
@@ -167,7 +167,7 @@ export default function NewsEditor({
         icon: "error",
         title: "เกิดข้อผิดพลาดในการโหลดรูปภาพป้ายวารสาร",
         text: err?.message || "กรุณาลองใหม่อีกครั้ง หรือเลือกไฟล์อื่น",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
       });
     } finally {
       setIsProcessingPoster(false);
@@ -199,7 +199,7 @@ export default function NewsEditor({
         icon: "error",
         title: "เกิดข้อผิดพลาดในการโหลดรูปภาพกิจกรรม",
         text: err?.message || "กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
       });
     } finally {
       setIsProcessingGallery(false);
@@ -244,14 +244,44 @@ export default function NewsEditor({
     setAttachments(attachments.filter((_, i) => i !== index));
   };
 
+  const uploadIfBase64 = async (dataUri: string, prefix: string): Promise<string> => {
+    if (!dataUri || !dataUri.startsWith("data:")) return dataUri;
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: dataUri, name: prefix }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.url) return json.url;
+      }
+    } catch (e) {
+      console.warn("Upload image fallback:", e);
+    }
+    return dataUri;
+  };
+
   const saveCurrentNews = async (newStatus: "เผยแพร่แล้ว" | "ฉบับร่าง") => {
+    // 1. Convert any base64 images into lightweight API URLs
+    const finalCover = await uploadIfBase64(imageUrl, `cover_${Date.now()}`);
+    const finalPoster = newsletterPosterUrl ? await uploadIfBase64(newsletterPosterUrl, `poster_${Date.now()}`) : undefined;
+    const finalGallery: string[] = [];
+    for (let idx = 0; idx < galleryImages.length; idx++) {
+      const g = galleryImages[idx];
+      if (g) {
+        const uploadedG = await uploadIfBase64(g, `gallery_${idx + 1}_${Date.now()}`);
+        finalGallery.push(uploadedG);
+      }
+    }
+
     const newsPayload: Omit<NewsItem, "id"> & { id?: string } = {
       title: title.trim() || "ข่าวประชาสัมพันธ์",
       category,
-      imageUrl: imageUrl || "/images/school-emblem-doc.png",
-      newsletterPosterUrl: newsletterPosterUrl.trim() || undefined,
+      imageUrl: finalCover || "/images/school-emblem-doc.png",
+      newsletterPosterUrl: finalPoster,
       issueNumber: issueNumber.trim() || undefined,
-      galleryImages: galleryImages.filter(Boolean),
+      galleryImages: finalGallery,
       facebookUrl: facebookUrl.trim() || undefined,
       externalUrl: externalUrl.trim() || undefined,
       excerpt: excerpt.trim() || title.trim(),
@@ -303,7 +333,7 @@ export default function NewsEditor({
         icon: "warning",
         title: "กรุณาระบุหัวข้อข่าว",
         text: "กรุณาใส่หัวข้อข่าวสารก่อนทำการเผยแพร่",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
       });
       return;
     }
@@ -340,7 +370,7 @@ export default function NewsEditor({
         <div className="flex items-center gap-3">
           <Link
             href="/admin/news"
-            className="p-2 rounded-xl text-slate-500 hover:text-[#0F2942] hover:bg-slate-100 transition-colors"
+            className="p-2 rounded-xl text-slate-500 hover:text-[#1E3A5F] hover:bg-slate-100 transition-colors"
             title="ย้อนกลับ"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -349,14 +379,14 @@ export default function NewsEditor({
             <span className="text-[11px] font-semibold text-slate-400 uppercase">
               {isEditMode ? "แก้ไขข่าวประชาสัมพันธ์" : "สร้างข่าวประชาสัมพันธ์ใหม่"}
             </span>
-            <h1 className="text-lg font-bold text-[#0F2942]">
+            <h1 className="text-lg font-bold text-[#1E3A5F]">
               {title || "หัวข้อข่าวสาร..."}
             </h1>
           </div>
         </div>
 
         {/* CMS Action Buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
           {saveSuccess && (
             <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
               <CheckCircle2 className="w-3.5 h-3.5" />
@@ -368,7 +398,7 @@ export default function NewsEditor({
             type="button"
             onClick={handleSaveDraft}
             disabled={isSubmitting}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-[#E5E7EB] bg-white text-slate-700 hover:bg-slate-50 text-xs font-bold transition-colors min-h-[40px] disabled:opacity-50"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl border border-[#E5E7EB] bg-white text-slate-700 hover:bg-slate-50 text-xs font-bold transition-colors min-h-[40px] disabled:opacity-50 box-border"
           >
             <Save className="w-3.5 h-3.5" />
             <span>{isSubmitting ? "กำลังบันทึก..." : "บันทึกฉบับร่าง"}</span>
@@ -378,12 +408,12 @@ export default function NewsEditor({
             type="button"
             onClick={handlePublish}
             disabled={isSubmitting}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-xs transition-colors min-h-[40px] disabled:opacity-50"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#2F6FED] hover:bg-[#2558CA] text-white text-xs font-bold shadow-xs transition-colors min-h-[40px] disabled:opacity-50 box-border"
           >
             {isSubmitting ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
             ) : (
-              <Send className="w-3.5 h-3.5 text-amber-400" />
+              <Send className="w-3.5 h-3.5 text-white" />
             )}
             <span>{isSubmitting ? "กำลังเผยแพร่..." : "เผยแพร่ข่าวสาร"}</span>
           </button>
@@ -405,7 +435,7 @@ export default function NewsEditor({
                 placeholder="ระบุหัวข้อข่าวหรือชื่อกิจกรรม..."
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full text-base sm:text-lg font-bold text-[#0F2942] placeholder:text-slate-300 px-3 py-2 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20 focus:border-[#0F2942]"
+                className="w-full text-base sm:text-lg font-bold text-[#1E3A5F] placeholder:text-slate-300 px-3 py-2 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
               />
             </div>
 
@@ -418,7 +448,7 @@ export default function NewsEditor({
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value as any)}
-                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20 focus:border-[#0F2942] min-h-[38px]"
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] min-h-[38px]"
                 >
                   <option value="ประชาสัมพันธ์">ประชาสัมพันธ์</option>
                   <option value="กิจกรรม">กิจกรรม</option>
@@ -434,7 +464,7 @@ export default function NewsEditor({
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as any)}
-                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20 focus:border-[#0F2942] min-h-[38px]"
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] min-h-[38px]"
                 >
                   <option value="เผยแพร่แล้ว">เผยแพร่แล้ว (Published)</option>
                   <option value="ฉบับร่าง">ฉบับร่าง (Draft)</option>
@@ -503,7 +533,7 @@ export default function NewsEditor({
                   <div className="w-12 h-12 rounded-2xl bg-blue-100/70 text-blue-600 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
                     <Upload className="w-6 h-6 text-blue-600" />
                   </div>
-                  <p className="text-xs font-bold text-[#0F2942] mb-1">
+                  <p className="text-xs font-bold text-[#1E3A5F] mb-1">
                     คลิกเพื่อเลือกไฟล์รูปหน้าปกจากเครื่อง หรือถ่ายรูป
                   </p>
                   <p className="text-[11px] text-slate-400">
@@ -544,7 +574,7 @@ export default function NewsEditor({
                     <FileText className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-[#0F2942] flex items-center gap-1.5">
+                    <h3 className="text-xs font-bold text-[#1E3A5F] flex items-center gap-1.5">
                       <span>แนบป้ายวารสาร / จดหมายข่าวแนวตั้ง A4 (1414 × 2000 px)</span>
                       <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">ถ้ามี</span>
                     </h3>
@@ -665,7 +695,7 @@ export default function NewsEditor({
                     <Share2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-[#0F2942]">
+                    <h3 className="text-xs font-bold text-[#1E3A5F]">
                       แนบลิงก์โพสต์ Facebook ของโรงเรียน
                     </h3>
                     <p className="text-[11px] text-slate-500">
@@ -706,16 +736,16 @@ export default function NewsEditor({
             </div>
 
             {/* SECTION 3: PHOTO GALLERY (คลังรูปภาพกิจกรรมเพิ่มเติม) */}
-            <div className="p-4 rounded-2xl bg-amber-50/50 border border-amber-200/70 space-y-3">
+            <div className="p-4 rounded-2xl bg-[#EBF2FF]/60 border border-[#D1DFF0] space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-xs">
-                    <Images className="w-4 h-4" />
+                  <div className="w-8 h-8 rounded-xl bg-[#1E3A5F] text-white flex items-center justify-center shadow-xs">
+                    <Images className="w-4 h-4 text-[#7EB8E0]" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-[#0F2942] flex items-center gap-2">
+                    <h3 className="text-xs font-bold text-[#1E3A5F] flex items-center gap-2">
                       <span>รูปภาพกิจกรรมและบรรยากาศเพิ่มเติม (Photo Gallery)</span>
-                      <span className="px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-900 font-bold text-[10px]">
+                      <span className="px-2 py-0.5 rounded-full bg-[#2F6FED]/15 text-[#1E3A5F] font-bold text-[10px]">
                         {galleryImages.length} รูป
                       </span>
                     </h3>
@@ -742,12 +772,12 @@ export default function NewsEditor({
                   type="button"
                   onClick={() => galleryInputRef.current?.click()}
                   disabled={isProcessingGallery}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold transition-all shadow-xs disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1E3A5F] hover:bg-[#2F6FED] text-white text-xs font-bold transition-all shadow-xs disabled:opacity-50"
                 >
                   {isProcessingGallery ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-white/80" />
                   ) : (
-                    <Upload className="w-3.5 h-3.5 text-amber-400" />
+                    <Upload className="w-3.5 h-3.5 text-white/80" />
                   )}
                   <span>{isProcessingGallery ? "กำลังประมวลผลรูปภาพ..." : "เพิ่มภาพจากเครื่อง (เลือกได้หลายรูป)"}</span>
                 </button>
@@ -758,12 +788,12 @@ export default function NewsEditor({
                     placeholder="หรือวางลิงก์รูปภาพ URL..."
                     value={newGalleryUrl}
                     onChange={(e) => setNewGalleryUrl(e.target.value)}
-                    className="flex-1 text-xs px-3 py-2 rounded-xl border border-amber-200 bg-white focus:outline-none"
+                    className="flex-1 text-xs px-3 py-2 rounded-xl border border-[#D1DFF0] bg-white focus:outline-none focus:border-[#2F6FED]"
                   />
                   <button
                     type="button"
                     onClick={handleAddGalleryUrl}
-                    className="px-3 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors"
+                    className="px-3 py-2 rounded-xl bg-[#2F6FED] hover:bg-[#255bc4] text-white text-xs font-bold transition-colors"
                   >
                     เพิ่มรูป
                   </button>
@@ -810,7 +840,7 @@ export default function NewsEditor({
                 placeholder="สรุปเนื้อหาสั้นๆ 2-3 บรรทัดสำหรับแสดงในการ์ดข่าว..."
                 value={excerpt}
                 onChange={(e) => setExcerpt(e.target.value)}
-                className="w-full text-xs px-3 py-2 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20 focus:border-[#0F2942] resize-none"
+                className="w-full text-xs px-3 py-2 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] resize-none"
               />
             </div>
 
@@ -879,7 +909,7 @@ export default function NewsEditor({
                 placeholder="เขียนเนื้อหาข่าวสาร รายละเอียด วันที่ สถานที่..."
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="w-full text-xs sm:text-sm px-3.5 py-3 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20 focus:border-[#0F2942] leading-relaxed"
+                className="w-full text-xs sm:text-sm px-3.5 py-3 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] leading-relaxed"
               />
             </div>
 
@@ -903,7 +933,7 @@ export default function NewsEditor({
                       placeholder="ชื่อเอกสาร เช่น ประกาศรับสมัคร_2569.pdf"
                       value={newAttachmentName}
                       onChange={(e) => setNewAttachmentName(e.target.value)}
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-[#E5E7EB] bg-white focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20 focus:border-[#0F2942]"
+                      className="w-full text-xs px-3 py-2 rounded-xl border border-[#E5E7EB] bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
                     />
                   </div>
                   <div className="sm:col-span-3">
@@ -940,7 +970,7 @@ export default function NewsEditor({
                   <button
                     type="button"
                     onClick={handleAddAttachment}
-                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-xs font-bold text-white transition-colors flex items-center justify-center gap-1 shrink-0"
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[#1E3A5F] hover:bg-[#2F6FED] text-xs font-bold text-white transition-colors flex items-center justify-center gap-1 shrink-0"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>เพิ่มเอกสาร</span>
@@ -1006,7 +1036,7 @@ export default function NewsEditor({
                       วันที่แสดงผลบนเว็บไซต์ (ปฏิทินไทย พ.ศ.)
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm sm:text-base font-bold text-[#0F2942]">
+                      <span className="text-sm sm:text-base font-bold text-[#1E3A5F]">
                         {publishDate}
                       </span>
                       <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
@@ -1024,7 +1054,7 @@ export default function NewsEditor({
                       type="date"
                       value={publishIsoDate}
                       onChange={(e) => handleDateChange(e.target.value)}
-                      className="text-xs font-bold px-3 py-2 rounded-xl border border-blue-300 bg-blue-50/70 text-[#0F2942] hover:bg-blue-100/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-2xs transition-colors"
+                      className="text-xs font-bold px-3 py-2 rounded-xl border border-blue-300 bg-blue-50/70 text-[#1E3A5F] hover:bg-blue-100/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-2xs transition-colors"
                       title="คลิกเพื่อเปิดปฏิทินเลือกวันที่"
                     />
                   </div>
@@ -1101,7 +1131,7 @@ export default function NewsEditor({
           <div className="bg-white rounded-2xl p-5 border border-[#E5E7EB] shadow-xs space-y-4">
             {/* Preview Tab Selector */}
             <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB]">
-              <span className="text-xs font-bold text-[#0F2942] flex items-center gap-1.5">
+              <span className="text-xs font-bold text-[#1E3A5F] flex items-center gap-1.5">
                 <Eye className="w-4 h-4" />
                 <span>ตัวอย่างสด (Live Preview)</span>
               </span>
@@ -1112,7 +1142,7 @@ export default function NewsEditor({
                   onClick={() => setPreviewTab("article")}
                   className={`px-2.5 py-1 rounded-lg transition-colors ${
                     previewTab === "article"
-                      ? "bg-[#0F2942] text-white shadow-2xs"
+                      ? "bg-[#1E3A5F] text-white shadow-2xs"
                       : "text-slate-500 hover:text-slate-800"
                   }`}
                 >
@@ -1123,7 +1153,7 @@ export default function NewsEditor({
                   onClick={() => setPreviewTab("card")}
                   className={`px-2.5 py-1 rounded-lg transition-colors ${
                     previewTab === "card"
-                      ? "bg-[#0F2942] text-white shadow-2xs"
+                      ? "bg-[#1E3A5F] text-white shadow-2xs"
                       : "text-slate-500 hover:text-slate-800"
                   }`}
                 >
@@ -1134,7 +1164,7 @@ export default function NewsEditor({
                   onClick={() => setPreviewTab("seo")}
                   className={`px-2.5 py-1 rounded-lg transition-colors ${
                     previewTab === "seo"
-                      ? "bg-[#0F2942] text-white shadow-2xs"
+                      ? "bg-[#1E3A5F] text-white shadow-2xs"
                       : "text-slate-500 hover:text-slate-800"
                   }`}
                 >
@@ -1188,10 +1218,10 @@ export default function NewsEditor({
                 )}
 
                 <div className="space-y-1.5">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#0F2942] text-white inline-block">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#1E3A5F] text-white inline-block">
                     {category}
                   </span>
-                  <h3 className="text-base font-bold text-[#0F2942] leading-snug">
+                  <h3 className="text-base font-bold text-[#1E3A5F] leading-snug">
                     {title || "หัวข้อข่าวสารจะแสดงที่นี่..."}
                   </h3>
                   <div className="flex items-center gap-2 text-[11px] text-slate-400">
@@ -1221,7 +1251,7 @@ export default function NewsEditor({
                         <div className="w-6 h-6 rounded-lg bg-[#1877F2] text-white flex items-center justify-center text-[10px] font-bold">
                           f
                         </div>
-                        <span className="text-[11px] font-bold text-[#0F2942]">
+                        <span className="text-[11px] font-bold text-[#1E3A5F]">
                           ดูโพสต์และภาพเพิ่มเติมบน Facebook
                         </span>
                       </div>
@@ -1281,7 +1311,7 @@ export default function NewsEditor({
                       alt={title}
                       className="w-full h-full object-cover"
                     />
-                    <span className="absolute top-2.5 left-2.5 text-[10px] font-bold px-2 py-0.5 rounded bg-[#0F2942] text-white">
+                    <span className="absolute top-2.5 left-2.5 text-[10px] font-bold px-2 py-0.5 rounded bg-[#1E3A5F] text-white">
                       {category}
                     </span>
                   </div>
@@ -1289,7 +1319,7 @@ export default function NewsEditor({
                     <span className="text-[11px] text-slate-400 block mb-1">
                       {publishDate}
                     </span>
-                    <h4 className="font-bold text-xs sm:text-sm text-[#0F2942] line-clamp-2">
+                    <h4 className="font-bold text-xs sm:text-sm text-[#1E3A5F] line-clamp-2">
                       {title || "หัวข้อข่าวสาร..."}
                     </h4>
                     <p className="text-xs text-slate-500 mt-1 line-clamp-2">

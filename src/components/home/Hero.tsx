@@ -4,15 +4,16 @@ import React from "react";
 import Link from "next/link";
 import { ArrowRight, BookOpen, GraduationCap, Award, Sparkles, Building2, ChevronRight } from "lucide-react";
 import { useSchoolSettings } from "@/hooks/useSchoolSettings";
+import OptimizedNewsImage from "@/components/common/OptimizedNewsImage";
 
 export default function Hero() {
   const { settings } = useSchoolSettings();
 
   return (
-    <section className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-white via-blue-50/30 to-sky-50/40 border border-slate-200/80 shadow-xs">
+    <section className="relative rounded-3xl overflow-hidden bg-white/75 backdrop-blur-md border border-[#D1DFF0] shadow-xs">
       {/* Decorative ambient background glows */}
-      <div className="absolute -top-24 -left-24 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -top-24 -left-24 w-80 h-80 bg-[#2F6FED]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-[#D96B34]/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 p-5 sm:p-8 lg:p-10 flex items-center">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center w-full">
@@ -22,61 +23,70 @@ export default function Hero() {
             
             {/* Institutional Badge */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-900 border border-blue-200 text-[11px] sm:text-xs font-bold shadow-2xs">
-                <Building2 className="w-3.5 h-3.5 text-blue-700 shrink-0" />
-                <span>{settings.subAffiliation} • {settings.affiliationBadge}</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EBF2FF] text-[#1E3A5F] border border-[#2F6FED]/30 text-[11px] sm:text-xs font-bold shadow-2xs whitespace-nowrap">
+                <Building2 className="w-3.5 h-3.5 text-[#2F6FED] shrink-0" />
+                <span className="hidden sm:inline">{settings.subAffiliation}</span>
+                <span className="sm:hidden">สพป. บุรีรัมย์ เขต&nbsp;3</span>
+              </span>
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-white/90 text-[#4B6080] border border-[#D1DFF0] text-[11px] sm:text-xs font-semibold shadow-2xs whitespace-nowrap">
+                <span>{settings.affiliationBadge}</span>
               </span>
             </div>
 
             {/* School Title & Subtitle */}
             <div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#0F2942] tracking-tight leading-tight">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#1E3A5F] tracking-tight leading-tight whitespace-normal sm:whitespace-nowrap">
                 {settings.name}
               </h1>
-              <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+              <p className="text-xs sm:text-sm font-semibold text-[#4B6080] mt-1 whitespace-nowrap">
                 {settings.nameEn}
               </p>
             </div>
 
-            {/* Mobile-Only Prominent Hero Image (shown right under title on phone screens) */}
+            {/* Mobile-Only Prominent Hero Image */}
             <div className="lg:hidden space-y-2">
-              <div className="rounded-2xl overflow-hidden border border-slate-200/90 bg-white aspect-[16/9] shadow-md">
-                <img
+              <div className="rounded-2xl overflow-hidden border border-[#D1DFF0] bg-white aspect-[16/9] shadow-md relative">
+                <OptimizedNewsImage
                   src={settings.heroImageUrl}
                   alt={settings.name}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 500px"
                   className="w-full h-full object-cover"
-                  loading="eager"
                 />
               </div>
 
               {/* Education Level Badge below mobile image */}
-              <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white border border-slate-200 shadow-2xs">
-                <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-800 flex items-center justify-center shrink-0 border border-blue-100">
+              <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/90 border border-[#D1DFF0] shadow-2xs">
+                <div className="w-8 h-8 rounded-lg bg-[#EBF2FF] text-[#2F6FED] flex items-center justify-center shrink-0 border border-[#2F6FED]/20">
                   <GraduationCap className="w-4 h-4" />
                 </div>
                 <div className="leading-tight">
-                  <span className="text-[10px] text-slate-400 font-bold block uppercase">
+                  <span className="text-[10px] text-[#6B7FA0] font-bold block uppercase">
                     {settings.heroBadge1Label || "ระดับการศึกษา"}
                   </span>
-                  <span className="text-xs font-bold text-[#0F2942]">
+                  <span className="text-xs font-bold text-[#1E3A5F]">
                     {settings.heroBadge1Value || "อนุบาล 2 – ประถมศึกษาปีที่ 6"}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* School Motto Highlight Card */}
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-white/95 backdrop-blur-xs border border-blue-100 shadow-2xs">
-              <span className="text-[10px] sm:text-[11px] font-bold text-amber-600 block uppercase tracking-wide">
-                คำขวัญประจำโรงเรียน
-              </span>
-              <p className="text-sm sm:text-base font-bold text-[#0F2942] mt-0.5">
+            {/* School Motto Highlight Card: Glassmorphism */}
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-white/80 backdrop-blur-xs border border-[#D1DFF0] shadow-2xs">
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-3 bg-[#D96B34] rounded-full inline-block" />
+                <span className="text-[10px] sm:text-[11px] font-bold text-[#D96B34] uppercase tracking-wide">
+                  คำขวัญประจำโรงเรียน
+                </span>
+              </div>
+              <p className="text-sm sm:text-base font-bold text-[#1E3A5F] mt-1 pl-2.5">
                 &ldquo;{settings.motto}&rdquo;
               </p>
             </div>
 
             {/* Welcome paragraph */}
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal indent-6 sm:indent-8 text-justify whitespace-pre-wrap">
+            <p className="text-xs sm:text-sm text-[#334155] leading-[1.8] font-normal indent-6 sm:indent-8 text-left [overflow-wrap:break-word]">
               {settings.welcomeMessage}
             </p>
 
@@ -84,16 +94,16 @@ export default function Hero() {
             <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3 pt-1">
               <Link
                 href={settings.heroBtn1Url}
-                className="col-span-1 inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-xs hover:shadow-md transition-all min-h-[42px]"
+                className="col-span-1 inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl bg-[#2F6FED] hover:bg-[#1f5bcc] text-white font-bold text-xs sm:text-sm shadow-xs hover:shadow-md transition-all min-h-[44px]"
               >
                 <span>{settings.heroBtn1Text}</span>
                 <ArrowRight className="w-4 h-4 shrink-0" />
               </Link>
               <Link
                 href={settings.heroBtn2Url}
-                className="col-span-1 inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-[#0F2942] font-bold text-xs sm:text-sm border border-slate-200/90 shadow-2xs transition-colors min-h-[42px]"
+                className="col-span-1 inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-[#1E3A5F] font-bold text-xs sm:text-sm border border-[#D1DFF0] shadow-2xs transition-colors min-h-[44px]"
               >
-                <BookOpen className="w-4 h-4 text-blue-700 shrink-0" />
+                <BookOpen className="w-4 h-4 text-[#2F6FED] shrink-0" />
                 <span>{settings.heroBtn2Text}</span>
               </Link>
             </div>
@@ -101,25 +111,27 @@ export default function Hero() {
 
           {/* Right Column: Desktop-Only Hero Image (5 cols on lg screens) */}
           <div className="hidden lg:flex lg:col-span-5 flex-col">
-            <div className="rounded-2xl overflow-hidden border border-slate-200/90 bg-white aspect-[16/11] shadow-md">
-              <img
+            <div className="rounded-2xl overflow-hidden border border-[#D1DFF0] bg-white aspect-[16/11] shadow-md relative">
+              <OptimizedNewsImage
                 src={settings.heroImageUrl}
                 alt={settings.name}
+                fill
+                priority
+                sizes="(min-width: 1024px) 45vw, 500px"
                 className="w-full h-full object-cover"
-                loading="eager"
               />
             </div>
 
             {/* Placed below the image on desktop */}
-            <div className="mt-3 flex items-center gap-3 p-3 rounded-2xl bg-white border border-slate-200 shadow-xs">
-              <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-800 flex items-center justify-center shrink-0 border border-blue-100">
+            <div className="mt-3 flex items-center gap-3 p-3 rounded-2xl bg-white/90 backdrop-blur-xs border border-[#D1DFF0] shadow-xs">
+              <div className="w-9 h-9 rounded-xl bg-[#EBF2FF] text-[#2F6FED] flex items-center justify-center shrink-0 border border-[#2F6FED]/20">
                 <GraduationCap className="w-5 h-5" />
               </div>
               <div className="leading-tight">
-                <span className="text-[10px] text-slate-400 font-bold block uppercase">
+                <span className="text-[10px] text-[#6B7FA0] font-bold block uppercase">
                   {settings.heroBadge1Label || "ระดับการศึกษา"}
                 </span>
-                <span className="text-xs sm:text-sm font-bold text-[#0F2942]">
+                <span className="text-xs sm:text-sm font-bold text-[#1E3A5F]">
                   {settings.heroBadge1Value || "อนุบาล 2 – ประถมศึกษาปีที่ 6"}
                 </span>
               </div>

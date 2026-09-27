@@ -1,14 +1,47 @@
 @import "tailwindcss";
 
+/* ============================================================
+   NHM SCHOOL — DESIGN SYSTEM TOKENS
+   โรงเรียนบ้านหนองหัวหมู · สพป. บุรีรัมย์ เขต 3
+   ============================================================ */
+
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  /* ── Backgrounds ── */
+  --background: #eaf2fb;
+  --background-end: #ffffff;
+  --foreground: #0f1f30;
   --surface: #ffffff;
-  --border: #e5e7eb;
-  --primary-navy: #0f2942;
-  --primary-navy-dark: #091a2b;
-  --primary-navy-light: #163c61;
-  --accent-gold: #d97706;
+  --border: #d1dff0;
+
+  /* ── Navy (primary brand) ── */
+  --nhm-navy: #1e3a5f;
+  --nhm-navy-dark: #0f2540;
+  --nhm-navy-light: #2a5080;
+  --nhm-navy-muted: rgba(30, 58, 94, 0.08);
+
+  /* ── Blue (interactive) ── */
+  --nhm-blue: #2f6fed;
+  --nhm-blue-hover: #1f5bcc;
+  --nhm-blue-light: #ebf2ff;
+  --nhm-blue-border: rgba(47, 111, 237, 0.25);
+
+  /* ── Accent orange/ส้มแสด (school identity — accent only) ── */
+  --nhm-accent: #d96b34;
+  --nhm-accent-light: rgba(217, 107, 52, 0.1);
+  --nhm-accent-border: rgba(217, 107, 52, 0.3);
+
+  /* ── Text ── */
+  --nhm-text: #0f1f30;
+  --nhm-muted: #4b6080;
+  --nhm-caption: #6b7fa0;
+
+  /* ── Legacy aliases (keep for backward compat during migration) ── */
+  --primary-navy: #1e3a5f;
+  --primary-navy-dark: #0f2540;
+  --primary-navy-light: #2a5080;
+  --accent-gold: #d96b34;
+
+  /* ── Spacing / Radius ── */
   --radius: 16px;
   --font-size-multiplier: 1;
 }
@@ -25,54 +58,291 @@ html {
   font-size: calc(16px * var(--font-size-multiplier));
 }
 
+/* ── Page gradient background ── */
 body {
-  background-color: var(--background);
+  background: linear-gradient(160deg, var(--background) 0%, var(--background-end) 100%);
+  background-attachment: scroll;
   color: var(--foreground);
-  font-family: var(--font-sarabun), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-sarabun), "Sarabun", system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
 }
 
-/* Thai typography improvements */
+@media (min-width: 1024px) {
+  body {
+    background-attachment: fixed;
+  }
+}
+
+/* ============================================================
+   GLASS CARD — Glassmorphism utility
+   Usage: className="glass-card"
+   ============================================================ */
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px rgba(30, 58, 94, 0.12);
+  border-radius: 16px;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Fallback for browsers without backdrop-filter support */
+@supports not (backdrop-filter: blur(1px)) {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 4px 16px rgba(30, 58, 94, 0.10);
+  }
+}
+
+/* Heavier glass for admin panels */
+.glass-card-admin {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 8px 40px rgba(30, 58, 94, 0.15);
+  border-radius: 20px;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .glass-card-admin {
+    background: rgba(255, 255, 255, 0.95);
+  }
+}
+
+/* ============================================================
+   NHM GRADIENT BG — Section/page background
+   ============================================================ */
+
+.nhm-gradient-bg {
+  background: linear-gradient(160deg, #eaf2fb 0%, #ffffff 100%);
+}
+
+/* ============================================================
+   ACCENT BAR — สีแสด underline for headings
+   Usage: className="nhm-accent-bar" on h2/section title
+   ============================================================ */
+
+.nhm-accent-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nhm-accent-bar::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 1em;
+  background-color: var(--nhm-accent);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   WATERMARK LOGO — opacity overlay for sidebar/header
+   ============================================================ */
+
+.nhm-watermark::after {
+  content: "";
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  width: 120px;
+  height: 120px;
+  background-image: url("/images/school-logo.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+.nhm-watermark-dark::after {
+  content: "";
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  width: 140px;
+  height: 140px;
+  background-image: url("/images/school-logo.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.07;
+  pointer-events: none;
+  filter: brightness(10);
+}
+
+/* ============================================================
+   THAI TYPOGRAPHY (Step 6)
+   ============================================================ */
+
+p {
+  text-align: left;
+  line-height: 1.7;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
 .thai-wrap {
   word-break: normal;
   overflow-wrap: break-word;
-  line-break: loose;
-  text-wrap: balance;
+  text-wrap: pretty;
+  line-height: 1.7;
+}
+
+.thai-paragraph {
+  text-align: left;
+  line-height: 1.75;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.keep-together {
+  white-space: nowrap;
+  display: inline-block;
 }
 
 .thai-balance {
   text-wrap: balance;
   word-break: normal;
   overflow-wrap: break-word;
+  line-height: 1.6;
+}
+
+.thai-heading {
+  font-size: clamp(1.2rem, 4vw, 2rem);
+  line-height: 1.5;
+  word-break: normal;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+.thai-badge {
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+  line-height: 1.4;
+  max-width: 100%;
 }
 
 .thai-nowrap {
   white-space: nowrap;
 }
 
-/* Accessible focus ring */
-:focus-visible {
-  outline: 2px solid #0f2942;
-  outline-offset: 2px;
+/* Prevent fixed overflow on mobile */
+@media (max-width: 768px) {
+  .thai-wrap, .thai-balance {
+    max-width: 100%;
+    word-break: normal;
+  }
 }
 
-/* Custom scrollbar */
+/* ============================================================
+   ACCESSIBILITY
+   ============================================================ */
+
+:focus-visible {
+  outline: 2px solid var(--nhm-blue);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #eaf2fb;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #a8c4e0;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #7aa5c8;
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   SKELETON SHIMMER & TRANSITIONS
+   Glassy blue-gray shimmer matching White-Navy theme
+   ============================================================ */
+
+@keyframes nhm-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.nhm-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(226, 236, 248, 0.7) 0%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(226, 236, 248, 0.7) 100%
+  );
+  background-size: 200% 100%;
+  animation: nhm-shimmer 1.8s ease-in-out infinite;
+}
+
+.nhm-shimmer-subtle {
+  background: linear-gradient(
+    90deg,
+    rgba(240, 246, 254, 0.6) 0%,
+    rgba(255, 255, 255, 0.9) 50%,
+    rgba(240, 246, 254, 0.6) 100%
+  );
+  background-size: 200% 100%;
+  animation: nhm-shimmer 1.8s ease-in-out infinite;
+}
+
+@keyframes nhm-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: nhm-fade-in 0.3s ease-out forwards;
 }

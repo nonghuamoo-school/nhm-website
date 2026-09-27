@@ -33,10 +33,10 @@ export default function SchoolGeneralInfoCard() {
     settings.subDistrict ? `ต.${settings.subDistrict}` : null,
     settings.district ? `อ.${settings.district}` : null,
     `จ.${settings.province}`,
-    settings.postalCode ? settings.postalCode : null,
+    settings.postalCode ? `\u00A0${settings.postalCode}` : null,
   ]
     .filter(Boolean)
-    .join(" ") || `ตำบลท่าโพธิ์ชัย อำเภอหนองกี่ จังหวัดบุรีรัมย์ 31210`;
+    .join(" ") || `ตำบลท่าโพธิ์ชัย อำเภอหนองกี่ จังหวัดบุรีรัมย์\u00A031210`;
 
   const infoRows = [
     { label: "รหัส Smis 8 หลัก", value: settings.smisCode8 || "31030078", icon: <span className="font-mono text-slate-400 text-[10px] font-bold">#</span> },
@@ -67,17 +67,17 @@ export default function SchoolGeneralInfoCard() {
   return (
     <section className="space-y-4">
       {/* Container Card Matching Official OBEC / SMIS Reference Image */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+      <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-[#D1DFF0] shadow-xs overflow-hidden">
         
-        {/* Navy Header Banner */}
-        <div className="bg-[#0c3759] text-white px-5 sm:px-7 py-3.5 flex items-center justify-between">
+        {/* Navy Header Banner with school accent indicator */}
+        <div className="bg-[#1E3A5F] text-white px-5 sm:px-7 py-3.5 flex items-center justify-between border-b-2 border-[#D96B34]">
           <div className="flex items-center gap-2">
-            <Info className="w-4 h-4 text-sky-300" />
+            <Info className="w-4 h-4 text-[#7EB8E0]" />
             <h3 className="font-bold text-sm sm:text-base tracking-wide">
               ข้อมูลทั่วไปโรงเรียน
             </h3>
           </div>
-          <span className="text-[11px] text-sky-200/80 font-mono">
+          <span className="text-[11px] text-[#7EB8E0] font-mono">
             ระบบฐานข้อมูลสารสนเทศ สพฐ.
           </span>
         </div>
@@ -85,7 +85,7 @@ export default function SchoolGeneralInfoCard() {
         <div className="p-5 sm:p-8 space-y-6">
           {/* Logo & School Name Header */}
           <div className="flex flex-col items-center justify-center text-center space-y-3 pb-4 border-b border-slate-100">
-            <div className="p-2.5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:scale-105 transition-transform">
+            <div className="p-2.5 rounded-2xl bg-white border border-[#D1DFF0] shadow-xs hover:scale-105 transition-transform">
               <SchoolLogo
                 size={90}
                 customLogoUrl={settings.customLogoUrl}
@@ -93,15 +93,19 @@ export default function SchoolGeneralInfoCard() {
               />
             </div>
             <div>
-              <h2 className="text-xl sm:text-2xl font-black text-[#0F2942]">
+              <h2 className="text-xl sm:text-2xl font-black text-[#1E3A5F]">
                 {settings.name}
               </h2>
-              <p className="text-xs sm:text-sm font-medium text-slate-500 font-serif tracking-wide">
+              <p className="text-xs sm:text-sm font-medium text-[#4B6080] font-serif tracking-wide">
                 {settings.nameEn}
               </p>
-              <div className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200/80 text-blue-900 text-xs font-semibold mt-2 max-w-full text-center leading-relaxed">
-                <Building2 className="w-3.5 h-3.5 text-blue-700 shrink-0" />
-                <span className="thai-wrap">สังกัด {settings.subAffiliation}</span>
+              <div className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#EBF2FF] border border-[#2F6FED]/30 text-[#1E3A5F] text-xs font-semibold mt-2 max-w-full text-center leading-relaxed">
+                <Building2 className="w-3.5 h-3.5 text-[#2F6FED] shrink-0" />
+                <span className="leading-relaxed">
+                  <span className="inline">สังกัด สำนักงานเขตพื้นที่การศึกษาประถมศึกษา</span>
+                  <span className="inline">&nbsp;</span>
+                  <span className="inline-block whitespace-nowrap font-bold">บุรีรัมย์&nbsp;เขต&nbsp;3</span>
+                </span>
               </div>
             </div>
           </div>
@@ -134,27 +138,27 @@ export default function SchoolGeneralInfoCard() {
           </div>
 
           {/* Desktop View: Official Specification Table (Balanced max-width & clean layout on PC) */}
-          <div className="hidden sm:block max-w-4xl mx-auto overflow-hidden rounded-2xl border border-slate-200 shadow-2xs">
+          <div className="hidden sm:block max-w-4xl mx-auto overflow-hidden rounded-2xl border border-[#D1DFF0] shadow-2xs">
             <table className="w-full text-xs sm:text-sm border-collapse">
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-[#D1DFF0]">
                 {infoRows.map((row, idx) => (
                   <tr
                     key={row.label}
                     className={`transition-colors ${
-                      idx % 2 === 0 ? "bg-white" : "bg-slate-50/40"
-                    } hover:bg-blue-50/40`}
+                      idx % 2 === 0 ? "bg-white" : "bg-[#EAF2FB]/30"
+                    } hover:bg-[#EBF2FF]/60`}
                   >
-                    <td className="py-2.5 px-5 font-semibold text-slate-600 w-64 sm:w-72 whitespace-nowrap bg-slate-50/80 border-r border-slate-100">
-                      <span className="mr-2.5 opacity-70">{row.icon}</span>
+                    <td className="py-2.5 px-5 font-semibold text-[#1E3A5F] w-64 sm:w-72 whitespace-nowrap bg-[#EAF2FB]/60 border-r border-[#D1DFF0]">
+                      <span className="mr-2.5 opacity-80">{row.icon}</span>
                       {row.label}
                     </td>
-                    <td className="py-2.5 px-5 text-slate-800 font-medium thai-wrap">
+                    <td className="py-2.5 px-5 text-[#0F1F30] font-medium thai-wrap">
                       {row.isLink ? (
                         <a
                           href={row.value}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 hover:underline font-semibold"
+                          className="inline-flex items-center gap-1.5 text-[#2F6FED] hover:underline font-semibold"
                         >
                           <span>{row.displayValue || row.value}</span>
                           <ExternalLink className="w-3.5 h-3.5 shrink-0" />
@@ -170,16 +174,16 @@ export default function SchoolGeneralInfoCard() {
           </div>
 
           {/* Timestamp footer from SMIS */}
-          <div className="text-center text-[11px] text-slate-400 pt-2 border-t border-slate-100">
-            (ข้อมูลทางการสถานศึกษา สังกัด สพป. บุรีรัมย์ เขต 3 ปีการศึกษา 2569)
+          <div className="text-center text-[11px] text-[#6B7FA0] pt-2 border-t border-[#D1DFF0]">
+            (ข้อมูลทางการสถานศึกษา สังกัด สพป.&nbsp;บุรีรัมย์&nbsp;เขต&nbsp;3 ปีการศึกษา 2569)
           </div>
         </div>
 
         {/* ================= 4 CLEAN QUICK ACTION ACCESS TILES ================= */}
-        <div className="bg-slate-50/80 border-t border-slate-200/90 p-4 sm:p-6">
+        <div className="bg-[#EAF2FB]/50 border-t border-[#D1DFF0] p-4 sm:p-6">
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-[#0F2942]">
-              <Sparkles className="w-3.5 h-3.5 text-blue-700" />
+            <div className="flex items-center gap-1.5 text-xs font-bold text-[#1E3A5F]">
+              <Sparkles className="w-3.5 h-3.5 text-[#2F6FED]" />
               <span>เข้าถึงข้อมูลเชิงลึกและบริการสถานศึกษา (คลิกเพื่อเข้าชม)</span>
             </div>
           </div>
@@ -188,19 +192,19 @@ export default function SchoolGeneralInfoCard() {
             {/* Tile 1: รายงานผลวิชาการ O-NET / NT / RT */}
             <Link
               href="/academic"
-              className="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-blue-400 shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between group"
+              className="p-3.5 rounded-2xl bg-white border border-[#D1DFF0] hover:border-[#2F6FED] shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between group"
             >
               <div className="flex items-center justify-between mb-2">
-                <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 border border-blue-100 flex items-center justify-center group-hover:bg-blue-700 group-hover:text-white transition-all">
+                <div className="w-8 h-8 rounded-xl bg-[#EBF2FF] text-[#2F6FED] border border-[#2F6FED]/20 flex items-center justify-center group-hover:bg-[#2F6FED] group-hover:text-white transition-all">
                   <Award className="w-4 h-4" />
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-700 transition-colors" />
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#2F6FED] transition-colors" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-[#0F2942] group-hover:text-blue-700 transition-colors">
+                <h4 className="text-xs font-bold text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors">
                   ผลสัมฤทธิ์ O-NET • NT • RT
                 </h4>
-                <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5">
+                <p className="text-[11px] text-[#6B7FA0] line-clamp-2 mt-0.5">
                   วิเคราะห์เปรียบเทียบ 3 ระดับ โรงเรียน เขตพื้นที่ ประเทศ
                 </p>
               </div>
@@ -209,19 +213,19 @@ export default function SchoolGeneralInfoCard() {
             {/* Tile 2: สถิติและจำนวนนักเรียน */}
             <Link
               href="/#student-stats"
-              className="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-400 shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between group"
+              className="p-3.5 rounded-2xl bg-white border border-[#D1DFF0] hover:border-emerald-500 shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between group"
             >
               <div className="flex items-center justify-between mb-2">
-                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center justify-center group-hover:bg-emerald-700 group-hover:text-white transition-all">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-all">
                   <Users className="w-4 h-4" />
                 </div>
                 <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-700 transition-colors" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-[#0F2942] group-hover:text-emerald-700 transition-colors">
+                <h4 className="text-xs font-bold text-[#1E3A5F] group-hover:text-emerald-700 transition-colors">
                   สถิตินักเรียน
                 </h4>
-                <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5">
+                <p className="text-[11px] text-[#6B7FA0] line-clamp-2 mt-0.5">
                   จำแนกตามชั้นเรียน อ.2 - ป.6 และสัดส่วนเพศ
                 </p>
               </div>
@@ -230,19 +234,19 @@ export default function SchoolGeneralInfoCard() {
             {/* Tile 3: บุคลากรทางการศึกษา */}
             <Link
               href="/personnel"
-              className="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-amber-400 shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between group"
+              className="p-3.5 rounded-2xl bg-white border border-[#D1DFF0] hover:border-[#D96B34] shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between group"
             >
               <div className="flex items-center justify-between mb-2">
-                <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 border border-amber-100 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-all">
+                <div className="w-8 h-8 rounded-xl bg-[#D96B34]/15 text-[#D96B34] border border-[#D96B34]/30 flex items-center justify-center group-hover:bg-[#D96B34] group-hover:text-white transition-all">
                   <GraduationCap className="w-4 h-4" />
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-amber-700 transition-colors" />
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#D96B34] transition-colors" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-[#0F2942] group-hover:text-amber-700 transition-colors">
+                <h4 className="text-xs font-bold text-[#1E3A5F] group-hover:text-[#D96B34] transition-colors">
                   ทำเนียบบุคลากร
                 </h4>
-                <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5">
+                <p className="text-[11px] text-[#6B7FA0] line-clamp-2 mt-0.5">
                   ฝ่ายบริหาร คณะครู และบุคลากรทางการศึกษา
                 </p>
               </div>
@@ -251,19 +255,19 @@ export default function SchoolGeneralInfoCard() {
             {/* Tile 4: เอกสารและแบบฟอร์มดาวน์โหลด */}
             <Link
               href="/downloads"
-              className="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-purple-400 shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between group"
+              className="p-3.5 rounded-2xl bg-white border border-[#D1DFF0] hover:border-[#2F6FED] shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between group"
             >
               <div className="flex items-center justify-between mb-2">
-                <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-700 border border-purple-100 flex items-center justify-center group-hover:bg-purple-700 group-hover:text-white transition-all">
+                <div className="w-8 h-8 rounded-xl bg-[#EBF2FF] text-[#1E3A5F] border border-[#2F6FED]/20 flex items-center justify-center group-hover:bg-[#1E3A5F] group-hover:text-white transition-all">
                   <FolderDown className="w-4 h-4" />
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-purple-700 transition-colors" />
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#2F6FED] transition-colors" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-[#0F2942] group-hover:text-purple-700 transition-colors">
+                <h4 className="text-xs font-bold text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors">
                   คลังเอกสารและดาวน์โหลด
                 </h4>
-                <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5">
+                <p className="text-[11px] text-[#6B7FA0] line-clamp-2 mt-0.5">
                   แผนปฏิบัติการ แบบฟอร์มคำร้อง และเอกสารเผยแพร่
                 </p>
               </div>

@@ -81,7 +81,7 @@ export default function AdminCalendarPage() {
       Swal.fire({
         icon: "warning",
         title: "กรุณาระบุชื่อกิจกรรม",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#2F6FED",
       });
       return;
     }
@@ -154,19 +154,19 @@ export default function AdminCalendarPage() {
     <div className="space-y-6">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-6 right-6 z-50 bg-[#0F2942] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-amber-400/40 animate-in fade-in slide-in-from-top-4">
-          <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0" />
+        <div className="fixed top-6 right-6 z-50 bg-[#1E3A5F] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-[#D96B34]/40 animate-in fade-in slide-in-from-top-4">
+          <CheckCircle2 className="w-5 h-5 text-[#D96B34] shrink-0" />
           <span className="text-xs sm:text-sm font-semibold">{toastMessage}</span>
         </div>
       )}
 
       {/* Header Bar */}
-      <div className="bg-white rounded-3xl p-6 border border-[#E5E7EB] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="glass-card-admin rounded-2xl p-6 border border-[#D1DFF0] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-bold text-amber-600 uppercase tracking-wide">
+          <span className="text-xs font-bold text-[#D96B34] uppercase tracking-wide">
             ปฏิทินและกำหนดการ
           </span>
-          <h1 className="text-xl sm:text-2xl font-black text-[#0F2942] mt-1">
+          <h1 className="text-xl sm:text-2xl font-black text-[#1E3A5F] mt-1">
             จัดการปฏิทินกิจกรรมโรงเรียน ({eventList.length} รายการ)
           </h1>
           <p className="text-xs text-slate-500 mt-1">
@@ -177,15 +177,15 @@ export default function AdminCalendarPage() {
         <button
           type="button"
           onClick={handleOpenAdd}
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-[#0F2942] to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold text-xs shadow-md hover:shadow-lg transition-all min-h-[44px] cursor-pointer"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#2F6FED] hover:bg-[#255bc4] text-white font-bold text-xs shadow-sm hover:shadow-md transition-all min-h-[44px] cursor-pointer box-border shrink-0"
         >
-          <Plus className="w-4 h-4 text-amber-400" />
+          <Plus className="w-4 h-4 text-white" />
           <span>เพิ่มกิจกรรมใหม่</span>
         </button>
       </div>
 
       {/* Search Toolbar */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#E5E7EB] shadow-xs flex items-center justify-between">
+      <div className="glass-card-admin rounded-2xl p-4 sm:p-5 border border-[#D1DFF0] shadow-sm flex items-center justify-between">
         <div className="relative w-full sm:w-80">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -193,30 +193,30 @@ export default function AdminCalendarPage() {
             placeholder="ค้นหาชื่อกิจกรรม หรือวันที่..."
             value={searchWord}
             onChange={(e) => setSearchWord(e.target.value)}
-            className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20"
+            className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border border-[#D1DFF0] bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/20"
           />
         </div>
       </div>
 
       {/* Events List */}
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-xs overflow-hidden divide-y divide-slate-100">
+      <div className="glass-card-admin rounded-2xl border border-[#D1DFF0] shadow-sm overflow-hidden divide-y divide-slate-100">
         {filtered.map((ev) => (
           <div
             key={ev.id}
             className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/70 transition-colors text-xs"
           >
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#0F2942] to-blue-800 text-white flex flex-col items-center justify-center shrink-0 shadow-xs">
-                <CalendarIcon className="w-4 h-4 text-amber-400" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1E3A5F] to-[#2F6FED] text-white flex flex-col items-center justify-center shrink-0 shadow-xs">
+                <CalendarIcon className="w-4 h-4 text-white" />
                 <span className="text-[10px] font-bold mt-0.5">
                   {ev.date.split(" ")[0] || "วัน"}
                 </span>
               </div>
               <div>
-                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200/80 mb-1 inline-block">
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#2F6FED]/10 text-[#2F6FED] border border-[#2F6FED]/30 mb-1 inline-block">
                   {ev.category}
                 </span>
-                <h3 className="font-bold text-sm text-[#0F2942]">{ev.title}</h3>
+                <h3 className="font-bold text-sm text-[#1E3A5F]">{ev.title}</h3>
                 <div className="flex flex-wrap items-center gap-3 text-slate-500 mt-1 font-medium">
                   <span className="flex items-center gap-1">
                     <CalendarIcon className="w-3.5 h-3.5 text-slate-400" />
@@ -265,14 +265,14 @@ export default function AdminCalendarPage() {
       {/* ================= MODAL: เพิ่ม/แก้ไขกิจกรรม ================= */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
-          <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 sm:p-8 space-y-6 relative my-8">
+          <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-[#D1DFF0] p-6 sm:p-8 space-y-6 relative my-8">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-xl bg-[#2F6FED]/10 text-[#2F6FED] flex items-center justify-center font-bold">
                   <CalendarIcon className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-black text-[#0F2942]">
+                  <h3 className="text-base sm:text-lg font-black text-[#1E3A5F]">
                     {editingId ? "แก้ไขข้อมูลกิจกรรม" : "เพิ่มกิจกรรมปฏิทินใหม่"}
                   </h3>
                   <p className="text-xs text-slate-400">กำหนดวัน เวลา และสถานที่</p>
@@ -299,7 +299,7 @@ export default function AdminCalendarPage() {
                   placeholder="เช่น เปิดภาคเรียนที่ 1, พิธีไหว้ครู..."
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#2F6FED]"
                 />
               </div>
 
@@ -311,7 +311,7 @@ export default function AdminCalendarPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, category: e.target.value as CalendarEvent["category"] })
                   }
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#2F6FED] bg-slate-50"
                 >
                   {CALENDAR_CATEGORIES.map((cat) => (
                     <option key={cat} value={cat}>
@@ -331,7 +331,7 @@ export default function AdminCalendarPage() {
                     placeholder="เช่น 16 พ.ค. 2569"
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#2F6FED]"
                   />
                 </div>
                 <div>
@@ -342,7 +342,7 @@ export default function AdminCalendarPage() {
                     placeholder="เช่น 08:30 - 16:30 น."
                     value={formData.time}
                     onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#2F6FED]"
                   />
                 </div>
               </div>
@@ -355,7 +355,7 @@ export default function AdminCalendarPage() {
                   placeholder="เช่น หอประชุมโรงเรียน, ห้องธุรการ..."
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#2F6FED]"
                 />
               </div>
 
@@ -370,7 +370,7 @@ export default function AdminCalendarPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold shadow-md hover:shadow-lg transition-all"
+                  className="px-5 py-2.5 rounded-xl bg-[#2F6FED] hover:bg-[#255bc4] text-white text-xs font-bold shadow-sm hover:shadow-md transition-all"
                 >
                   {editingId ? "บันทึกการแก้ไข" : "เพิ่มกิจกรรม"}
                 </button>

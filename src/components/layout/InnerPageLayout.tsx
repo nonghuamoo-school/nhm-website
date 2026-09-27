@@ -24,17 +24,17 @@ export default function InnerPageLayout({
 }: InnerPageLayoutProps) {
   return (
     <div className="space-y-6 sm:space-y-8">
-      {/* Compact Page Header with Breadcrumbs */}
-      <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E5E7EB] shadow-xs">
+      {/* Compact Page Header with Breadcrumbs: Glassmorphism */}
+      <div className="bg-white/80 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-[#D1DFF0] shadow-xs">
         {/* Breadcrumb Navigation */}
         <nav aria-label="Breadcrumb" className="mb-3">
-          <ol className="flex items-center flex-wrap gap-1.5 text-xs text-slate-500">
+          <ol className="flex items-center flex-wrap gap-1.5 text-xs text-[#4B6080]">
             <li className="flex items-center gap-1.5">
               <Link
                 href="/"
-                className="hover:text-[#0F2942] transition-colors flex items-center gap-1"
+                className="hover:text-[#2F6FED] transition-colors flex items-center gap-1 text-[#1E3A5F] font-medium"
               >
-                <Home className="w-3.5 h-3.5" />
+                <Home className="w-3.5 h-3.5 text-[#2F6FED]" />
                 <span>หน้าแรก</span>
               </Link>
             </li>
@@ -44,13 +44,13 @@ export default function InnerPageLayout({
                 <li key={index} className="flex items-center gap-1.5">
                   <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                   {isLast || !item.href ? (
-                    <span className="font-semibold text-slate-800" aria-current="page">
+                    <span className="font-semibold text-[#0F1F30]" aria-current="page">
                       {item.label}
                     </span>
                   ) : (
                     <Link
                       href={item.href}
-                      className="hover:text-[#0F2942] transition-colors"
+                      className="hover:text-[#2F6FED] transition-colors text-[#4B6080]"
                     >
                       {item.label}
                     </Link>
@@ -61,14 +61,15 @@ export default function InnerPageLayout({
           </ol>
         </nav>
 
-        {/* Title and Short Description */}
+        {/* Title with school accent line and Short Description */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#0F2942] tracking-tight leading-snug thai-wrap">
-              {title}
+            <h1 className="text-xl sm:text-2xl font-bold text-[#1E3A5F] tracking-tight leading-snug thai-wrap flex items-center gap-2.5">
+              <span className="w-1.5 h-6 bg-[#D96B34] rounded-full shrink-0" />
+              <span>{title}</span>
             </h1>
             {description && (
-              <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed thai-wrap">
+              <p className="text-xs sm:text-sm text-[#4B6080] mt-1.5 max-w-4xl lg:max-w-5xl leading-relaxed thai-wrap pl-4">
                 {description}
               </p>
             )}
@@ -77,7 +78,7 @@ export default function InnerPageLayout({
 
         {/* Optional Toolbar (Search, Filter, Actions) */}
         {toolbar && (
-          <div className="mt-4 pt-4 border-t border-[#E5E7EB]">
+          <div className="mt-4 pt-4 border-t border-[#D1DFF0]">
             {toolbar}
           </div>
         )}

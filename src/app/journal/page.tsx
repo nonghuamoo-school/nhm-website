@@ -20,6 +20,7 @@ import InnerPageLayout from "@/components/layout/InnerPageLayout";
 import { useNews } from "@/hooks/useNews";
 import { NewsItem } from "@/types";
 import { formatThaiTitle } from "@/lib/thaiTypography";
+import OptimizedNewsImage from "@/components/common/OptimizedNewsImage";
 
 export default function JournalPage() {
   const { newsList } = useNews();
@@ -50,22 +51,22 @@ export default function JournalPage() {
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
       {/* Total Count Badge */}
       <div className="flex items-center gap-2">
-        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F2942] text-white text-xs font-bold shadow-2xs">
-          <BookOpen className="w-4 h-4 text-amber-400" />
+        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1E3A5F] text-white text-xs font-bold shadow-xs">
+          <BookOpen className="w-4 h-4 text-[#D96B34]" />
           <span>วารสารประชาสัมพันธ์ทั้งหมด ({journalItems.length} ฉบับ)</span>
         </span>
       </div>
 
       {/* Year Filter & Search Bar */}
       <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
-        <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-[#E5E7EB] text-xs font-semibold shadow-2xs">
+        <div className="flex items-center gap-1 bg-white/90 p-1 rounded-xl border border-[#D1DFF0] text-xs font-semibold shadow-xs">
           {["ทั้งหมด", "2569", "2568"].map((year) => (
             <button
               key={year}
               onClick={() => setSelectedYear(year)}
               className={`px-3 py-1.5 rounded-lg transition-colors ${
                 selectedYear === year
-                  ? "bg-[#0F2942] text-white shadow-2xs"
+                  ? "bg-[#1E3A5F] text-white shadow-xs"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -81,7 +82,7 @@ export default function JournalPage() {
             placeholder="ค้นหาชื่อวารสาร หรือฉบับที่..."
             value={searchWord}
             onChange={(e) => setSearchWord(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20 focus:border-[#0F2942] min-h-[38px]"
+            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-[#D1DFF0] bg-white/90 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2F6FED] focus:border-[#2F6FED] min-h-[38px]"
           />
         </div>
       </div>
@@ -97,16 +98,16 @@ export default function JournalPage() {
     >
       <div className="space-y-8">
         {/* Info Banner */}
-        <div className="bg-gradient-to-r from-amber-50 via-orange-50/50 to-amber-50/30 rounded-3xl p-5 sm:p-6 border border-amber-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="glass-card rounded-3xl p-5 sm:p-6 border border-[#D1DFF0] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-start sm:items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold text-xl shrink-0 shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-[#1E3A5F] text-[#D96B34] flex items-center justify-center font-bold text-xl shrink-0 shadow-sm border border-[#D1DFF0]">
               📰
             </div>
             <div>
-              <h3 className="text-sm sm:text-base font-bold text-amber-950">
+              <h3 className="text-sm sm:text-base font-bold text-[#1E3A5F]">
                 บอร์ดจดหมายข่าวและวารสารประชาสัมพันธ์อิเล็กทรอนิกส์ (E-Newsletters)
               </h3>
-              <p className="text-xs text-amber-800/90 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 คลิกที่รูปป้ายวารสารเพื่อซูมอ่านตัวหนังสือขนาดเต็ม หรือกดบันทึกรูปภาพลงในอุปกรณ์ของคุณ
               </p>
             </div>
@@ -116,7 +117,7 @@ export default function JournalPage() {
             href="https://www.facebook.com/profile.php?id=100071517975903"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#1877F2] hover:bg-[#166FE5] text-white text-xs font-bold shadow-xs transition-colors shrink-0"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#2F6FED] hover:bg-[#2558CA] text-white text-xs font-bold shadow-xs transition-colors shrink-0"
           >
             <span>เปิดดูอัลบั้มบน Facebook</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -130,20 +131,23 @@ export default function JournalPage() {
             return (
               <div
                 key={item.id}
-                className="bg-white rounded-3xl border border-[#E5E7EB] shadow-xs hover:border-amber-300 hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group"
+                className="glass-card rounded-3xl border border-[#D1DFF0] shadow-xs hover:border-[#2F6FED]/60 hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group"
               >
                 <div>
                   {/* Poster Thumbnail Box (Aspect Ratio 1414/2000 ~ 1:1.414 A4) */}
                   <div className="relative aspect-[1414/2000] w-full bg-slate-50 overflow-hidden flex items-center justify-center p-2.5 border-b border-slate-100">
-                    <img
+                    <OptimizedNewsImage
                       src={posterUrl}
                       alt={item.title}
+                      fill
+                      loading="lazy"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       className="w-full h-full object-contain rounded-2xl transition-transform duration-300 group-hover:scale-102"
                     />
 
                     {/* Issue Badge Top Left */}
                     <div className="absolute top-4 left-4 flex flex-col gap-1">
-                      <span className="px-3 py-1 rounded-xl bg-[#0F2942]/90 backdrop-blur-xs text-white text-[11px] font-bold shadow-md">
+                      <span className="px-3 py-1 rounded-xl bg-[#1E3A5F]/90 backdrop-blur-xs text-white text-[11px] font-bold shadow-md">
                         {item.issueNumber || "จดหมายข่าว"}
                       </span>
                     </div>
@@ -159,9 +163,9 @@ export default function JournalPage() {
                             issue: item.issueNumber,
                           })
                         }
-                        className="px-4 py-2.5 rounded-xl bg-white text-[#0F2942] font-bold text-xs shadow-lg hover:bg-slate-100 transition-all flex items-center gap-1.5 cursor-pointer"
+                        className="px-4 py-2.5 rounded-xl bg-white text-[#1E3A5F] font-bold text-xs shadow-lg hover:bg-slate-100 transition-all flex items-center gap-1.5 cursor-pointer"
                       >
-                        <Maximize2 className="w-4 h-4 text-blue-600" />
+                        <Maximize2 className="w-4 h-4 text-[#2F6FED]" />
                         <span>ซูมดูป้ายขนาดเต็ม</span>
                       </button>
                     </div>
@@ -174,7 +178,7 @@ export default function JournalPage() {
                       <span>{item.date}</span>
                     </div>
 
-                    <h4 className="font-bold text-sm text-[#0F2942] group-hover:text-blue-900 transition-colors line-clamp-2 leading-snug thai-wrap">
+                    <h4 className="font-bold text-sm text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors line-clamp-2 leading-snug thai-wrap">
                       <Link href={`/news/${item.id}`}>{formatThaiTitle(item.title)}</Link>
                     </h4>
                   </div>
@@ -184,7 +188,7 @@ export default function JournalPage() {
                 <div className="p-4 sm:p-5 pt-0 border-t border-slate-100 mt-2 flex items-center justify-between">
                   <Link
                     href={`/news/${item.id}`}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0F2942] hover:text-blue-700 pt-2"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1E3A5F] hover:text-[#2F6FED] pt-2"
                   >
                     <span>อ่านรายละเอียด</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -195,7 +199,7 @@ export default function JournalPage() {
                       href={item.facebookUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-[11px] font-bold text-[#1877F2] hover:underline pt-2"
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-[#2F6FED] hover:underline pt-2"
                     >
                       <span className="font-mono">f</span>
                       <span>อัลบั้มเต็ม</span>
@@ -227,7 +231,7 @@ export default function JournalPage() {
             {/* Lightbox Toolbar */}
             <div className="w-full flex items-center justify-between pb-3 text-white px-2">
               <div className="flex items-center gap-2 truncate max-w-[70%]">
-                <span className="px-2.5 py-0.5 rounded-lg bg-amber-500 text-white font-bold text-xs shrink-0">
+                <span className="px-2.5 py-0.5 rounded-lg bg-[#2F6FED] text-white font-bold text-xs shrink-0">
                   {lightboxItem.issue || "วารสารประชาสัมพันธ์"}
                 </span>
                 <span className="text-xs sm:text-sm font-semibold truncate">

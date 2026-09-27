@@ -46,7 +46,7 @@ export default function UpcomingActivities() {
     <section>
       <div className="flex items-end justify-between gap-4 mb-6">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#0F2942] tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#1E3A5F] tracking-tight">
             กิจกรรมและกำหนดการสำคัญ
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -56,7 +56,7 @@ export default function UpcomingActivities() {
 
         <Link
           href="/calendar"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0F2942] hover:text-blue-900 bg-white px-3.5 py-2 rounded-xl border border-[#E5E7EB] shadow-2xs transition-colors shrink-0 min-h-[40px]"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1E3A5F] hover:text-[#2F6FED] bg-white px-3.5 py-2 rounded-xl border border-[#E5E7EB] shadow-2xs transition-colors shrink-0 min-h-[40px]"
         >
           <span>ดูปฏิทินทั้งหมด</span>
           <ArrowRight className="w-3.5 h-3.5" />
@@ -72,7 +72,7 @@ export default function UpcomingActivities() {
           >
             <div className="flex items-start sm:items-center gap-4">
               {/* Date Box */}
-              <div className="w-13 h-13 rounded-xl bg-[#0F2942] text-white flex flex-col items-center justify-center shrink-0 shadow-xs">
+              <div className="w-13 h-13 rounded-xl bg-[#1E3A5F] text-white flex flex-col items-center justify-center shrink-0 shadow-xs">
                 <span className="text-base font-black leading-none">{item.day}</span>
                 <span className="text-[10px] font-semibold text-amber-300 mt-0.5 uppercase">
                   {item.month}
@@ -85,7 +85,7 @@ export default function UpcomingActivities() {
                     {item.category}
                   </span>
                 </div>
-                <h3 className="text-sm sm:text-base font-bold text-[#0F2942]">
+                <h3 className="text-sm sm:text-base font-bold text-[#1E3A5F]">
                   {item.title}
                 </h3>
                 <div className="flex items-center gap-4 text-xs text-slate-400 mt-1">
@@ -104,7 +104,7 @@ export default function UpcomingActivities() {
             <div className="self-end sm:self-center">
               <Link
                 href="/calendar"
-                className="text-xs font-semibold text-[#0F2942] hover:text-blue-900 flex items-center gap-1"
+                className="text-xs font-semibold text-[#1E3A5F] hover:text-[#2F6FED] flex items-center gap-1"
               >
                 <span>รายละเอียด</span>
                 <ArrowRight className="w-3 h-3" />

@@ -137,13 +137,13 @@ export default function DownloadsPage() {
   const toolbar = (
     <div className="flex flex-col gap-3">
       {/* 3 Main Segmented Tabs */}
-      <div className="flex flex-wrap items-center gap-2 p-1 bg-slate-100/90 rounded-2xl border border-slate-200 w-fit">
+      <div className="flex flex-wrap items-center gap-2 p-1.5 bg-[#EAF2FB]/70 backdrop-blur-sm rounded-2xl border border-[#D1DFF0] w-fit">
         <button
           onClick={() => setActiveTab("documents")}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all min-h-[38px] ${
             activeTab === "documents"
-              ? "bg-[#0F2942] text-white shadow-xs"
-              : "text-slate-600 hover:text-slate-900"
+              ? "bg-[#1E3A5F] text-white shadow-xs"
+              : "text-[#1E3A5F] hover:bg-[#EBF2FF]"
           }`}
         >
           <FileText className="w-4 h-4" />
@@ -154,8 +154,8 @@ export default function DownloadsPage() {
           onClick={() => setActiveTab("inventory")}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all min-h-[38px] ${
             activeTab === "inventory"
-              ? "bg-[#0F2942] text-white shadow-xs"
-              : "text-slate-600 hover:text-slate-900"
+              ? "bg-[#1E3A5F] text-white shadow-xs"
+              : "text-[#1E3A5F] hover:bg-[#EBF2FF]"
           }`}
         >
           <FileSpreadsheet className="w-4 h-4" />
@@ -166,8 +166,8 @@ export default function DownloadsPage() {
           onClick={() => setActiveTab("studentStats")}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all min-h-[38px] ${
             activeTab === "studentStats"
-              ? "bg-[#0F2942] text-white shadow-xs"
-              : "text-slate-600 hover:text-slate-900"
+              ? "bg-[#1E3A5F] text-white shadow-xs"
+              : "text-[#1E3A5F] hover:bg-[#EBF2FF]"
           }`}
         >
           <Users className="w-4 h-4" />
@@ -185,8 +185,8 @@ export default function DownloadsPage() {
                 onClick={() => setSelectedDocCategory(cat)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors min-h-[36px] ${
                   selectedDocCategory === cat
-                    ? "bg-[#0F2942] text-white shadow-2xs"
-                    : "bg-[#F8FAFC] text-slate-600 hover:bg-slate-200/80 border border-[#E5E7EB]"
+                    ? "bg-[#1E3A5F] text-white shadow-2xs"
+                    : "bg-white/80 text-[#1E3A5F] hover:bg-[#EBF2FF] border border-[#D1DFF0]"
                 }`}
               >
                 {cat}
@@ -195,13 +195,13 @@ export default function DownloadsPage() {
           </div>
 
           <div className="relative w-full sm:w-72">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#6B7FA0] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="ค้นหาชื่อหรือรายละเอียดเอกสาร..."
               value={docSearch}
               onChange={(e) => setDocSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20 focus:border-[#0F2942] min-h-[38px]"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-[#D1DFF0] bg-[#EAF2FB]/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/25 focus:border-[#2F6FED] min-h-[38px] text-[#0F1F30]"
             />
           </div>
         </div>
@@ -210,8 +210,8 @@ export default function DownloadsPage() {
       {activeTab === "inventory" && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
           <div className="flex items-center gap-2 w-full sm:w-auto">
-            <span className="text-xs font-bold text-slate-500 flex items-center gap-1">
-              <Filter className="w-3.5 h-3.5" />
+            <span className="text-xs font-bold text-[#1E3A5F] flex items-center gap-1">
+              <Filter className="w-3.5 h-3.5 text-[#D96B34]" />
               <span>สถานะ:</span>
             </span>
             {["ทั้งหมด", "ใช้งานได้ปกติ", "รอซ่อมบำรุง", "ชำรุด/จำหน่าย"].map((status) => (
@@ -220,8 +220,8 @@ export default function DownloadsPage() {
                 onClick={() => setAssetStatusFilter(status)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors min-h-[34px] ${
                   assetStatusFilter === status
-                    ? "bg-[#0F2942] text-white shadow-2xs"
-                    : "bg-[#F8FAFC] text-slate-600 hover:bg-slate-200/80 border border-[#E5E7EB]"
+                    ? "bg-[#1E3A5F] text-white shadow-2xs"
+                    : "bg-white/80 text-[#1E3A5F] hover:bg-[#EBF2FF] border border-[#D1DFF0]"
                 }`}
               >
                 {status}
@@ -255,7 +255,7 @@ export default function DownloadsPage() {
       {activeTab === "studentStats" && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-[#0F2942]">เลือกปีการศึกษา:</span>
+            <span className="text-xs font-bold text-[#1E3A5F]">เลือกปีการศึกษา:</span>
             <div className="flex items-center gap-1">
               {availableStudentYears.map((yr) => (
                 <button
@@ -263,15 +263,15 @@ export default function DownloadsPage() {
                   onClick={() => setSelectedYear(yr)}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors min-h-[34px] ${
                     activeStudentYear === yr
-                      ? "bg-[#0F2942] text-white shadow-2xs"
-                      : "bg-[#F8FAFC] text-slate-600 hover:bg-slate-200/80 border border-[#E5E7EB]"
+                      ? "bg-[#1E3A5F] text-white shadow-2xs"
+                      : "bg-white/80 text-[#1E3A5F] hover:bg-[#EBF2FF] border border-[#D1DFF0]"
                   }`}
                 >
                   ปีการศึกษา {yr}
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-slate-400 ml-2">
+            <span className="text-[11px] text-[#6B7FA0] ml-2">
               (ข้อมูล ณ วันที่ {currentStats.updatedDate})
             </span>
           </div>
@@ -292,19 +292,19 @@ export default function DownloadsPage() {
     <InnerPageLayout
       breadcrumbs={[{ label: "ดาวน์โหลดเอกสารและสถิติ" }]}
       title="คลังเอกสาร ทะเบียนครุภัณฑ์ และสถิติข้อมูล"
-      description="ศูนย์กลางดาวน์โหลดแบบฟอร์ม แผนพัฒนาการจัดการศึกษา ทะเบียนสินทรัพย์ และข้อมูลสถิติการศึกษา โรงเรียนบ้านหนองหัวหมู สพป. บุรีรัมย์ เขต 3"
+      description="ศูนย์กลางดาวน์โหลดแบบฟอร์ม แผนพัฒนาการจัดการศึกษา ทะเบียนสินทรัพย์ และข้อมูลสถิติการศึกษา โรงเรียนบ้านหนองหัวหมู สพป. บุรีรัมย์ เขต\u00A03"
       toolbar={toolbar}
     >
-      {/* TAB 1: Documents & Forms with Drive Reader */}
+      {/* TAB 1: Documents & Forms with Drive Reader: Glassmorphism */}
       {activeTab === "documents" && (
         <div className="space-y-4">
-          <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-xs overflow-hidden divide-y divide-slate-100">
+          <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-[#D1DFF0] shadow-xs overflow-hidden divide-y divide-[#D1DFF0]">
             {filteredDocs.map((doc) => {
               const media = resolveDocumentMedia(doc);
               return (
                 <div
                   key={doc.id}
-                  className="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:bg-slate-50/70 transition-colors"
+                  className="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:bg-[#EBF2FF]/30 transition-colors"
                 >
                   <div className="flex items-start gap-3.5">
                     <div
@@ -313,7 +313,7 @@ export default function DownloadsPage() {
                           ? "bg-red-50 text-red-600 border border-red-200"
                           : doc.fileType === "XLSX"
                           ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                          : "bg-blue-50 text-blue-700 border border-blue-200"
+                          : "bg-[#EBF2FF] text-[#2F6FED] border border-[#2F6FED]/25"
                       }`}
                     >
                       <FileText className="w-4 h-4 mb-0.5" />
@@ -322,20 +322,20 @@ export default function DownloadsPage() {
 
                     <div>
                       <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <span className="text-[10px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
+                        <span className="text-[10px] font-semibold text-[#1E3A5F] bg-[#EAF2FB] border border-[#D1DFF0] px-2 py-0.5 rounded">
                           {doc.category}
                         </span>
-                        <span className="text-xs text-slate-400">• วันที่: {doc.date}</span>
-                        <span className="text-xs text-slate-400">• ขนาด: {doc.fileSize}</span>
-                        <span className="text-xs text-slate-400">• ดาวน์โหลด: {doc.downloads} ครั้ง</span>
+                        <span className="text-xs text-[#6B7FA0]">• วันที่: {doc.date}</span>
+                        <span className="text-xs text-[#6B7FA0]">• ขนาด: {doc.fileSize}</span>
+                        <span className="text-xs text-[#6B7FA0]">• ดาวน์โหลด: {doc.downloads} ครั้ง</span>
                       </div>
 
-                      <h3 className="font-bold text-sm sm:text-base text-[#0F2942]">
+                      <h3 className="font-bold text-sm sm:text-base text-[#1E3A5F]">
                         {doc.title}
                       </h3>
 
                       {doc.description && (
-                        <p className="text-xs text-slate-500 mt-1 line-clamp-2 max-w-2xl leading-relaxed">
+                        <p className="text-xs text-[#4B6080] mt-1 line-clamp-2 max-w-2xl leading-relaxed">
                           {doc.description}
                         </p>
                       )}
@@ -347,9 +347,9 @@ export default function DownloadsPage() {
                     <button
                       type="button"
                       onClick={() => handleOpenPreview(doc)}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-[#0F2942] text-xs font-bold border border-slate-200 shadow-2xs transition-colors min-h-[38px] cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#EAF2FB] hover:bg-[#EBF2FF] text-[#1E3A5F] text-xs font-bold border border-[#D1DFF0] shadow-2xs transition-colors min-h-[38px] cursor-pointer"
                     >
-                      <Eye className="w-3.5 h-3.5 text-blue-700" />
+                      <Eye className="w-3.5 h-3.5 text-[#2F6FED]" />
                       <span>เปิดอ่านออนไลน์</span>
                     </button>
 
@@ -359,10 +359,10 @@ export default function DownloadsPage() {
                         href={media.driveViewUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100/80 text-blue-900 text-xs font-bold border border-blue-200 shadow-2xs transition-colors min-h-[38px]"
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#EBF2FF] hover:bg-blue-100/80 text-[#1E3A5F] text-xs font-bold border border-[#2F6FED]/30 shadow-2xs transition-colors min-h-[38px]"
                         title="เปิดไฟล์นี้บน Google Drive โดยตรง"
                       >
-                        <ExternalLink className="w-3.5 h-3.5" />
+                        <ExternalLink className="w-3.5 h-3.5 text-[#2F6FED]" />
                         <span>Google Drive</span>
                       </a>
                     )}
@@ -371,7 +371,7 @@ export default function DownloadsPage() {
                     <button
                       type="button"
                       onClick={() => triggerDocumentDownload(media.downloadUrl, media.fileName)}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-2xs transition-colors min-h-[38px] cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2F6FED] hover:bg-[#1f5bcc] text-white text-xs font-bold shadow-2xs transition-colors min-h-[38px] cursor-pointer"
                       title={`ดาวน์โหลด ${media.fileName}`}
                     >
                       <Download className="w-3.5 h-3.5" />
@@ -391,28 +391,31 @@ export default function DownloadsPage() {
         </div>
       )}
 
-      {/* TAB 2: Asset / Inventory Table with Excel Export */}
+      {/* TAB 2: Asset / Inventory Table with Excel Export: Glassmorphism */}
       {activeTab === "inventory" && (
         <div className="space-y-4">
-          <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-xs overflow-hidden">
-            <div className="p-4 bg-slate-50/70 border-b border-[#E5E7EB] flex items-center justify-between">
+          <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-[#D1DFF0] shadow-xs overflow-hidden">
+            <div className="p-4 bg-[#EAF2FB]/50 border-b border-[#D1DFF0] flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-bold text-[#0F2942]">
+                <h3 className="text-sm font-bold text-[#1E3A5F]">
                   บัญชีรายการครุภัณฑ์และสินทรัพย์สถานศึกษา
                 </h3>
-                <p className="text-[11px] text-slate-500">
-                  แสดงรายการครุภัณฑ์ที่ขึ้นทะเบียนคุมพัสดุ สพป. บุรีรัมย์ เขต 3 (พบ {filteredAssets.length} รายการ)
+                <p className="text-[11px] text-[#6B7FA0]">
+                  แสดงรายการครุภัณฑ์ที่ขึ้นทะเบียนคุมพัสดุ สพป. บุรีรัมย์ เขต&nbsp;3 (พบ {filteredAssets.length} รายการ)
                 </p>
               </div>
 
-              <span className="text-xs font-semibold text-slate-500">
+              <span className="text-xs font-semibold text-[#6B7FA0]">
                 สถานะข้อมูล: สมบูรณ์
               </span>
             </div>
 
+            <p className="text-[11px] text-[#6B7FA0] sm:hidden px-4 pt-3 flex items-center gap-1">
+              <span>👉 เลื่อนซ้าย-ขวาเพื่อดูข้อมูลครุภัณฑ์ทั้งหมด</span>
+            </p>
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-700">
-                <thead className="bg-[#F8FAFC] text-[#0F2942] font-bold border-b border-[#E5E7EB]">
+              <table className="w-full text-left text-xs text-slate-700 min-w-[700px]">
+                <thead className="bg-[#EAF2FB]/70 text-[#1E3A5F] font-bold border-b border-[#D1DFF0]">
                   <tr>
                     <th className="p-3.5 text-center w-12">ลำดับ</th>
                     <th className="p-3.5">รหัสครุภัณฑ์</th>
@@ -425,20 +428,20 @@ export default function DownloadsPage() {
                     <th className="p-3.5">หมายเหตุ</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-[#D1DFF0]">
                   {filteredAssets.map((asset, index) => (
-                    <tr key={asset.id} className="hover:bg-slate-50/80 transition-colors">
+                    <tr key={asset.id} className="hover:bg-[#EBF2FF]/40 transition-colors">
                       <td className="p-3.5 text-center font-mono text-slate-400">{index + 1}</td>
-                      <td className="p-3.5 font-mono text-[11px] font-semibold text-blue-900 whitespace-nowrap">
+                      <td className="p-3.5 font-mono text-[11px] font-semibold text-[#1E3A5F] whitespace-nowrap">
                         {asset.code}
                       </td>
-                      <td className="p-3.5 font-bold text-[#0F2942] max-w-xs">{asset.name}</td>
-                      <td className="p-3.5 text-slate-500 whitespace-nowrap">{asset.category}</td>
-                      <td className="p-3.5 text-center font-mono text-slate-600">{asset.fiscalYear}</td>
-                      <td className="p-3.5 text-center font-bold text-slate-800">
+                      <td className="p-3.5 font-bold text-[#1E3A5F] max-w-xs">{asset.name}</td>
+                      <td className="p-3.5 text-[#4B6080] whitespace-nowrap">{asset.category}</td>
+                      <td className="p-3.5 text-center font-mono text-[#4B6080]">{asset.fiscalYear}</td>
+                      <td className="p-3.5 text-center font-bold text-[#0F1F30]">
                         {asset.quantity} {asset.unit}
                       </td>
-                      <td className="p-3.5 text-slate-600">{asset.location}</td>
+                      <td className="p-3.5 text-[#4B6080]">{asset.location}</td>
                       <td className="p-3.5 text-center whitespace-nowrap">
                         <span
                           className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold ${
@@ -462,12 +465,12 @@ export default function DownloadsPage() {
                     <tr>
                       <td colSpan={9} className="text-center py-12 text-slate-400">
                         <FileSpreadsheet className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                        <p className="font-semibold text-sm text-slate-500">
+                        <p className="font-semibold text-sm text-[#4B6080]">
                           {assetsList.length === 0
                             ? "ยังไม่มีข้อมูลในทะเบียนคุมครุภัณฑ์และสินทรัพย์"
                             : "ไม่พบข้อมูลครุภัณฑ์ที่ตรงกับเงื่อนไขการค้นหา"}
                         </p>
-                        <p className="text-xs text-slate-400 mt-1">
+                        <p className="text-xs text-[#6B7FA0] mt-1">
                           {assetsList.length === 0
                             ? "เจ้าหน้าที่พัสดุสามารถเพิ่มและจัดการรายการครุภัณฑ์ได้ผ่านระบบผู้ดูแล"
                             : "ลองเปลี่ยนคำค้นหาหรือตัวกรองสถานะ"}
@@ -482,54 +485,57 @@ export default function DownloadsPage() {
         </div>
       )}
 
-      {/* TAB 3: Student Statistics Table by Grade & Gender */}
+      {/* TAB 3: Student Statistics Table by Grade & Gender: Glassmorphism */}
       {activeTab === "studentStats" && (
         <div className="space-y-6">
           {/* Summary KPIs */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="bg-white p-4 rounded-2xl border border-[#E5E7EB] shadow-xs">
-              <span className="text-[11px] font-bold text-slate-400">จำนวนนักเรียนทั้งหมด</span>
-              <div className="text-2xl font-bold text-[#0F2942] mt-1">
+            <div className="bg-white/80 backdrop-blur-md p-4 rounded-2xl border border-[#D1DFF0] shadow-xs">
+              <span className="text-[11px] font-bold text-[#6B7FA0]">จำนวนนักเรียนทั้งหมด</span>
+              <div className="text-2xl font-bold text-[#1E3A5F] mt-1">
                 {currentStats.summary.totalStudents} <span className="text-xs font-normal text-slate-500">คน</span>
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-2xl border border-[#E5E7EB] shadow-xs">
-              <span className="text-[11px] font-bold text-blue-600">นักเรียนชาย</span>
-              <div className="text-2xl font-bold text-blue-900 mt-1">
+            <div className="bg-white/80 backdrop-blur-md p-4 rounded-2xl border border-[#D1DFF0] shadow-xs">
+              <span className="text-[11px] font-bold text-[#2F6FED]">นักเรียนชาย</span>
+              <div className="text-2xl font-bold text-[#2F6FED] mt-1">
                 {currentStats.summary.totalMale} <span className="text-xs font-normal text-slate-500">คน</span>
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-2xl border border-[#E5E7EB] shadow-xs">
+            <div className="bg-white/80 backdrop-blur-md p-4 rounded-2xl border border-[#D1DFF0] shadow-xs">
               <span className="text-[11px] font-bold text-rose-600">นักเรียนหญิง</span>
-              <div className="text-2xl font-bold text-rose-900 mt-1">
+              <div className="text-2xl font-bold text-rose-800 mt-1">
                 {currentStats.summary.totalFemale} <span className="text-xs font-normal text-slate-500">คน</span>
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-2xl border border-[#E5E7EB] shadow-xs">
+            <div className="bg-white/80 backdrop-blur-md p-4 rounded-2xl border border-[#D1DFF0] shadow-xs">
               <span className="text-[11px] font-bold text-emerald-600">จำนวนห้องเรียน</span>
-              <div className="text-2xl font-bold text-emerald-900 mt-1">
+              <div className="text-2xl font-bold text-emerald-800 mt-1">
                 {currentStats.summary.totalClassrooms} <span className="text-xs font-normal text-slate-500">ห้อง</span>
               </div>
             </div>
           </div>
 
           {/* Table */}
-          <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-xs overflow-hidden">
-            <div className="p-4 bg-slate-50/70 border-b border-[#E5E7EB] flex items-center justify-between">
-              <h3 className="text-sm font-bold text-[#0F2942]">
+          <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-[#D1DFF0] shadow-xs overflow-hidden">
+            <div className="p-4 bg-[#EAF2FB]/50 border-b border-[#D1DFF0] flex items-center justify-between">
+              <h3 className="text-sm font-bold text-[#1E3A5F]">
                 ข้อมูลสถิตินักเรียน จำแนกตามระดับชั้นและเพศ (ปีการศึกษา {selectedYear})
               </h3>
-              <span className="text-xs text-slate-500">
-                โรงเรียนบ้านหนองหัวหมู สพป. บุรีรัมย์ เขต 3
+              <span className="text-xs text-[#6B7FA0] whitespace-nowrap">
+                โรงเรียนบ้านหนองหัวหมู สพป. บุรีรัมย์ เขต&nbsp;3
               </span>
             </div>
 
+            <p className="text-[11px] text-[#6B7FA0] sm:hidden px-4 pt-3 flex items-center gap-1">
+              <span>👉 เลื่อนซ้าย-ขวาเพื่อดูข้อมูลสถิตินักเรียนทั้งหมด</span>
+            </p>
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-700">
-                <thead className="bg-[#F8FAFC] text-[#0F2942] font-bold border-b border-[#E5E7EB]">
+              <table className="w-full text-left text-xs text-slate-700 min-w-[550px]">
+                <thead className="bg-[#EAF2FB]/70 text-[#1E3A5F] font-bold border-b border-[#D1DFF0]">
                   <tr>
                     <th className="p-3.5">ระดับชั้น</th>
                     <th className="p-3.5 text-center">เพศชาย (คน)</th>
@@ -539,26 +545,26 @@ export default function DownloadsPage() {
                     <th className="p-3.5 text-center">เฉลี่ยต่อห้อง</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-[#D1DFF0]">
                   {currentStats.grades.map((grade) => (
-                    <tr key={grade.grade} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="p-3.5 font-bold text-[#0F2942]">{grade.grade}</td>
-                      <td className="p-3.5 text-center font-mono text-blue-900">{grade.male}</td>
-                      <td className="p-3.5 text-center font-mono text-rose-900">{grade.female}</td>
-                      <td className="p-3.5 text-center font-mono font-bold text-slate-900">{grade.total}</td>
-                      <td className="p-3.5 text-center font-mono text-slate-600">{grade.classrooms}</td>
-                      <td className="p-3.5 text-center font-mono text-slate-400">
+                    <tr key={grade.grade} className="hover:bg-[#EBF2FF]/40 transition-colors">
+                      <td className="p-3.5 font-bold text-[#1E3A5F]">{grade.grade}</td>
+                      <td className="p-3.5 text-center font-mono text-[#2F6FED]">{grade.male}</td>
+                      <td className="p-3.5 text-center font-mono text-rose-800">{grade.female}</td>
+                      <td className="p-3.5 text-center font-mono font-bold text-[#0F1F30]">{grade.total}</td>
+                      <td className="p-3.5 text-center font-mono text-[#4B6080]">{grade.classrooms}</td>
+                      <td className="p-3.5 text-center font-mono text-[#6B7FA0]">
                         {(grade.total / grade.classrooms).toFixed(1)}
                       </td>
                     </tr>
                   ))}
                 </tbody>
-                <tfoot className="bg-slate-100/80 font-bold text-xs text-[#0F2942] border-t-2 border-slate-300">
+                <tfoot className="bg-[#EAF2FB]/80 font-bold text-xs text-[#1E3A5F] border-t-2 border-[#D1DFF0]">
                   <tr>
-                    <td className="p-3.5 text-[#0F2942]">รวมทั้งสิ้น</td>
-                    <td className="p-3.5 text-center font-mono text-blue-900">{currentStats.summary.totalMale}</td>
-                    <td className="p-3.5 text-center font-mono text-rose-900">{currentStats.summary.totalFemale}</td>
-                    <td className="p-3.5 text-center font-mono font-extrabold text-[#0F2942] text-sm">
+                    <td className="p-3.5 text-[#1E3A5F]">รวมทั้งสิ้น</td>
+                    <td className="p-3.5 text-center font-mono text-[#2F6FED]">{currentStats.summary.totalMale}</td>
+                    <td className="p-3.5 text-center font-mono text-rose-800">{currentStats.summary.totalFemale}</td>
+                    <td className="p-3.5 text-center font-mono font-extrabold text-[#1E3A5F] text-sm">
                       {currentStats.summary.totalStudents}
                     </td>
                     <td className="p-3.5 text-center font-mono">{currentStats.summary.totalClassrooms}</td>

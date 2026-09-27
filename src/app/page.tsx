@@ -1,6 +1,5 @@
 import Hero from "@/components/home/Hero";
 import LatestNews from "@/components/home/LatestNews";
-import NewsletterPosters from "@/components/home/NewsletterPosters";
 import SchoolAnalyticsDashboard from "@/components/home/SchoolAnalyticsDashboard";
 import Contact from "@/components/home/Contact";
 
@@ -10,16 +9,13 @@ export default function Home() {
       {/* 1. ข้อมูลภาพรวมสถานศึกษา (School Overview & Identity) */}
       <Hero />
 
-      {/* 2. ข่าวประชาสัมพันธ์หลัก (Latest News & Announcements - นำขึ้นด้านบน) */}
+      {/* 2. ข่าวประชาสัมพันธ์หลัก (Latest News & Announcements) */}
       <LatestNews />
 
-      {/* 3. ป้ายวารสารประชาสัมพันธ์ A4 (Newsletter Posters - อยู่ใต้ข่าวหลักและเหนือสถิติ/ติดต่อ) */}
-      <NewsletterPosters />
-
-      {/* 4. โครงสร้างประชากรนักเรียนและการกระจายตัวชั้นเรียน (Student Demographics) */}
+      {/* 3. โครงสร้างประชากรนักเรียนและการกระจายตัวชั้นเรียน (Student Demographics) */}
       <SchoolAnalyticsDashboard />
 
-      {/* 5. ติดต่อและที่ตั้งโรงเรียน (Contact & Map) */}
+      {/* 4. ติดต่อและที่ตั้งโรงเรียน (Contact & Map) */}
       <Contact />
     </div>
   );

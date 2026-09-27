@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# lighthouse and profiling
+.chrome*
+lighthouse-reports/
+*.cjs
+scratch_*.json
+PROMPTS_BACKUP.md

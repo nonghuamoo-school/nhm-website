@@ -16,20 +16,20 @@ export default function UsefulLinks() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         {/* Left: Educational Area Office banner (5 cols) */}
-        <div className="lg:col-span-5 bg-gradient-to-br from-[#0F2942] via-[#163C61] to-[#0A1D30] text-white rounded-2xl p-6 flex flex-col justify-between shadow-xs border border-blue-900/50">
+        <div className="lg:col-span-5 bg-gradient-to-br from-[#1E3A5F] via-[#0F2540] to-[#0A192F] text-white rounded-2xl p-6 flex flex-col justify-between shadow-xs border border-blue-900/50">
           <div>
             <div className="flex items-center gap-2.5 mb-3">
-              <span className="p-2 rounded-xl bg-amber-400/20 text-amber-300 border border-amber-300/30">
+              <span className="p-2 rounded-xl bg-[#2F6FED]/20 text-[#7EB8E0] border border-[#2F6FED]/30">
                 <Globe className="w-5 h-5" />
               </span>
               <div>
-                <span className="text-xs font-semibold text-amber-300">หน่วยงานต้นสังกัด</span>
-                <h3 className="text-lg font-bold text-white">สพป. บุรีรัมย์ เขต 3</h3>
+                <span className="text-xs font-semibold text-[#7EB8E0]">หน่วยงานต้นสังกัด</span>
+                <h3 className="text-lg font-bold text-white whitespace-nowrap">สพป. บุรีรัมย์ เขต&nbsp;3</h3>
               </div>
             </div>
 
             <p className="text-xs text-slate-200 leading-relaxed mb-4">
-              สำนักงานเขตพื้นที่การศึกษาประถมศึกษาบุรีรัมย์ เขต 3 หน่วยงานต้นสังกัดผู้กำกับดูแลและส่งเสริมการจัดการศึกษาขั้นพื้นฐานของโรงเรียนบ้านหนองหัวหมู
+              สำนักงานเขตพื้นที่การศึกษาประถมศึกษาบุรีรัมย์ เขต&nbsp;3 หน่วยงานต้นสังกัดผู้กำกับดูแลและส่งเสริมการจัดการศึกษาขั้นพื้นฐานของโรงเรียนบ้านหนองหัวหมู
             </p>
 
             <div className="space-y-2">
@@ -46,8 +46,8 @@ export default function UsefulLinks() {
                 </span>
               </div>
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/10 border border-white/10 text-xs">
-                <span className="font-medium text-slate-100">หนังสือราชการและระเบียบปฏิบัติ สพป. บุรีรัมย์ เขต 3</span>
-                <span className="text-[10px] text-amber-300 bg-amber-950/60 border border-amber-700/60 px-2 py-0.5 rounded">
+                <span className="font-medium text-slate-100">หนังสือราชการและระเบียบปฏิบัติ สพป. บุรีรัมย์ เขต&nbsp;3</span>
+                <span className="text-[10px] text-sky-300 bg-sky-950/60 border border-sky-700/60 px-2 py-0.5 rounded">
                   เป็นทางการ
                 </span>
               </div>
@@ -61,7 +61,7 @@ export default function UsefulLinks() {
               rel="noopener noreferrer"
               className="inline-flex items-center justify-between w-full px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-colors shadow-xs"
             >
-              <span>เข้าสู่เว็บไซต์ สพป. บุรีรัมย์ เขต 3 (www.brm3.go.th)</span>
+              <span>เข้าสู่เว็บไซต์ สพป. บุรีรัมย์ เขต&nbsp;3 (www.brm3.go.th)</span>
               <ExternalLink className="w-4 h-4" />
             </a>
           </div>

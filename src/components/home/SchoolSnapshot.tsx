@@ -36,11 +36,11 @@ export default function SchoolSnapshot() {
   return (
     <section>
       <div className="mb-4">
-        <h2 className="text-xl sm:text-2xl font-bold text-[#0F2942] tracking-tight">
+        <h2 className="text-xl sm:text-2xl font-bold text-[#1E3A5F] tracking-tight">
           ข้อมูลสถานศึกษาโดยสรุป (School Snapshot)
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          สถิติข้อมูลพื้นฐานโรงเรียนบ้านหนองหัวหมู สพป. บุรีรัมย์ เขต 3
+          สถิติข้อมูลพื้นฐานโรงเรียนบ้านหนองหัวหมู สพป. บุรีรัมย์ เขต&nbsp;3
         </p>
       </div>
 
@@ -55,7 +55,7 @@ export default function SchoolSnapshot() {
               key={item.id}
               className="bg-white rounded-2xl p-4 sm:p-5 border border-[#E5E7EB] shadow-xs flex items-center gap-4"
             >
-              <div className="w-11 h-11 rounded-xl bg-[#0F2942]/5 text-[#0F2942] flex items-center justify-center shrink-0">
+              <div className="w-11 h-11 rounded-xl bg-[#1E3A5F]/5 text-[#1E3A5F] flex items-center justify-center shrink-0">
                 <Icon className="w-5 h-5" />
               </div>
 
@@ -67,7 +67,7 @@ export default function SchoolSnapshot() {
                   className={`block tracking-tight truncate mt-0.5 ${
                     isPending
                       ? "text-sm font-semibold text-slate-400"
-                      : "text-xl font-bold text-[#0F2942]"
+                      : "text-xl font-bold text-[#1E3A5F]"
                   }`}
                 >
                   {item.value}

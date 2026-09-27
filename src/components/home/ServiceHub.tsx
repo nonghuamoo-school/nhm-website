@@ -25,11 +25,11 @@ export default function ServiceHub() {
       {/* Section Header with Dignified Academic Branding */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 pb-2 border-b border-slate-200/80">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/70 text-[#0F2942] text-xs font-semibold mb-1">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/70 text-[#1E3A5F] text-xs font-semibold mb-1">
             <Sparkles className="w-3.5 h-3.5 text-blue-700" />
             <span>ศูนย์บริการและสารสนเทศสถานศึกษา</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#0F2942] tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#1E3A5F] tracking-tight">
             ระบบบริการสารสนเทศและงานบริหารสถานศึกษา
           </h2>
           <p className="text-xs sm:text-sm text-slate-500">
@@ -61,7 +61,7 @@ export default function ServiceHub() {
                   <span className="text-[11px] font-bold text-blue-800 uppercase tracking-wide block">
                     งานวิชาการและประกันคุณภาพ
                   </span>
-                  <h3 className="font-bold text-lg text-[#0F2942] group-hover:text-blue-800 transition-colors">
+                  <h3 className="font-bold text-lg text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors">
                     ผลสัมฤทธิ์ทางการศึกษา (RT, NT, O-NET)
                   </h3>
                 </div>
@@ -87,7 +87,7 @@ export default function ServiceHub() {
                     <TrendingUp className="w-2.5 h-2.5 mr-0.5" /> +4.80
                   </span>
                 </div>
-                <div className="text-xl font-extrabold text-[#0F2942]">82.95%</div>
+                <div className="text-xl font-extrabold text-[#1E3A5F]">82.95%</div>
                 <div className="text-[10px] text-slate-500 mt-0.5">การอ่านออกเสียง & รู้เรื่อง</div>
               </div>
 
@@ -99,7 +99,7 @@ export default function ServiceHub() {
                     <TrendingUp className="w-2.5 h-2.5 mr-0.5" /> +3.50
                   </span>
                 </div>
-                <div className="text-xl font-extrabold text-[#0F2942]">58.35%</div>
+                <div className="text-xl font-extrabold text-[#1E3A5F]">58.35%</div>
                 <div className="text-[10px] text-slate-500 mt-0.5">คณิตศาสตร์ & ภาษาไทย</div>
               </div>
 
@@ -111,7 +111,7 @@ export default function ServiceHub() {
                     <TrendingUp className="w-2.5 h-2.5 mr-0.5" /> +3.80
                   </span>
                 </div>
-                <div className="text-xl font-extrabold text-[#0F2942]">46.46%</div>
+                <div className="text-xl font-extrabold text-[#1E3A5F]">46.46%</div>
                 <div className="text-[10px] text-slate-500 mt-0.5">4 กลุ่มสาระการเรียนรู้</div>
               </div>
             </div>
@@ -149,7 +149,7 @@ export default function ServiceHub() {
               </span>
             </div>
 
-            <h3 className="font-bold text-base text-[#0F2942] group-hover:text-blue-800 transition-colors mb-1">
+            <h3 className="font-bold text-base text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors mb-1">
               ข่าวประชาสัมพันธ์และประกาศสถานศึกษา
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed mb-3">
@@ -170,7 +170,7 @@ export default function ServiceHub() {
             </div>
           </div>
 
-          <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700 group-hover:text-blue-800">
+          <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700 group-hover:text-[#2F6FED]">
             <span>เข้าสู่ศูนย์ข่าวสาร</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-blue-600" />
           </div>
@@ -193,7 +193,7 @@ export default function ServiceHub() {
               </span>
             </div>
 
-            <h3 className="font-bold text-base text-[#0F2942] group-hover:text-blue-800 transition-colors mb-1">
+            <h3 className="font-bold text-base text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors mb-1">
               บุคลากรและทำเนียบคณะครู
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed mb-3">
@@ -216,7 +216,7 @@ export default function ServiceHub() {
             </div>
           </div>
 
-          <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700 group-hover:text-blue-800">
+          <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700 group-hover:text-[#2F6FED]">
             <span>ดูทำเนียบคณะครู</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-blue-600" />
           </div>
@@ -239,7 +239,7 @@ export default function ServiceHub() {
               </span>
             </div>
 
-            <h3 className="font-bold text-base text-[#0F2942] group-hover:text-blue-800 transition-colors mb-1">
+            <h3 className="font-bold text-base text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors mb-1">
               คลังเอกสาร & ทะเบียนครุภัณฑ์
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed mb-3">
@@ -258,7 +258,7 @@ export default function ServiceHub() {
             </div>
           </div>
 
-          <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700 group-hover:text-blue-800">
+          <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700 group-hover:text-[#2F6FED]">
             <span>ดาวน์โหลดเอกสาร</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-blue-600" />
           </div>
@@ -282,14 +282,14 @@ export default function ServiceHub() {
                   ปีการศึกษา 2569
                 </span>
               </div>
-              <h4 className="font-bold text-sm text-[#0F2942] group-hover:text-blue-800 transition-colors">
+              <h4 className="font-bold text-sm text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors">
                 ปฏิทินปฏิบัติงานและกิจกรรม
               </h4>
               <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-1">
                 กำหนดการเปิด-ปิดภาคเรียน และกิจกรรมสำคัญ
               </p>
             </div>
-            <div className="pt-2 mt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-700 group-hover:text-blue-800">
+            <div className="pt-2 mt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-700 group-hover:text-[#2F6FED]">
               <span>ดูปฏิทินการศึกษา</span>
               <ArrowRight className="w-3.5 h-3.5 text-blue-600" />
             </div>
@@ -311,11 +311,11 @@ export default function ServiceHub() {
                   หน่วยงานต้นสังกัด
                 </span>
               </div>
-              <h4 className="font-bold text-sm text-white group-hover:text-blue-200 transition-colors">
-                สพป. บุรีรัมย์ เขต 3
+              <h4 className="font-bold text-sm text-white group-hover:text-blue-200 transition-colors whitespace-nowrap">
+                สพป. บุรีรัมย์ เขต&nbsp;3
               </h4>
               <p className="text-[11px] text-blue-200/80 mt-0.5 line-clamp-1">
-                สำนักงานเขตพื้นที่การศึกษาประถมศึกษาบุรีรัมย์ เขต 3
+                สำนักงานเขตพื้นที่การศึกษาประถมศึกษาบุรีรัมย์ เขต&nbsp;3
               </p>
             </div>
             <div className="pt-2 mt-2 border-t border-white/10 flex items-center justify-between text-[11px] font-bold text-blue-100">

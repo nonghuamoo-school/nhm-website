@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useSchoolSettings } from "@/hooks/useSchoolSettings";
 import { usePersonnel } from "@/hooks/usePersonnel";
+import OptimizedNewsImage from "@/components/common/OptimizedNewsImage";
 
 export default function AdministrativeStructureChart() {
   const { settings } = useSchoolSettings();
@@ -94,7 +95,7 @@ export default function AdministrativeStructureChart() {
             <Layers className="w-3.5 h-3.5 text-blue-700" />
             <span>โครงสร้างการบริหารสถานศึกษา</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-black text-[#0F2942] tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-black text-[#1E3A5F] tracking-tight">
             โครงสร้างการบริหารงาน{settings.name}
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
@@ -110,7 +111,7 @@ export default function AdministrativeStructureChart() {
               onClick={() => setMobileViewMode("mobile")}
               className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-colors ${
                 mobileViewMode === "mobile"
-                  ? "bg-white text-[#0F2942] shadow-2xs"
+                  ? "bg-white text-[#1E3A5F] shadow-2xs"
                   : "text-slate-500 hover:text-slate-800"
               }`}
             >
@@ -122,7 +123,7 @@ export default function AdministrativeStructureChart() {
               onClick={() => setMobileViewMode("tree")}
               className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-colors ${
                 mobileViewMode === "tree"
-                  ? "bg-white text-[#0F2942] shadow-2xs"
+                  ? "bg-white text-[#1E3A5F] shadow-2xs"
                   : "text-slate-500 hover:text-slate-800"
               }`}
             >
@@ -467,15 +468,18 @@ export default function AdministrativeStructureChart() {
       {/* Official Poster Preview Card */}
       <div className="p-4 sm:p-6 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl overflow-hidden border border-slate-300 shadow-xs shrink-0 bg-white">
-            <img
+          <div className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl overflow-hidden border border-slate-300 shadow-xs shrink-0 bg-white relative">
+            <OptimizedNewsImage
               src="/images/admin-structure.png"
               alt="ผังโครงสร้างการบริหารงาน"
+              fill
+              loading="lazy"
+              sizes="64px"
               className="w-full h-full object-cover"
             />
           </div>
           <div>
-            <h4 className="font-bold text-xs sm:text-sm text-[#0F2942]">
+            <h4 className="font-bold text-xs sm:text-sm text-[#1E3A5F]">
               เอกสารผังโครงสร้างการบริหารงานอย่างเป็นทางการ
             </h4>
             <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
@@ -488,7 +492,7 @@ export default function AdministrativeStructureChart() {
           href="/images/admin-structure.png"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-xs transition-colors shrink-0 w-full sm:w-auto"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#1E3A5F] hover:bg-[#2F6FED] text-white text-xs font-bold shadow-xs transition-colors shrink-0 w-full sm:w-auto"
         >
           <span>ดูภาพผังเต็ม / ดาวน์โหลด</span>
           <ExternalLink className="w-3.5 h-3.5" />

@@ -1,5 +1,6 @@
 import React from "react";
 import { PersonnelMember } from "@/types";
+import OptimizedNewsImage from "@/components/common/OptimizedNewsImage";
 
 interface PersonnelCardProps {
   person: PersonnelMember;
@@ -30,7 +31,7 @@ export default function PersonnelCard({ person, layout = "auto" }: PersonnelCard
 
   return (
     <div
-      className={`bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-slate-300 transition-all p-3.5 sm:p-4 group h-full ${
+      className={`glass-card rounded-2xl border border-[#D1DFF0] shadow-xs hover:shadow-md hover:border-[#2F6FED]/50 transition-all p-3.5 sm:p-4 group h-full ${
         isHorizontalMode
           ? "flex flex-row sm:flex-col items-center sm:items-stretch gap-3.5 sm:gap-0 text-left sm:text-center justify-between"
           : "flex flex-col justify-between text-center"
@@ -41,16 +42,18 @@ export default function PersonnelCard({ person, layout = "auto" }: PersonnelCard
         <div
           className={`w-20 h-24 sm:w-26 sm:h-32 rounded-2xl overflow-hidden border-2 transition-all shadow-xs bg-slate-100 relative ${
             isExecutive
-              ? "border-amber-400 ring-2 ring-amber-100"
-              : "border-slate-200 group-hover:border-blue-500"
+              ? "border-[#D96B34] ring-2 ring-[#D96B34]/20"
+              : "border-slate-200 group-hover:border-[#2F6FED]"
           }`}
         >
           {person.imageUrl && !person.imageUrl.includes("school-emblem-doc") ? (
-            <img
+            <OptimizedNewsImage
               src={person.imageUrl}
               alt={person.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              fill
               loading="lazy"
+              sizes="(max-width: 640px) 80px, 104px"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-b from-slate-100 to-slate-200/80 flex flex-col items-center justify-center p-2 text-slate-400">
@@ -67,30 +70,30 @@ export default function PersonnelCard({ person, layout = "auto" }: PersonnelCard
       <div className="flex-1 min-w-0 sm:w-full flex flex-col justify-between">
         <div>
           {/* Name */}
-          <h3 className="font-bold text-sm sm:text-base text-[#0F2942] leading-snug thai-wrap">
+          <h3 className="font-bold text-sm sm:text-base text-[#1E3A5F] leading-snug whitespace-nowrap">
             {person.name}
           </h3>
 
           {/* 1. ตำแหน่งหลัก (เด่น ชัดเจน เป็นทางการ) */}
           <div className="mt-1.5 mb-1 sm:mt-2">
             <span
-              className={`inline-block w-full px-2.5 py-1 rounded-lg text-xs font-bold leading-snug text-center shadow-2xs thai-wrap ${
+              className={`inline-block w-full px-2.5 py-1 rounded-lg text-xs font-bold leading-snug text-center shadow-xs thai-wrap ${
                 isExecutive
-                  ? "bg-[#0F2942] text-amber-300 border border-amber-400/40"
-                  : "bg-[#0F2942] text-white"
+                  ? "bg-[#1E3A5F] text-[#D96B34] border border-[#D96B34]/40"
+                  : "bg-[#1E3A5F] text-white"
               }`}
             >
               {primaryRole}
             </span>
           </div>
 
-          {/* 2. ตำแหน่งเพิ่มเติม (แสดงครบทุกตำแหน่ง ไม่ต้องเด่น ไม่ซ่อน +1 +2) */}
+          {/* 2. ตำแหน่งเพิ่มเติม (โทนน้ำเงินอ่อน เข้ากับธีม อ่านชัดเจน ไม่เหมือนปุ่ม disabled) */}
           {additionalRoles.length > 0 && (
-            <div className={`flex flex-col gap-1 mt-1.5 w-full ${isHorizontalMode ? "items-stretch sm:items-center" : "items-center"}`}>
+            <div className={`flex flex-col gap-1.5 mt-1.5 w-full ${isHorizontalMode ? "items-stretch sm:items-center" : "items-center"}`}>
               {additionalRoles.map((role, idx) => (
                 <span
                   key={idx}
-                  className={`w-full text-[10.5px] sm:text-[11px] text-slate-600 font-medium bg-slate-50 hover:bg-slate-100/80 px-2 py-0.5 rounded-md border border-slate-200/80 leading-tight thai-wrap ${
+                  className={`w-full text-[11px] sm:text-[11.5px] text-[#1E3A5F] font-semibold bg-[#EAF2FB] hover:bg-[#DCE9F8] px-2.5 py-1 rounded-lg border border-[#D1DFF0] leading-snug break-words thai-wrap transition-colors shadow-2xs ${
                     isHorizontalMode ? "text-left sm:text-center" : "text-center"
                   }`}
                 >

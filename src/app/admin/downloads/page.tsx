@@ -398,24 +398,24 @@ export default function AdminDownloadsPage() {
     <div className="space-y-6">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-6 right-6 z-50 bg-[#0F2942] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-amber-400/40 animate-in fade-in slide-in-from-top-4">
+        <div className="fixed top-6 right-6 z-50 bg-[#1E3A5F] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-amber-400/40 animate-in fade-in slide-in-from-top-4">
           <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0" />
           <span className="text-xs sm:text-sm font-semibold">{toastMessage}</span>
         </div>
       )}
 
       {/* Top Primary Tabs */}
-      <div className="bg-white rounded-3xl p-2 border border-[#E5E7EB] shadow-xs flex flex-wrap gap-2">
+      <div className="glass-card-admin rounded-3xl p-2 border border-[#D1DFF0] shadow-xs flex flex-wrap gap-2">
         <button
           type="button"
           onClick={() => setActiveTab("documents")}
           className={`flex items-center gap-2.5 px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
             activeTab === "documents"
-              ? "bg-[#0F2942] text-white shadow-md"
-              : "text-slate-600 hover:text-[#0F2942] hover:bg-slate-50"
+              ? "bg-[#1E3A5F] text-white shadow-md"
+              : "text-slate-600 hover:text-[#1E3A5F] hover:bg-slate-50"
           }`}
         >
-          <FileText className="w-4 h-4 text-amber-400" />
+          <FileText className="w-4 h-4 text-[#D96B34]" />
           <span>แบบฟอร์มและเอกสารราชการ</span>
           <span className={`px-2 py-0.5 rounded-full text-xs ${
             activeTab === "documents" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600"
@@ -429,11 +429,11 @@ export default function AdminDownloadsPage() {
           onClick={() => setActiveTab("inventory")}
           className={`flex items-center gap-2.5 px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
             activeTab === "inventory"
-              ? "bg-[#0F2942] text-white shadow-md"
-              : "text-slate-600 hover:text-[#0F2942] hover:bg-slate-50"
+              ? "bg-[#1E3A5F] text-white shadow-md"
+              : "text-slate-600 hover:text-[#1E3A5F] hover:bg-slate-50"
           }`}
         >
-          <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+          <FileSpreadsheet className="w-4 h-4 text-[#D96B34]" />
           <span>ทะเบียนครุภัณฑ์และสินทรัพย์</span>
           <span className={`px-2 py-0.5 rounded-full text-xs ${
             activeTab === "inventory" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600"
@@ -449,12 +449,12 @@ export default function AdminDownloadsPage() {
       {activeTab === "documents" && (
         <div className="space-y-6 animate-in fade-in duration-150">
           {/* Header Bar */}
-          <div className="bg-white rounded-3xl p-6 border border-[#E5E7EB] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="glass-card-admin rounded-3xl p-4 sm:p-6 border border-[#D1DFF0] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <span className="text-xs font-bold text-blue-600 uppercase tracking-wide">
+              <span className="text-xs font-bold text-[#2F6FED] uppercase tracking-wide">
                 การจัดการเอกสารสถานศึกษา
               </span>
-              <h1 className="text-xl sm:text-2xl font-black text-[#0F2942] mt-1">
+              <h1 className="text-xl sm:text-2xl font-black text-[#1E3A5F] mt-1">
                 จัดการเอกสารดาวน์โหลดและแบบฟอร์ม ({docList.length} รายการ)
               </h1>
               <p className="text-xs text-slate-500 mt-1">
@@ -465,15 +465,15 @@ export default function AdminDownloadsPage() {
             <button
               type="button"
               onClick={handleOpenAddDoc}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-[#0F2942] to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold text-xs shadow-md hover:shadow-lg transition-all min-h-[44px] cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#2F6FED] hover:bg-[#2558CA] text-white font-bold text-xs shadow-md hover:shadow-lg transition-all min-h-[44px] cursor-pointer shrink-0 box-border"
             >
-              <Plus className="w-4 h-4 text-amber-400" />
+              <Plus className="w-4 h-4 text-white" />
               <span>เพิ่มเอกสารใหม่</span>
             </button>
           </div>
 
           {/* Search & Filter Toolbar */}
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#E5E7EB] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="glass-card-admin rounded-2xl p-4 sm:p-5 border border-[#D1DFF0] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="relative w-full sm:w-80">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -481,7 +481,7 @@ export default function AdminDownloadsPage() {
                 placeholder="ค้นหาชื่อเอกสารหรือคำอธิบาย..."
                 value={docSearch}
                 onChange={(e) => setDocSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20"
+                className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border border-[#D1DFF0] bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/20 focus:border-[#2F6FED]"
               />
             </div>
 
@@ -490,7 +490,7 @@ export default function AdminDownloadsPage() {
               <select
                 value={selectedDocCat}
                 onChange={(e) => setSelectedDocCat(e.target.value)}
-                className="text-xs bg-[#F8FAFC] border border-[#E5E7EB] rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20 text-slate-700 flex-1 sm:flex-initial"
+                className="text-xs bg-white border border-[#D1DFF0] rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/20 text-slate-700 flex-1 sm:flex-initial"
               >
                 <option value="ทั้งหมด">ทั้งหมด ({docList.length})</option>
                 {DOC_CATEGORIES.map((cat) => (
@@ -503,10 +503,13 @@ export default function AdminDownloadsPage() {
           </div>
 
           {/* Documents Table */}
-          <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-xs overflow-hidden">
+          <div className="glass-card-admin rounded-2xl border border-[#D1DFF0] shadow-xs overflow-hidden">
+            <p className="text-[11px] text-slate-500 sm:hidden px-4 pt-3 flex items-center gap-1">
+              <span>👉 เลื่อนซ้าย-ขวาเพื่อดูข้อมูลเอกสารทั้งหมด</span>
+            </p>
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-[#F8FAFC] border-b border-[#E5E7EB] text-slate-500 font-bold uppercase tracking-wider">
+              <table className="w-full text-left text-xs min-w-[560px]">
+                <thead className="bg-[#1E3A5F]/5 border-b border-[#D1DFF0] text-[#1E3A5F] font-bold uppercase tracking-wider">
                   <tr>
                     <th className="py-3.5 px-4 sm:px-6">ชื่อเอกสาร</th>
                     <th className="py-3.5 px-4 hidden md:table-cell">หมวดหมู่</th>
@@ -521,7 +524,7 @@ export default function AdminDownloadsPage() {
                     return (
                       <tr key={doc.id} className="hover:bg-slate-50/80 transition-colors">
                         <td className="py-4 px-4 sm:px-6 font-bold text-slate-900 max-w-xs sm:max-w-md">
-                          <div className="text-sm font-bold text-[#0F2942]">{doc.title}</div>
+                          <div className="text-sm font-bold text-[#1E3A5F]">{doc.title}</div>
                           {doc.description && (
                             <p className="text-[11px] text-slate-500 font-normal line-clamp-1 mt-0.5">
                               {doc.description}
@@ -624,12 +627,12 @@ export default function AdminDownloadsPage() {
       {activeTab === "inventory" && (
         <div className="space-y-6 animate-in fade-in duration-150">
           {/* Header Bar */}
-          <div className="bg-white rounded-3xl p-6 border border-[#E5E7EB] shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="glass-card-admin rounded-3xl p-4 sm:p-6 border border-[#D1DFF0] shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
-              <span className="text-xs font-bold text-emerald-600 uppercase tracking-wide">
+              <span className="text-xs font-bold text-[#2F6FED] uppercase tracking-wide">
                 งานพัสดุและสินทรัพย์สถานศึกษา
               </span>
-              <h1 className="text-xl sm:text-2xl font-black text-[#0F2942] mt-1">
+              <h1 className="text-xl sm:text-2xl font-black text-[#1E3A5F] mt-1">
                 จัดการทะเบียนครุภัณฑ์และสินทรัพย์ ({assetsList.length} รายการ)
               </h1>
               <p className="text-xs text-slate-500 mt-1">
@@ -637,14 +640,14 @@ export default function AdminDownloadsPage() {
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
               {/* Add New Asset Button */}
               <button
                 type="button"
                 onClick={handleOpenAddAsset}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-xs shadow-md hover:shadow-lg transition-all cursor-pointer"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#2F6FED] hover:bg-[#2558CA] text-white font-bold text-xs shadow-md hover:shadow-lg transition-all cursor-pointer box-border"
               >
-                <Plus className="w-4 h-4 text-emerald-200" />
+                <Plus className="w-4 h-4 text-white" />
                 <span>เพิ่มครุภัณฑ์ใหม่</span>
               </button>
 
@@ -652,10 +655,10 @@ export default function AdminDownloadsPage() {
               <button
                 type="button"
                 onClick={handleExportAssetsCSV}
-                className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs shadow-2xs transition-all cursor-pointer"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-white border border-[#D1DFF0] text-slate-700 hover:bg-slate-50 font-bold text-xs shadow-2xs transition-all cursor-pointer box-border"
                 title="ส่งออกไฟล์ Excel (CSV)"
               >
-                <Download className="w-4 h-4 text-emerald-600" />
+                <Download className="w-4 h-4 text-[#2F6FED]" />
                 <span className="hidden sm:inline">ส่งออก Excel</span>
               </button>
 
@@ -688,7 +691,7 @@ export default function AdminDownloadsPage() {
           </div>
 
           {/* Search & Filters */}
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#E5E7EB] shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
+          <div className="glass-card-admin rounded-2xl p-4 sm:p-5 border border-[#D1DFF0] shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
             <div className="relative w-full md:w-80">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -696,7 +699,7 @@ export default function AdminDownloadsPage() {
                 placeholder="ค้นหารหัส, ชื่อครุภัณฑ์, สถานที่..."
                 value={assetSearch}
                 onChange={(e) => setAssetSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20"
+                className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border border-[#D1DFF0] bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/20 focus:border-[#2F6FED]"
               />
             </div>
 
@@ -706,7 +709,7 @@ export default function AdminDownloadsPage() {
                 <select
                   value={selectedAssetCat}
                   onChange={(e) => setSelectedAssetCat(e.target.value)}
-                  className="text-xs bg-[#F8FAFC] border border-[#E5E7EB] rounded-xl px-2.5 py-2 text-slate-700 focus:outline-none"
+                  className="text-xs bg-white border border-[#D1DFF0] rounded-xl px-2.5 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/20"
                 >
                   <option value="ทั้งหมด">ทั้งหมด ({assetsList.length})</option>
                   {ASSET_CATEGORIES.map((c) => (
@@ -722,7 +725,7 @@ export default function AdminDownloadsPage() {
                 <select
                   value={selectedAssetStatus}
                   onChange={(e) => setSelectedAssetStatus(e.target.value)}
-                  className="text-xs bg-[#F8FAFC] border border-[#E5E7EB] rounded-xl px-2.5 py-2 text-slate-700 focus:outline-none"
+                  className="text-xs bg-white border border-[#D1DFF0] rounded-xl px-2.5 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/20"
                 >
                   <option value="ทั้งหมด">ทั้งหมด</option>
                   {ASSET_STATUSES.map((s) => (
@@ -736,10 +739,13 @@ export default function AdminDownloadsPage() {
           </div>
 
           {/* Asset Inventory Table */}
-          <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-xs overflow-hidden">
+          <div className="glass-card-admin rounded-2xl border border-[#D1DFF0] shadow-xs overflow-hidden">
+            <p className="text-[11px] text-slate-500 sm:hidden px-4 pt-3 flex items-center gap-1">
+              <span>👉 เลื่อนซ้าย-ขวาเพื่อดูข้อมูลครุภัณฑ์ทั้งหมด</span>
+            </p>
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-[#F8FAFC] border-b border-[#E5E7EB] text-slate-600 font-bold uppercase tracking-wider">
+              <table className="w-full text-left text-xs min-w-[680px]">
+                <thead className="bg-[#1E3A5F]/5 border-b border-[#D1DFF0] text-[#1E3A5F] font-bold uppercase tracking-wider">
                   <tr>
                     <th className="py-3.5 px-3 text-center w-12">ลำดับ</th>
                     <th className="py-3.5 px-3">รหัสครุภัณฑ์</th>
@@ -756,11 +762,11 @@ export default function AdminDownloadsPage() {
                   {filteredAssets.map((asset, index) => (
                     <tr key={asset.id} className="hover:bg-slate-50/80 transition-colors">
                       <td className="py-3.5 px-3 text-center font-mono text-slate-400">{index + 1}</td>
-                      <td className="py-3.5 px-3 font-mono text-[11px] font-bold text-blue-900 whitespace-nowrap">
+                      <td className="py-3.5 px-3 font-mono text-[11px] font-bold text-[#2F6FED] whitespace-nowrap">
                         {asset.code}
                       </td>
                       <td className="py-3.5 px-4 max-w-xs">
-                        <div className="font-bold text-[#0F2942] text-xs sm:text-[13px]">{asset.name}</div>
+                        <div className="font-bold text-[#1E3A5F] text-xs sm:text-[13px]">{asset.name}</div>
                         {asset.note && (
                           <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-1">{asset.note}</p>
                         )}
@@ -851,7 +857,7 @@ export default function AdminDownloadsPage() {
                   <FileText className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-[#0F2942]">
+                  <h3 className="text-base font-bold text-[#1E3A5F]">
                     {editingDocId ? "แก้ไขเอกสารดาวน์โหลด" : "เพิ่มเอกสารดาวน์โหลดใหม่"}
                   </h3>
                   <span className="text-[11px] text-slate-400">
@@ -1041,7 +1047,7 @@ export default function AdminDownloadsPage() {
                   <FileSpreadsheet className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-[#0F2942]">
+                  <h3 className="text-base font-bold text-[#1E3A5F]">
                     {editingAssetId ? "แก้ไขรายการครุภัณฑ์" : "เพิ่มรายการครุภัณฑ์ใหม่"}
                   </h3>
                   <span className="text-[11px] text-slate-400">

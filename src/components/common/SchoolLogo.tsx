@@ -72,7 +72,7 @@ export default function SchoolLogo({
     const logoSrc = activeLogoUrl || "/images/school-logo.png";
     return (
       <div
-        className={`relative flex items-center justify-center rounded-full overflow-hidden bg-white shadow-md border-2 border-amber-400/80 shrink-0 ${className}`}
+        className={`relative flex items-center justify-center rounded-full overflow-hidden bg-white shadow-sm border-2 border-[#1E3A5F]/20 shrink-0 ${className}`}
         style={{ width: size, height: size }}
       >
         <img
@@ -102,7 +102,7 @@ export default function SchoolLogo({
           <circle cx="50" cy="28" r="3" fill="#ffffff" />
           <path d="M32 46 C42 40 58 40 68 46 L65 72 C55 68 45 68 35 72 Z" fill="#ffffff" />
           <path d="M38 78 C46 75 54 75 62 78 L60 83 C54 81 46 81 40 83 Z" fill="#fef08a" />
-          <text x="50" y="60" fontSize="8" fontWeight="bold" textAnchor="middle" fill="#0f2942">
+          <text x="50" y="60" fontSize="8" fontWeight="bold" textAnchor="middle" fill="#1E3A5F">
             สพฐ.
           </text>
         </svg>
@@ -141,7 +141,7 @@ export default function SchoolLogo({
   // Default: Official Vector Emblem for Ban Nong Hua Mu School
   return (
     <div
-      className={`relative flex items-center justify-center rounded-full bg-gradient-to-br from-[#0F2942] via-blue-950 to-slate-900 text-amber-400 shadow-md border-2 border-amber-300/80 shrink-0 ${className}`}
+      className={`relative flex items-center justify-center rounded-full bg-gradient-to-br from-[#1E3A5F] via-[#0F2540] to-slate-900 text-amber-400 shadow-md border-2 border-amber-300/80 shrink-0 ${className}`}
       style={{ width: size, height: size }}
       aria-label="ตราประจำโรงเรียนบ้านหนองหัวหมู"
     >
@@ -194,7 +194,7 @@ export default function SchoolLogo({
           fontSize="7"
           fontWeight="bold"
           textAnchor="middle"
-          fill="#0f2942"
+          fill="#1E3A5F"
         >
           น.ห.ม.
         </text>

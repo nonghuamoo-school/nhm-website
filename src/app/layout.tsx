@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Sarabun } from "next/font/google";
 import "./globals.css";
 import PublicLayoutWrapper from "@/components/layout/PublicLayoutWrapper";
@@ -11,6 +11,12 @@ const sarabun = Sarabun({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#1E3A5F",
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://nhm-website-two.vercel.app"),
   title: {
@@ -18,6 +24,12 @@ export const metadata: Metadata = {
     default: `${schoolInfo.name} - ${schoolInfo.subAffiliation}`,
   },
   description: `${schoolInfo.name} (${schoolInfo.nameEn}) ${schoolInfo.subAffiliation} ข้อมูลโรงเรียน ข่าวสารประชาสัมพันธ์ ผลการทดสอบระดับชาติ บุคลากรทางการศึกษา`,
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: schoolInfo.name,
+  },
   openGraph: {
     title: `${schoolInfo.name} | ${schoolInfo.subAffiliation}`,
     description: `เว็บไซต์ทางการ ${schoolInfo.name} (${schoolInfo.nameEn}) สังกัด ${schoolInfo.subAffiliation} ข้อมูลโรงเรียน ข่าวสารประชาสัมพันธ์ วารสาร และผลงานทางการศึกษา`,
@@ -25,7 +37,7 @@ export const metadata: Metadata = {
     siteName: schoolInfo.name,
     images: [
       {
-        url: "/images/school-hero-gate.png",
+        url: "/images/school-hero-gate.webp",
         width: 1200,
         height: 630,
         alt: schoolInfo.name,
@@ -38,11 +50,18 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${schoolInfo.name} | ${schoolInfo.subAffiliation}`,
     description: `เว็บไซต์ทางการ ${schoolInfo.name} สพป.บุรีรัมย์ เขต 3`,
-    images: ["/images/school-hero-gate.png"],
+    images: ["/images/school-hero-gate.webp"],
   },
   icons: {
-    icon: "/images/school-logo.png",
-    apple: "/images/school-logo.png",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
 };
 
@@ -53,7 +72,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="th" className={`${sarabun.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#F8FAFC] text-[#0F172A] font-sans">
+      <body className="min-h-full flex flex-col">
         <PublicLayoutWrapper>{children}</PublicLayoutWrapper>
       </body>
     </html>

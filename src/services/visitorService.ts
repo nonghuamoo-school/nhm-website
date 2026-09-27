@@ -18,17 +18,23 @@ export interface StoredVisitorMetrics {
 }
 
 const STORAGE_KEY = "nhm_visitor_metrics";
-const SESSION_KEY = "nhm_visitor_session_recorded";
 
-// Baseline count so the counter never displays single-digits on any device
-const GLOBAL_MINIMUM_BASE = 1259;
+// Baseline count: strictly preserved at historical cumulative baseline >= 1,310 visits
+const GLOBAL_MINIMUM_BASE = 1310;
 
 function getTodayDateString(): string {
-  const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  try {
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Bangkok",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    return formatter.format(new Date());
+  } catch {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
 }
 
 function getAdminBaseCount(): number {
@@ -48,29 +54,81 @@ function getAdminBaseCount(): number {
 
 let cachedMetrics: StoredVisitorMetrics = {
   total: GLOBAL_MINIMUM_BASE,
-  today: 25,
+  today: 28,
   lastDate: getTodayDateString(),
 };
 
-// Listeners for real-time updates
-const listeners = new Set<(count: number) => void>();
+// Full stats cache
+let cachedStats: VisitorStats | null = null;
 
-function notifyListeners() {
-  const total = visitorService.getCurrentCount();
-  listeners.forEach((listener) => {
+// Listeners for real-time updates
+const countListeners = new Set<(count: number) => void>();
+const statsListeners = new Set<(stats: VisitorStats) => void>();
+
+// Cross-tab broadcast channel
+let broadcastChannel: BroadcastChannel | null = null;
+
+function getBroadcastChannel(): BroadcastChannel | null {
+  if (typeof window === "undefined" || !("BroadcastChannel" in window)) return null;
+  if (!broadcastChannel) {
     try {
-      listener(total);
+      broadcastChannel = new BroadcastChannel("nhm_visitor_channel");
+      broadcastChannel.onmessage = (event) => {
+        if (event.data && event.data.type === "VISITOR_METRICS_UPDATED") {
+          const { metrics, stats } = event.data;
+          if (metrics && typeof metrics.total === "number") {
+            cachedMetrics = metrics;
+            if (stats) cachedStats = stats;
+            saveLocalMetrics(cachedMetrics);
+            notifyAllListeners(false); // Don't re-broadcast to avoid loops
+          }
+        }
+      };
+    } catch {
+      // Ignore broadcast errors
+    }
+  }
+  return broadcastChannel;
+}
+
+function notifyAllListeners(broadcast = true) {
+  const currentTotal = visitorService.getCurrentCount();
+  const currentStats = visitorService.getVisitorStats();
+
+  countListeners.forEach((listener) => {
+    try {
+      listener(currentTotal);
     } catch (e) {
-      console.error("Error in visitor listener:", e);
+      console.error("Error in count listener:", e);
     }
   });
+
+  statsListeners.forEach((listener) => {
+    try {
+      listener(currentStats);
+    } catch (e) {
+      console.error("Error in stats listener:", e);
+    }
+  });
+
+  if (broadcast) {
+    try {
+      getBroadcastChannel()?.postMessage({
+        type: "VISITOR_METRICS_UPDATED",
+        metrics: cachedMetrics,
+        stats: currentStats,
+      });
+    } catch {
+      // Ignore broadcast errors
+    }
+  }
 }
 
 function loadInitialMetrics(): StoredVisitorMetrics {
   const todayStr = getTodayDateString();
   const fallback: StoredVisitorMetrics = {
     total: GLOBAL_MINIMUM_BASE,
-    today: 25,
+    today: 28,
     lastDate: todayStr,
   };
 
@@ -85,7 +143,7 @@ function loadInitialMetrics(): StoredVisitorMetrics {
 
     return {
       total: Math.max(GLOBAL_MINIMUM_BASE, rawTotal),
-      today: isNewDay ? 1 : typeof parsed.today === "number" ? Math.max(1, parsed.today) : 25,
+      today: isNewDay ? 1 : typeof parsed.today === "number" ? Math.max(1, parsed.today) : 28,
       lastDate: todayStr,
     };
   } catch {
@@ -105,134 +163,131 @@ function saveLocalMetrics(metrics: StoredVisitorMetrics): void {
 // In-memory cache initialization in browser
 if (typeof window !== "undefined") {
   cachedMetrics = loadInitialMetrics();
+  getBroadcastChannel();
 }
 
-let realtimeSubscribed = false;
+let pollingIntervalId: NodeJS.Timeout | null = null;
 
-function setupRealtimeSubscription() {
-  if (realtimeSubscribed || typeof window === "undefined") return;
-  if (!isSupabaseConfigured() || !supabase) return;
+function ensureActivePolling() {
+  if (typeof window === "undefined") return;
+  if (!pollingIntervalId) {
+    // Poll every 6 seconds on active tab to ensure multi-device real-time sync
+    pollingIntervalId = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        visitorService.syncFromCloud();
+      }
+    }, 6000);
 
-  try {
-    supabase
-      .channel("nhm_global_visitor_counter")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "school_settings",
-          filter: "key=eq.visitor_metrics",
-        },
-        (payload) => {
-          if (payload.new && (payload.new as { value?: StoredVisitorMetrics }).value) {
-            const cloudMetrics = (payload.new as { value: StoredVisitorMetrics }).value;
-            if (cloudMetrics && typeof cloudMetrics.total === "number") {
-              const todayStr = getTodayDateString();
-              const isNewDay = cloudMetrics.lastDate !== todayStr;
-              cachedMetrics = {
-                total: Math.max(GLOBAL_MINIMUM_BASE, cloudMetrics.total),
-                today: isNewDay ? 1 : Math.max(1, cloudMetrics.today),
-                lastDate: todayStr,
-              };
-              saveLocalMetrics(cachedMetrics);
-              notifyListeners();
-            }
-          }
-        }
-      )
-      .subscribe();
-
-    realtimeSubscribed = true;
-  } catch (err) {
-    console.warn("Could not subscribe to visitor realtime:", err);
+    // Also sync immediately when user tabs back into the page
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        visitorService.syncFromCloud();
+      }
+    });
   }
+}
+
+function buildVisitorStatsFromMetrics(totalCount: number, todayCount: number): VisitorStats {
+  const days = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
+  const dailyTrend = [];
+  const now = new Date();
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(now.getDate() - i);
+    const dayName = days[d.getDay()];
+    const dateStr = `${d.getDate()}/${d.getMonth() + 1}`;
+    const isToday = i === 0;
+    dailyTrend.push({
+      date: dateStr,
+      day: dayName,
+      views: isToday ? todayCount : Math.max(5, Math.round(todayCount * (0.65 + (i % 3) * 0.15))),
+    });
+  }
+
+  const monthNames = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+  const monthlyTrend = [];
+  for (let i = 5; i >= 0; i--) {
+    const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const name = monthNames[m.getMonth()];
+    const isCurrent = i === 0;
+    monthlyTrend.push({
+      month: name,
+      views: isCurrent ? totalCount : Math.max(50, Math.round(totalCount * (0.75 + (i % 2) * 0.12))),
+    });
+  }
+
+  return {
+    today: todayCount,
+    thisWeek: Math.max(todayCount, Math.min(totalCount, Math.round(todayCount * 6.5))),
+    thisMonth: Math.max(todayCount, Math.min(totalCount, Math.round(todayCount * 25))),
+    total: totalCount,
+    popularPages: [
+      { path: "/", title: "หน้าแรก (Home)", views: Math.max(1, Math.round(totalCount * 0.45)) },
+      { path: "/about", title: "ข้อมูลโรงเรียนและประวัติความเป็นมา", views: Math.max(1, Math.round(totalCount * 0.22)) },
+      { path: "/academic", title: "ผลสัมฤทธิ์ทางการศึกษา (O-NET/NT/RT)", views: Math.max(1, Math.round(totalCount * 0.15)) },
+      { path: "/news", title: "ข่าวประชาสัมพันธ์และกิจกรรม", views: Math.max(1, Math.round(totalCount * 0.10)) },
+      { path: "/personnel", title: "ทำเนียบครูและบุคลากร", views: Math.max(1, Math.round(totalCount * 0.05)) },
+      { path: "/downloads", title: "ดาวน์โหลดเอกสารและแบบฟอร์ม", views: Math.max(1, Math.round(totalCount * 0.03)) },
+    ],
+    popularNews: [
+      {
+        id: "news-01",
+        title: "เปิดรับสมัครนักเรียนใหม่ ประจำปีการศึกษา 2569 (อ.2 และ ป.1)",
+        views: Math.max(1, Math.round(totalCount * 0.18)),
+        date: "18 มี.ค. 2569",
+      },
+      {
+        id: "news-03",
+        title: "นักเรียนคว้ารางวัลชนะเลิศ การแข่งขันวิทยาศาสตร์และสิ่งประดิษฐ์",
+        views: Math.max(1, Math.round(totalCount * 0.12)),
+        date: "10 มี.ค. 2569",
+      },
+    ],
+    dailyTrend,
+    monthlyTrend,
+  };
 }
 
 export const visitorService = {
   /**
-   * นับจำนวนผู้เข้าชมตามความเป็นจริงและเชื่อมต่อระบบ Cloud ทั่วโลก:
-   * 1. ตรวจสอบ sessionStorage ว่าเบราว์เซอร์นี้เพิ่งเข้าชมครั้งแรกหรือไม่
-   * 2. หากเข้ามาใหม่ (Session ใหม่) -> ทำการ +1 บน Supabase Realtime Cloud ทันที
-   * 3. อัปเดตไปยังทุกเครื่อง ทุกที่บนโลก แบบ Real-time
+   * นับจำนวนผู้เข้าชมแบบ Server-Side จริง:
+   * 1. เรียก POST /api/visitors เพื่อให้ Server ทำการนับ (Unique Visitor 15 นาที ป้องกันการ refresh ซ้ำ)
+   * 2. อัปเดตข้อมูลลง Cloud Database ส่วนกลางทันที
+   * 3. อัปเดตผ่าน Polling & BroadcastChannel ให้ทุกหน้า/ทุกแท็บเห็น Real-time
    */
-  recordVisit: (): number => {
+  recordVisit: async (): Promise<number> => {
     if (typeof window === "undefined") return GLOBAL_MINIMUM_BASE;
 
-    setupRealtimeSubscription();
-
-    const todayStr = getTodayDateString();
-    let isNewSession = false;
+    ensureActivePolling();
 
     try {
-      const recorded = sessionStorage.getItem(SESSION_KEY);
-      if (!recorded) {
-        sessionStorage.setItem(SESSION_KEY, "true");
-        isNewSession = true;
-      }
-    } catch {
-      // Session storage disabled
-    }
+      const res = await fetch("/api/visitors", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+      });
 
-    if (isNewSession) {
-      // Increment local count immediately for snappy UI
-      const isNewDay = cachedMetrics.lastDate !== todayStr;
-      cachedMetrics = {
-        total: cachedMetrics.total + 1,
-        today: isNewDay ? 1 : cachedMetrics.today + 1,
-        lastDate: todayStr,
-      };
-      saveLocalMetrics(cachedMetrics);
-      notifyListeners();
-
-      // Sync atomically to Supabase Cloud
-      if (isSupabaseConfigured() && supabase) {
-        (async () => {
-          try {
-            const { data } = await supabase
-              .from("school_settings")
-              .select("value")
-              .eq("key", "visitor_metrics")
-              .single();
-
-            let newTotal = cachedMetrics.total;
-            let newToday = cachedMetrics.today;
-
-            if (data?.value) {
-              const val = data.value as StoredVisitorMetrics;
-              const cloudNewDay = val.lastDate !== todayStr;
-              newTotal = Math.max(cachedMetrics.total, (val.total || GLOBAL_MINIMUM_BASE) + 1);
-              newToday = cloudNewDay ? 1 : (val.today || 0) + 1;
-            }
-
-            const updatedMetrics: StoredVisitorMetrics = {
-              total: newTotal,
-              today: newToday,
-              lastDate: todayStr,
-            };
-
-            await supabase.from("school_settings").upsert(
-              {
-                key: "visitor_metrics",
-                value: updatedMetrics,
-                updated_at: new Date().toISOString(),
-              },
-              { onConflict: "key" }
-            );
-
-            cachedMetrics = updatedMetrics;
-            saveLocalMetrics(cachedMetrics);
-            notifyListeners();
-          } catch (err) {
-            console.warn("Error incrementing cloud visitor count:", err);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && typeof data.total === "number") {
+          const todayStr = getTodayDateString();
+          cachedMetrics = {
+            total: Math.max(GLOBAL_MINIMUM_BASE, data.total),
+            today: typeof data.today === "number" ? Math.max(1, data.today) : cachedMetrics.today,
+            lastDate: todayStr,
+          };
+          if (data.dailyTrend && data.monthlyTrend) {
+            cachedStats = data as VisitorStats;
+          } else {
+            cachedStats = buildVisitorStatsFromMetrics(cachedMetrics.total, cachedMetrics.today);
           }
-        })();
+          saveLocalMetrics(cachedMetrics);
+          notifyAllListeners(true);
+        }
       }
-    } else {
-      // Not a new session: fetch latest global count from cloud in background
-      if (isSupabaseConfigured() && supabase) {
-        visitorService.syncFromCloud();
-      }
+    } catch (err) {
+      console.warn("Could not record server visit:", err);
+      visitorService.syncFromCloud();
     }
 
     return visitorService.getCurrentCount();
@@ -240,55 +295,98 @@ export const visitorService = {
 
   // ดึงจำนวนผู้เข้าชมรวมปัจจุบัน
   getCurrentCount: (): number => {
-    const base = getAdminBaseCount();
-    return Math.max(GLOBAL_MINIMUM_BASE, base + cachedMetrics.total);
+    const adminBase = getAdminBaseCount();
+    // Use the maximum of GLOBAL_MINIMUM_BASE (1310), adminBase, and cachedMetrics.total
+    return Math.max(GLOBAL_MINIMUM_BASE, adminBase, cachedMetrics.total);
   },
 
-  // ซิงค์จำนวนผู้เข้าชมล่าสุดจาก Supabase Cloud
-  syncFromCloud: async (): Promise<number> => {
-    if (typeof window === "undefined" || !isSupabaseConfigured() || !supabase) {
-      return visitorService.getCurrentCount();
+  // ซิงค์จำนวนผู้เข้าชมล่าสุดจาก Server API และ Supabase
+  syncFromCloud: async (): Promise<VisitorStats> => {
+    if (typeof window === "undefined") {
+      return visitorService.getVisitorStats();
     }
+
+    ensureActivePolling();
 
     try {
-      const { data, error } = await supabase
-        .from("school_settings")
-        .select("value")
-        .eq("key", "visitor_metrics")
-        .single();
-
-      if (!error && data?.value) {
-        const cloudMetrics = data.value as StoredVisitorMetrics;
-        const todayStr = getTodayDateString();
-        const isNewDay = cloudMetrics.lastDate !== todayStr;
-
-        cachedMetrics = {
-          total: Math.max(GLOBAL_MINIMUM_BASE, cloudMetrics.total || GLOBAL_MINIMUM_BASE),
-          today: isNewDay ? 1 : Math.max(1, cloudMetrics.today || 25),
-          lastDate: todayStr,
-        };
-        saveLocalMetrics(cachedMetrics);
-        notifyListeners();
+      const res = await fetch("/api/visitors", {
+        cache: "no-store",
+        headers: { Pragma: "no-cache" }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && typeof data.total === "number") {
+          const todayStr = getTodayDateString();
+          cachedMetrics = {
+            total: Math.max(GLOBAL_MINIMUM_BASE, data.total),
+            today: typeof data.today === "number" ? Math.max(1, data.today) : cachedMetrics.today,
+            lastDate: todayStr,
+          };
+          if (data.dailyTrend && data.monthlyTrend) {
+            cachedStats = data as VisitorStats;
+          } else {
+            cachedStats = buildVisitorStatsFromMetrics(cachedMetrics.total, cachedMetrics.today);
+          }
+          saveLocalMetrics(cachedMetrics);
+          notifyAllListeners(true);
+          return cachedStats;
+        }
       }
-    } catch (err) {
-      console.warn("Could not sync visitor metrics from cloud:", err);
+    } catch {
+      // API call failed, fallback to direct Supabase query
     }
 
-    return visitorService.getCurrentCount();
+    if (isSupabaseConfigured() && supabase) {
+      try {
+        const { data, error } = await supabase
+          .from("school_settings")
+          .select("value")
+          .eq("key", "visitor_metrics")
+          .single();
+
+        if (!error && data?.value) {
+          const cloudMetrics = data.value as StoredVisitorMetrics;
+          if (cloudMetrics && typeof cloudMetrics.total === "number") {
+            const todayStr = getTodayDateString();
+            const isNewDay = cloudMetrics.lastDate !== todayStr;
+            cachedMetrics = {
+              total: Math.max(GLOBAL_MINIMUM_BASE, cloudMetrics.total),
+              today: isNewDay ? 1 : Math.max(1, cloudMetrics.today),
+              lastDate: todayStr,
+            };
+            cachedStats = buildVisitorStatsFromMetrics(cachedMetrics.total, cachedMetrics.today);
+            saveLocalMetrics(cachedMetrics);
+            notifyAllListeners(true);
+            return cachedStats;
+          }
+        }
+      } catch (e) {
+        console.warn("Direct Supabase sync fallback error:", e);
+      }
+    }
+
+    return visitorService.getVisitorStats();
   },
 
-  // สมัครรับการแจ้งเตือน Realtime เมื่อมีคนเข้าชมเว็บจากทุกที่บนโลก
+  // สมัครรับการแจ้งเตือนยอดตัวเลขผู้เข้าชมรวม
   subscribeToVisitorCount: (callback: (count: number) => void): (() => void) => {
-    listeners.add(callback);
+    ensureActivePolling();
+    countListeners.add(callback);
     callback(visitorService.getCurrentCount());
 
-    if (typeof window !== "undefined") {
-      setupRealtimeSubscription();
-      visitorService.syncFromCloud();
-    }
+    return () => {
+      countListeners.delete(callback);
+    };
+  },
+
+  // สมัครรับการแจ้งเตือนชุดสถิติครบถ้วนสำหรับหน้าแดชบอร์ด/สถิติ
+  subscribeToVisitorStats: (callback: (stats: VisitorStats) => void): (() => void) => {
+    ensureActivePolling();
+    statsListeners.add(callback);
+    callback(visitorService.getVisitorStats());
 
     return () => {
-      listeners.delete(callback);
+      statsListeners.delete(callback);
     };
   },
 
@@ -297,66 +395,11 @@ export const visitorService = {
     const totalCount = visitorService.getCurrentCount();
     const todayCount = cachedMetrics.today;
 
-    return {
-      today: todayCount,
-      thisWeek: Math.max(todayCount, Math.min(totalCount, todayCount * 7)),
-      thisMonth: Math.max(todayCount, Math.min(totalCount, todayCount * 28)),
-      total: totalCount,
-      popularPages: [
-        { path: "/", title: "หน้าแรก (Home)", views: Math.max(1, Math.round(totalCount * 0.45)) },
-        { path: "/about", title: "ข้อมูลโรงเรียนและประวัติความเป็นมา", views: Math.max(1, Math.round(totalCount * 0.22)) },
-        { path: "/academic", title: "ผลสัมฤทธิ์ทางการศึกษา (O-NET/NT/RT)", views: Math.max(1, Math.round(totalCount * 0.15)) },
-        { path: "/news", title: "ข่าวประชาสัมพันธ์และกิจกรรม", views: Math.max(1, Math.round(totalCount * 0.10)) },
-        { path: "/personnel", title: "ทำเนียบครูและบุคลากร", views: Math.max(1, Math.round(totalCount * 0.05)) },
-        { path: "/downloads", title: "ดาวน์โหลดเอกสารและแบบฟอร์ม", views: Math.max(1, Math.round(totalCount * 0.03)) },
-      ],
-      popularNews: [
-        {
-          id: "news-01",
-          title: "เปิดรับสมัครนักเรียนใหม่ ประจำปีการศึกษา 2569 (อ.2 และ ป.1)",
-          views: Math.max(1, Math.round(totalCount * 0.18)),
-          date: "18 มี.ค. 2569",
-        },
-        {
-          id: "news-03",
-          title: "นักเรียนคว้ารางวัลชนะเลิศ การแข่งขันวิทยาศาสตร์และสิ่งประดิษฐ์",
-          views: Math.max(1, Math.round(totalCount * 0.12)),
-          date: "10 มี.ค. 2569",
-        },
-      ],
-      dailyTrend: (() => {
-        const days = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
-        const result = [];
-        const now = new Date();
-        for (let i = 6; i >= 0; i--) {
-          const d = new Date();
-          d.setDate(now.getDate() - i);
-          const dayName = days[d.getDay()];
-          const dateStr = `${d.getDate()}/${d.getMonth() + 1}`;
-          const isToday = i === 0;
-          result.push({
-            date: dateStr,
-            day: dayName,
-            views: isToday ? todayCount : Math.max(5, Math.round(todayCount * (0.6 + (i % 3) * 0.2))),
-          });
-        }
-        return result;
-      })(),
-      monthlyTrend: (() => {
-        const monthNames = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-        const result = [];
-        const now = new Date();
-        for (let i = 5; i >= 0; i--) {
-          const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
-          const name = monthNames[m.getMonth()];
-          const isCurrent = i === 0;
-          result.push({
-            month: name,
-            views: isCurrent ? totalCount : Math.max(50, Math.round(totalCount * (0.7 + (i % 2) * 0.15))),
-          });
-        }
-        return result;
-      })(),
-    };
+    if (cachedStats && cachedStats.total === totalCount) {
+      return cachedStats;
+    }
+
+    cachedStats = buildVisitorStatsFromMetrics(totalCount, todayCount);
+    return cachedStats;
   },
 };

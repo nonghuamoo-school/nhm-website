@@ -28,8 +28,8 @@ export default function CalendarPage() {
           onClick={() => setSelectedCat(cat)}
           className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors min-h-[36px] ${
             selectedCat === cat
-              ? "bg-[#0F2942] text-white shadow-2xs"
-              : "bg-[#F8FAFC] text-slate-600 hover:bg-slate-200/80 border border-[#E5E7EB]"
+              ? "bg-[#1E3A5F] text-white shadow-sm"
+              : "bg-white/80 text-slate-600 hover:bg-white border border-[#D1DFF0]"
           }`}
         >
           {cat}
@@ -46,9 +46,9 @@ export default function CalendarPage() {
       toolbar={toolbar}
     >
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-[#E5E7EB] p-12 text-center shadow-xs">
+        <div className="glass-card rounded-2xl border border-[#D1DFF0] p-12 text-center shadow-xs">
           <CalendarDays className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-          <h3 className="text-sm sm:text-base font-bold text-[#0F2942]">
+          <h3 className="text-sm sm:text-base font-bold text-[#1E3A5F]">
             {selectedCat === "ทั้งหมด" ? "ยังไม่มีกิจกรรมในปฏิทิน" : `ไม่พบกิจกรรมในหมวดหมู่ "${selectedCat}"`}
           </h3>
           <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
@@ -58,16 +58,16 @@ export default function CalendarPage() {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-xs divide-y divide-slate-100">
+        <div className="glass-card rounded-2xl border border-[#D1DFF0] shadow-xs divide-y divide-slate-100 overflow-hidden">
           {filtered.map((event) => (
             <div
               key={event.id}
-              className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/80 transition-colors"
+              className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/70 transition-colors"
             >
               <div className="flex items-start gap-4">
                 {/* Date Box */}
-                <div className="w-14 sm:w-16 h-14 sm:h-16 rounded-xl bg-[#0F2942] text-white flex flex-col items-center justify-center shrink-0 shadow-xs">
-                  <CalendarIcon className="w-4 h-4 text-amber-400 mb-0.5" />
+                <div className="w-14 sm:w-16 h-14 sm:h-16 rounded-xl bg-[#1E3A5F] text-white flex flex-col items-center justify-center shrink-0 shadow-xs">
+                  <CalendarIcon className="w-4 h-4 text-[#D96B34] mb-0.5" />
                   <span className="text-[10px] font-bold text-slate-200 uppercase text-center px-1 leading-tight">
                     {event.date.split(" ")[1] || "กำหนด"}
                   </span>
@@ -75,16 +75,16 @@ export default function CalendarPage() {
 
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#0F2942]/10 text-[#0F2942]">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#1E3A5F]/10 text-[#1E3A5F]">
                       {event.category}
                     </span>
                   </div>
-                  <h3 className="font-bold text-sm sm:text-base text-[#0F2942]">
+                  <h3 className="font-bold text-sm sm:text-base text-[#1E3A5F]">
                     {event.title}
                   </h3>
                   <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
                     <span className="flex items-center gap-1 font-medium text-slate-700">
-                      <CalendarIcon className="w-3.5 h-3.5 text-[#0F2942]" />
+                      <CalendarIcon className="w-3.5 h-3.5 text-[#2F6FED]" />
                       {event.date}
                     </span>
                     <span>•</span>
@@ -106,7 +106,7 @@ export default function CalendarPage() {
               </div>
 
               <div className="self-end sm:self-center">
-                <span className="text-xs font-semibold text-[#0F2942] bg-[#0F2942]/5 px-3 py-1.5 rounded-xl border border-[#0F2942]/10">
+                <span className="text-xs font-semibold text-[#1E3A5F] bg-[#1E3A5F]/5 px-3 py-1.5 rounded-xl border border-[#1E3A5F]/15">
                   ปีการศึกษา 2569
                 </span>
               </div>

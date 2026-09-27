@@ -13,17 +13,21 @@ import {
   School
 } from "lucide-react";
 import { getStoredStudentStats, fetchStudentStatsCloud, defaultSchoolStudentStats } from "@/data/studentStats";
+import { MetricCardSkeleton } from "@/components/ui/Skeleton";
 
 export default function SchoolAnalyticsDashboard() {
   const [allStats, setAllStats] = useState(defaultSchoolStudentStats);
   const [selectedYear, setSelectedYear] = useState<string>("2569");
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     setAllStats(getStoredStudentStats());
+    setIsLoaded(true);
 
     // Fetch from Supabase cloud — overwrites localStorage if data found
     fetchStudentStatsCloud().then((cloudData) => {
       if (cloudData) setAllStats(cloudData);
+      setIsLoaded(true);
     });
 
     const handleUpdate = () => {
@@ -84,30 +88,31 @@ export default function SchoolAnalyticsDashboard() {
   return (
     <section id="student-stats" className="space-y-6 scroll-mt-20">
       {/* Section Title */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-2 border-b border-slate-200/80">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-2 border-b border-[#D1DFF0]">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-950 text-xs font-bold mb-1">
-            <Users className="w-3.5 h-3.5 text-blue-700" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EBF2FF] border border-[#2F6FED]/30 text-[#1E3A5F] text-xs font-bold mb-1">
+            <Users className="w-3.5 h-3.5 text-[#2F6FED]" />
             <span>สถิติจำนวนนักเรียนและโครงสร้างชั้นเรียน</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-black text-[#0F2942] tracking-tight">
-            ข้อมูลนักเรียน
+          <h2 className="text-xl sm:text-2xl font-black text-[#1E3A5F] tracking-tight flex items-center gap-2">
+            <span className="w-1.5 h-5 bg-[#D96B34] rounded-full inline-block" />
+            <span>ข้อมูลนักเรียน</span>
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500">
+          <p className="text-xs sm:text-sm text-[#4B6080] pl-3.5">
             สถิติจำนวนนักเรียนรายระดับชั้นและสัดส่วนเพศ ประจำปีการศึกษา {activeYear} (รวม {total} คน)
           </p>
         </div>
 
         {/* Dynamic Year Filter */}
-        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl self-start sm:self-auto border border-slate-200">
+        <div className="flex items-center gap-1 bg-[#EAF2FB] p-1 rounded-xl self-start sm:self-auto border border-[#D1DFF0]">
           {availableYears.map((yr) => (
             <button
               key={yr}
               onClick={() => setSelectedYear(yr)}
               className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                 activeYear === yr
-                  ? "bg-[#1D4ED8] text-white shadow-2xs"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "bg-[#2F6FED] text-white shadow-2xs"
+                  : "text-[#1E3A5F] hover:text-[#2F6FED]"
               }`}
             >
               ปี {yr}
@@ -117,15 +122,22 @@ export default function SchoolAnalyticsDashboard() {
       </div>
 
       {/* ================= 4 STAT CARDS ================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+      {!isLoaded ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <MetricCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 animate-fade-in">
         
-        {/* CARD 1: นักเรียนทั้งหมด */}
-        <div className="rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-[#1D4ED8] to-[#1E40AF] text-white shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden group">
+        {/* CARD 1: นักเรียนทั้งหมด (Primary Navy) */}
+        <div className="rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-[#1E3A5F] to-[#0F2540] text-white shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden group border border-[#162E4A]">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
 
           <div>
             <div className="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-white mb-3 shadow-inner">
-              <Users className="w-5 h-5" />
+              <Users className="w-5 h-5 text-[#7EB8E0]" />
             </div>
             <p className="text-sm font-medium text-white/90">นักเรียนทั้งหมด</p>
             <div className="mt-1 flex items-baseline gap-1.5">
@@ -139,8 +151,8 @@ export default function SchoolAnalyticsDashboard() {
           </p>
         </div>
 
-        {/* CARD 2: ปฐมวัย (อ.2 - อ.3) */}
-        <div className="rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-[#059669] to-[#047857] text-white shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+        {/* CARD 2: ปฐมวัย (อ.2 - อ.3) (Teal/Emerald) */}
+        <div className="rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-[#0F766E] to-[#115E59] text-white shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden border border-teal-800">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
 
           <div>
@@ -159,8 +171,8 @@ export default function SchoolAnalyticsDashboard() {
           </p>
         </div>
 
-        {/* CARD 3: ประถมต้น (ป.1 - ป.3) */}
-        <div className="rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-[#0891B2] to-[#0E7490] text-white shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+        {/* CARD 3: ประถมต้น (ป.1 - ป.3) (Bright Blue to Navy) */}
+        <div className="rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-[#2F6FED] to-[#1E3A5F] text-white shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden border border-[#2F6FED]/50">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
 
           <div>
@@ -179,13 +191,13 @@ export default function SchoolAnalyticsDashboard() {
           </p>
         </div>
 
-        {/* CARD 4: ประถมปลาย (ป.4 - ป.6) */}
-        <div className="rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-[#4F46E5] to-[#3730A3] text-white shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+        {/* CARD 4: ประถมปลาย (ป.4 - ป.6) (Slate Navy) */}
+        <div className="rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-[#244870] to-[#162E4A] text-white shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden border border-[#162E4A]">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
 
           <div>
             <div className="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-white mb-3 shadow-inner">
-              <Award className="w-5 h-5" />
+              <Award className="w-5 h-5 text-[#D96B34]" />
             </div>
             <p className="text-sm font-medium text-white/90">ประถมปลาย (ป.4 - ป.6)</p>
             <div className="mt-1 flex items-baseline gap-1.5">
@@ -198,41 +210,42 @@ export default function SchoolAnalyticsDashboard() {
             มุ่งเน้นความเป็นเลิศทางวิชาการ
           </p>
         </div>
-      </div>
+        </div>
+      )}
 
       {/* ================= DETAILED VISUALIZATION SECTION ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* Left: 8 Grade Bars (7 cols) */}
-        <div className="lg:col-span-7 bg-white rounded-3xl p-5 sm:p-7 border border-slate-200/90 shadow-sm flex flex-col justify-between space-y-4">
+        {/* Left: 8 Grade Bars (7 cols): Glassmorphism */}
+        <div className="lg:col-span-7 bg-white/80 backdrop-blur-md rounded-3xl p-5 sm:p-7 border border-[#D1DFF0] shadow-xs flex flex-col justify-between space-y-4">
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-xl bg-[#EBF2FF] text-[#2F6FED] flex items-center justify-center font-bold">
                 <BarChart3 className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="font-bold text-[#0F2942] text-sm">จำนวนนักเรียนแยกตามระดับชั้น</h3>
-                <p className="text-[11px] text-slate-400">เปรียบเทียบขนาดห้องเรียน (เฉลี่ย {avgPerRoom} คน/ห้อง)</p>
+                <h3 className="font-bold text-[#1E3A5F] text-sm">จำนวนนักเรียนแยกตามระดับชั้น</h3>
+                <p className="text-[11px] text-[#6B7FA0]">เปรียบเทียบขนาดห้องเรียน (เฉลี่ย {avgPerRoom} คน/ห้อง)</p>
               </div>
             </div>
-            <div className="hidden sm:flex items-center gap-3 text-[11px] text-slate-500 font-medium">
+            <div className="hidden sm:flex items-center gap-3 text-[11px] text-[#4B6080] font-medium">
               <span className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500" /> ปฐมวัย
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm bg-blue-600" /> ประถมศึกษา
+                <span className="w-2.5 h-2.5 rounded-sm bg-[#2F6FED]" /> ประถมศึกษา
               </span>
             </div>
           </div>
 
           {/* Chart Canvas with Guide Lines */}
-          <div className="relative pt-6 pb-2 px-1 sm:px-4 bg-gradient-to-b from-slate-50/50 to-slate-100/50 rounded-2xl border border-slate-200/80 overflow-hidden">
+          <div className="relative pt-6 pb-2 px-1 sm:px-4 bg-[#EAF2FB]/40 rounded-2xl border border-[#D1DFF0] overflow-hidden">
             {/* Horizontal Grid lines */}
             <div className="absolute inset-x-2 sm:inset-x-4 top-8 bottom-7 flex flex-col justify-between pointer-events-none opacity-30">
               <div className="border-b border-dashed border-slate-400 w-full" />
               <div className="border-b border-dashed border-slate-400 w-full" />
               <div className="border-b border-dashed border-slate-400 w-full" />
-              <div className="border-b border-slate-300 w-full" />
+              <div className="border-b border-[#D1DFF0] w-full" />
             </div>
 
             <div className="h-48 sm:h-56 grid grid-cols-8 gap-1 sm:gap-2.5 items-end relative z-10 w-full">
@@ -253,7 +266,7 @@ export default function SchoolAnalyticsDashboard() {
                   >
                     {/* Centered Count Label */}
                     <div className="mb-1 sm:mb-1.5 flex items-center justify-center">
-                      <span className="text-[10px] sm:text-xs font-black text-[#0F2942] group-hover:text-blue-700 font-mono transition-colors">
+                      <span className="text-[10px] sm:text-xs font-black text-[#1E3A5F] group-hover:text-[#2F6FED] font-mono transition-colors">
                         {grade.total}
                       </span>
                     </div>
@@ -265,7 +278,7 @@ export default function SchoolAnalyticsDashboard() {
                         className={`w-full rounded-t-md sm:rounded-t-lg transition-all duration-500 relative group-hover:scale-y-105 origin-bottom shadow-xs ${
                           isKindergarten
                             ? "bg-gradient-to-t from-emerald-600 to-teal-400 group-hover:from-emerald-500 group-hover:to-teal-300"
-                            : "bg-gradient-to-t from-[#0F2942] via-blue-700 to-sky-400 group-hover:from-blue-800 group-hover:to-sky-300"
+                            : "bg-gradient-to-t from-[#1E3A5F] via-[#2F6FED] to-[#7EB8E0] group-hover:from-[#2F6FED] group-hover:to-[#93C5FD]"
                         }`}
                       >
                         {/* Subtle Glass Highlight */}
@@ -274,7 +287,7 @@ export default function SchoolAnalyticsDashboard() {
                     </div>
 
                     {/* Uniform Short Grade Label (อ.2, อ.3, ป.1 ... ป.6) */}
-                    <span className="text-[10px] sm:text-xs font-bold text-slate-700 mt-2 text-center w-full group-hover:text-blue-700 transition-colors">
+                    <span className="text-[10px] sm:text-xs font-bold text-[#1E3A5F] mt-2 text-center w-full group-hover:text-[#2F6FED] transition-colors">
                       {shortLabel}
                     </span>
                   </div>
@@ -283,22 +296,22 @@ export default function SchoolAnalyticsDashboard() {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-[11px] text-slate-500 pt-2 border-t border-slate-100">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-[11px] text-[#4B6080] pt-2 border-t border-[#D1DFF0]">
             <span>ระดับชั้น อ.2 ถึง ป.6 (รวม {studentData.summary.totalClassrooms} ห้องเรียน)</span>
-            <span className="font-bold text-[#0F2942] sm:bg-slate-100 sm:px-2.5 sm:py-1 sm:rounded-lg self-start sm:self-auto">
-              ยอดรวมทั้งโรงเรียน: <strong className="text-blue-600 font-mono">{total}</strong> คน
+            <span className="font-bold text-[#1E3A5F] sm:bg-[#EAF2FB] sm:px-2.5 sm:py-1 sm:rounded-lg sm:border sm:border-[#D1DFF0] self-start sm:self-auto">
+              ยอดรวมทั้งโรงเรียน: <strong className="text-[#2F6FED] font-mono">{total}</strong> คน
             </span>
           </div>
         </div>
 
-        {/* Right: Modern Donut Chart (5 cols) */}
-        <div className="lg:col-span-5 bg-white rounded-3xl p-5 sm:p-7 border border-slate-200/90 shadow-sm flex flex-col justify-between space-y-4">
+        {/* Right: Modern Donut Chart (5 cols): Glassmorphism */}
+        <div className="lg:col-span-5 bg-white/80 backdrop-blur-md rounded-3xl p-5 sm:p-7 border border-[#D1DFF0] shadow-xs flex flex-col justify-between space-y-4">
           <div className="w-full flex items-center justify-between text-xs">
             <div>
-              <h3 className="font-bold text-[#0F2942] text-sm">สัดส่วนนักเรียนตามเพศ</h3>
-              <p className="text-[11px] text-slate-400">ปีการศึกษา {activeYear}</p>
+              <h3 className="font-bold text-[#1E3A5F] text-sm">สัดส่วนนักเรียนตามเพศ</h3>
+              <p className="text-[11px] text-[#6B7FA0]">ปีการศึกษา {activeYear}</p>
             </div>
-            <span className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-bold text-[11px] border border-blue-200/70">
+            <span className="px-2.5 py-1 rounded-full bg-[#EBF2FF] text-[#2F6FED] font-bold text-[11px] border border-[#2F6FED]/30">
               สัดส่วน {malePercent}:{femalePercent}
             </span>
           </div>
@@ -322,7 +335,7 @@ export default function SchoolAnalyticsDashboard() {
                 cy={donutSize / 2}
                 r={radius}
                 fill="none"
-                stroke="#1D4ED8"
+                stroke="#2F6FED"
                 strokeWidth={strokeWidth}
                 strokeDasharray={circumference}
                 strokeDashoffset={maleStrokeDashoffset}
@@ -333,36 +346,36 @@ export default function SchoolAnalyticsDashboard() {
 
             {/* Inner Center Badge */}
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-              <span className="text-2xl sm:text-3xl font-black text-[#0F2942] tracking-tight">{total}</span>
-              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">นักเรียน</span>
+              <span className="text-2xl sm:text-3xl font-black text-[#1E3A5F] tracking-tight">{total}</span>
+              <span className="text-[10px] uppercase font-bold text-[#6B7FA0] tracking-wider">นักเรียน</span>
             </div>
           </div>
 
           {/* Gender Legend Cards */}
           <div className="grid grid-cols-2 gap-3 w-full">
-            <div className="p-3 rounded-2xl bg-blue-50/70 border border-blue-100 flex items-center gap-2.5">
-              <div className="w-3.5 h-3.5 rounded-full bg-[#1D4ED8] shrink-0" />
+            <div className="p-3 rounded-2xl bg-[#EBF2FF] border border-[#2F6FED]/20 flex items-center gap-2.5">
+              <div className="w-3.5 h-3.5 rounded-full bg-[#2F6FED] shrink-0" />
               <div>
-                <p className="text-[10px] text-slate-500 font-medium">ชาย ({malePercent}%)</p>
-                <p className="text-base font-black text-[#0F2942]">{studentData.summary.totalMale} <span className="text-xs font-normal text-slate-400">คน</span></p>
+                <p className="text-[10px] text-[#4B6080] font-medium">ชาย ({malePercent}%)</p>
+                <p className="text-base font-black text-[#1E3A5F]">{studentData.summary.totalMale} <span className="text-xs font-normal text-[#6B7FA0]">คน</span></p>
               </div>
             </div>
 
-            <div className="p-3 rounded-2xl bg-pink-50/70 border border-pink-100 flex items-center gap-2.5">
+            <div className="p-3 rounded-2xl bg-pink-50/70 border border-pink-200/60 flex items-center gap-2.5">
               <div className="w-3.5 h-3.5 rounded-full bg-[#EC4899] shrink-0" />
               <div>
-                <p className="text-[10px] text-slate-500 font-medium">หญิง ({femalePercent}%)</p>
-                <p className="text-base font-black text-[#0F2942]">{studentData.summary.totalFemale} <span className="text-xs font-normal text-slate-400">คน</span></p>
+                <p className="text-[10px] text-[#4B6080] font-medium">หญิง ({femalePercent}%)</p>
+                <p className="text-base font-black text-[#1E3A5F]">{studentData.summary.totalFemale} <span className="text-xs font-normal text-[#6B7FA0]">คน</span></p>
               </div>
             </div>
           </div>
 
           {/* Quick link */}
-          <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-            <span className="text-[11px] text-slate-400">ข้อมูล สพป. บุรีรัมย์ เขต 3</span>
+          <div className="pt-2 border-t border-[#D1DFF0] flex items-center justify-between">
+            <span className="text-[11px] text-[#6B7FA0] whitespace-nowrap">ข้อมูล สพป. บุรีรัมย์ เขต&nbsp;3</span>
             <Link
               href="/downloads"
-              className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 group"
+              className="text-xs font-bold text-[#2F6FED] hover:text-[#1f5bcc] flex items-center gap-1 group"
             >
               <span>ดาวน์โหลดเอกสารสถิติ</span>
               <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />

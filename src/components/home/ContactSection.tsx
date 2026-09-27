@@ -108,9 +108,9 @@ export default function ContactSection() {
                 href={navigationUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="absolute top-2 right-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/95 hover:bg-white text-[#0F2942] font-bold text-[11px] shadow-sm transition-all border border-slate-200"
+                className="absolute top-2 right-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/95 hover:bg-white text-[#1E3A5F] font-bold text-[11px] shadow-sm transition-all border border-slate-200"
               >
-                <ExternalLink className="w-3 h-3 text-blue-600" />
+                <ExternalLink className="w-3 h-3 text-[#2F6FED]" />
                 <span>เปิดใน Google Maps</span>
               </a>
             </div>

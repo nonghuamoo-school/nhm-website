@@ -20,9 +20,10 @@ import {
   AlertCircle,
   Sparkles,
   School,
-  GraduationCap
+  GraduationCap,
+  RefreshCw
 } from "lucide-react";
-import { visitorService } from "@/services/visitorService";
+import { visitorService, VisitorStats } from "@/services/visitorService";
 import StudentAnalyticsWidget from "@/components/charts/StudentAnalyticsWidget";
 import AcademicPerformanceChart from "@/components/academic/AcademicPerformanceChart";
 import {
@@ -78,7 +79,24 @@ export default function AdminStatisticsPage() {
     });
   }, []);
 
-  const stats = visitorService.getVisitorStats();
+  // Live Real-time Visitor Stats state
+  const [stats, setStats] = useState<VisitorStats>(() => visitorService.getVisitorStats());
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  useEffect(() => {
+    // 1. Immediately fetch latest live metrics from Server API
+    visitorService.syncFromCloud().then((fresh) => {
+      if (fresh) setStats(fresh);
+    });
+
+    // 2. Subscribe to real-time updates (cross-tab broadcast + active 6s polling)
+    const unsubscribe = visitorService.subscribeToVisitorStats((newStats) => {
+      setStats(newStats);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const maxDaily = Math.max(1, ...stats.dailyTrend.map((d) => d.views));
   const maxMonthly = Math.max(1, ...stats.monthlyTrend.map((m) => m.views));
 
@@ -201,7 +219,7 @@ export default function AdminStatisticsPage() {
         icon: "success",
         title: "บันทึกข้อมูลสถิตินักเรียนสำเร็จ!",
         text: `บันทึกข้อมูลสถิตินักเรียนปีการศึกษา ${selectedStudentYear} และทุกปีการศึกษา ซิงค์ Cloud Database เรียบร้อยแล้ว`,
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#2F6FED",
         confirmButtonText: "ตกลง",
         timer: 2500,
         timerProgressBar: true,
@@ -212,7 +230,7 @@ export default function AdminStatisticsPage() {
         icon: "error",
         title: "เกิดข้อผิดพลาดในการบันทึก",
         text: "กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#2F6FED",
       });
     }
   };
@@ -232,16 +250,16 @@ export default function AdminStatisticsPage() {
     <div className="space-y-6">
       
       {/* ================= 1. PAGE HEADER ================= */}
-      <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="glass-card-admin rounded-2xl p-6 border border-[#D1DFF0] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
             <Link href="/admin" className="hover:text-blue-700 font-medium">
               แดชบอร์ด
             </Link>
             <span>/</span>
-            <span className="text-[#0F2942] font-semibold">สถิติและข้อมูลนักเรียน</span>
+            <span className="text-[#1E3A5F] font-semibold">สถิติและข้อมูลนักเรียน</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#0F2942]">
+          <h1 className="text-xl sm:text-2xl font-bold text-[#1E3A5F]">
             ศูนย์ข้อมูลสถิติและการวิเคราะห์สถานศึกษา
           </h1>
           <p className="text-xs text-slate-500 mt-1">
@@ -250,12 +268,12 @@ export default function AdminStatisticsPage() {
         </div>
 
         {/* 2 Top Navigation Tabs */}
-        <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 text-xs font-bold self-start sm:self-auto">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 text-xs font-bold w-full sm:w-auto">
           <button
             onClick={() => setActiveTab("visitors")}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl transition-all min-h-[38px] ${
               activeTab === "visitors"
-                ? "bg-[#0F2942] text-white shadow-2xs"
+                ? "bg-[#1E3A5F] text-white shadow-sm"
                 : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
             }`}
           >
@@ -264,15 +282,15 @@ export default function AdminStatisticsPage() {
           </button>
           <button
             onClick={() => setActiveTab("students")}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl transition-all min-h-[38px] ${
               activeTab === "students"
-                ? "bg-[#0F2942] text-white shadow-2xs"
+                ? "bg-[#1E3A5F] text-white shadow-sm"
                 : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
             }`}
           >
             <Users className="w-4 h-4 text-amber-400" />
             <span>2. จัดการข้อมูลนักเรียนรายปี</span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/30 text-white font-bold">
+            <span className="ml-1 text-[10px] px-2 py-0.5 rounded-full bg-blue-500/30 text-white font-bold">
               {availableYears.length} ปี
             </span>
           </button>
@@ -297,16 +315,37 @@ export default function AdminStatisticsPage() {
       {/* ================= TAB 1: VISITOR ANALYTICS ================= */}
       {activeTab === "visitors" && (
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500">
-              ช่วงเวลาการวิเคราะห์:
-            </span>
-            <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-[#E5E7EB] text-xs font-semibold shadow-2xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-500">
+                ช่วงเวลาการวิเคราะห์:
+              </span>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Real-time Sync</span>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  setIsSyncing(true);
+                  const fresh = await visitorService.syncFromCloud();
+                  setStats(fresh);
+                  setTimeout(() => setIsSyncing(false), 500);
+                }}
+                disabled={isSyncing}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 bg-white border border-[#D1DFF0] hover:bg-slate-50 transition-all cursor-pointer shadow-2xs"
+                title="ดึงข้อมูลสถิติล่าสุดจากเซิร์ฟเวอร์ทันที"
+              >
+                <RefreshCw className={`w-3 h-3 text-[#2F6FED] ${isSyncing ? "animate-spin" : ""}`} />
+                <span>อัปเดตสด</span>
+              </button>
+            </div>
+            <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-[#D1DFF0] text-xs font-semibold shadow-2xs">
               <button
                 onClick={() => setTimeRange("7d")}
                 className={`px-3 py-1.5 rounded-lg transition-colors ${
                   timeRange === "7d"
-                    ? "bg-[#0F2942] text-white shadow-2xs"
+                    ? "bg-[#1E3A5F] text-white shadow-2xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
@@ -316,7 +355,7 @@ export default function AdminStatisticsPage() {
                 onClick={() => setTimeRange("30d")}
                 className={`px-3 py-1.5 rounded-lg transition-colors ${
                   timeRange === "30d"
-                    ? "bg-[#0F2942] text-white shadow-2xs"
+                    ? "bg-[#1E3A5F] text-white shadow-2xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
@@ -327,14 +366,14 @@ export default function AdminStatisticsPage() {
 
           {/* 4 Analytical KPI Metric Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white rounded-2xl p-5 border border-[#E5E7EB] shadow-xs">
+            <div className="glass-card-admin rounded-2xl p-5 border border-[#D1DFF0] shadow-sm">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-semibold text-slate-500">วันนี้</span>
-                <span className="w-8 h-8 rounded-lg bg-blue-50 text-[#0F2942] flex items-center justify-center">
+                <span className="w-8 h-8 rounded-lg bg-blue-50 text-[#1E3A5F] flex items-center justify-center">
                   <Eye className="w-4 h-4" />
                 </span>
               </div>
-              <div className="text-2xl font-bold text-[#0F2942]">
+              <div className="text-2xl font-bold text-[#1E3A5F]">
                 {stats.today.toLocaleString()} ครั้ง
               </div>
               <span className="text-[11px] text-emerald-700 font-semibold mt-1 inline-flex items-center gap-1">
@@ -343,14 +382,14 @@ export default function AdminStatisticsPage() {
               </span>
             </div>
 
-            <div className="bg-white rounded-2xl p-5 border border-[#E5E7EB] shadow-xs">
+            <div className="glass-card-admin rounded-2xl p-5 border border-[#D1DFF0] shadow-sm">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-semibold text-slate-500">สัปดาห์นี้</span>
                 <span className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center">
                   <Calendar className="w-4 h-4" />
                 </span>
               </div>
-              <div className="text-2xl font-bold text-[#0F2942]">
+              <div className="text-2xl font-bold text-[#1E3A5F]">
                 {stats.thisWeek.toLocaleString()} ครั้ง
               </div>
               <span className="text-[11px] text-slate-400 mt-1 block">
@@ -358,14 +397,14 @@ export default function AdminStatisticsPage() {
               </span>
             </div>
 
-            <div className="bg-white rounded-2xl p-5 border border-[#E5E7EB] shadow-xs">
+            <div className="glass-card-admin rounded-2xl p-5 border border-[#D1DFF0] shadow-sm">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-semibold text-slate-500">เดือนนี้</span>
                 <span className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
                   <TrendingUp className="w-4 h-4" />
                 </span>
               </div>
-              <div className="text-2xl font-bold text-[#0F2942]">
+              <div className="text-2xl font-bold text-[#1E3A5F]">
                 {stats.thisMonth.toLocaleString()} ครั้ง
               </div>
               <span className="text-[11px] text-slate-400 mt-1 block">
@@ -373,14 +412,14 @@ export default function AdminStatisticsPage() {
               </span>
             </div>
 
-            <div className="bg-white rounded-2xl p-5 border border-[#E5E7EB] shadow-xs">
+            <div className="glass-card-admin rounded-2xl p-5 border border-[#D1DFF0] shadow-sm">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-semibold text-slate-500">ยอดรวมทั้งหมด</span>
                 <span className="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
                   <BarChart3 className="w-4 h-4" />
                 </span>
               </div>
-              <div className="text-2xl font-bold text-[#0F2942]">
+              <div className="text-2xl font-bold text-[#1E3A5F]">
                 {stats.total.toLocaleString()} ครั้ง
               </div>
               <span className="text-[11px] text-slate-400 mt-1 block">
@@ -390,10 +429,10 @@ export default function AdminStatisticsPage() {
           </div>
 
           {/* Chart Visualization Section */}
-          <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB]">
+          <div className="glass-card-admin rounded-2xl p-6 border border-[#D1DFF0] shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#D1DFF0]">
               <div>
-                <h2 className="text-base font-bold text-[#0F2942]">
+                <h2 className="text-base font-bold text-[#1E3A5F]">
                   {timeRange === "7d"
                     ? "กราฟแสดงแนวโน้มผู้เข้าชมย้อนหลัง 7 วัน"
                     : "กราฟแสดงแนวโน้มผู้เข้าชมย้อนหลัง 6 เดือน"}
@@ -410,22 +449,48 @@ export default function AdminStatisticsPage() {
               <div className="space-y-3 pt-2">
                 <div className="grid grid-cols-7 gap-2 sm:gap-4 items-end h-44 sm:h-52 pt-6">
                   {stats.dailyTrend.map((d, i) => {
+                    const isToday = i === stats.dailyTrend.length - 1;
                     const heightPercent = Math.round((d.views / maxDaily) * 100);
                     return (
                       <div key={i} className="flex flex-col items-center h-full justify-end group">
-                        <span className="text-[10px] font-bold text-[#0F2942] mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span
+                          className={`text-[10px] font-bold mb-1 transition-opacity ${
+                            isToday
+                              ? "text-[#D96B34] opacity-100"
+                              : "text-[#1E3A5F] opacity-0 group-hover:opacity-100"
+                          }`}
+                        >
                           {d.views}
                         </span>
-                        <div className="w-full max-w-[36px] bg-slate-100 rounded-t-lg h-full flex items-end overflow-hidden">
+                        <div
+                          className={`w-full max-w-[36px] ${
+                            isToday ? "bg-amber-100/60 ring-1 ring-[#D96B34]/30" : "bg-slate-100"
+                          } rounded-t-lg h-full flex items-end overflow-hidden`}
+                        >
                           <div
-                            className="w-full bg-[#0F2942] group-hover:bg-[#163C61] rounded-t-lg transition-all"
+                            className={`w-full ${
+                              isToday
+                                ? "bg-[#D96B34] hover:bg-[#c35c27]"
+                                : "bg-[#2F6FED] group-hover:bg-[#1E3A5F]"
+                            } rounded-t-lg transition-all`}
                             style={{ height: `${heightPercent}%` }}
                           />
                         </div>
-                        <span className="text-[11px] font-semibold text-slate-700 mt-2">
+                        <span
+                          className={`text-[11px] font-semibold mt-2 ${
+                            isToday ? "text-[#D96B34] font-bold" : "text-slate-700"
+                          }`}
+                        >
                           {d.day}
                         </span>
-                        <span className="text-[10px] text-slate-400">{d.date}</span>
+                        <div className="flex flex-col items-center">
+                          <span className="text-[10px] text-slate-400">{d.date}</span>
+                          {isToday && (
+                            <span className="text-[9px] px-1 py-0.5 bg-[#D96B34]/15 text-[#D96B34] font-bold rounded-sm mt-0.5">
+                              วันนี้
+                            </span>
+                          )}
+                        </div>
                       </div>
                     );
                   })}
@@ -438,12 +503,12 @@ export default function AdminStatisticsPage() {
                     const heightPercent = Math.round((m.views / maxMonthly) * 100);
                     return (
                       <div key={i} className="flex flex-col items-center h-full justify-end group">
-                        <span className="text-[10px] font-bold text-[#0F2942] mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className="text-[10px] font-bold text-[#1E3A5F] mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           {m.views.toLocaleString()}
                         </span>
                         <div className="w-full max-w-[44px] bg-slate-100 rounded-t-lg h-full flex items-end overflow-hidden">
                           <div
-                            className="w-full bg-[#0F2942] group-hover:bg-[#163C61] rounded-t-lg transition-all"
+                            className="w-full bg-[#2F6FED] group-hover:bg-[#1E3A5F] rounded-t-lg transition-all"
                             style={{ height: `${heightPercent}%` }}
                           />
                         </div>
@@ -460,10 +525,10 @@ export default function AdminStatisticsPage() {
 
           {/* Two Column Breakdown Tables: Popular Pages & Popular News */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E5E7EB] shadow-xs">
-              <div className="flex items-center gap-2 pb-3 border-b border-[#E5E7EB] mb-4">
-                <Globe className="w-4 h-4 text-[#0F2942]" />
-                <h3 className="text-sm font-bold text-[#0F2942]">
+            <div className="glass-card-admin rounded-2xl p-5 sm:p-6 border border-[#D1DFF0] shadow-sm">
+              <div className="flex items-center gap-2 pb-3 border-b border-[#D1DFF0] mb-4">
+                <Globe className="w-4 h-4 text-[#1E3A5F]" />
+                <h3 className="text-sm font-bold text-[#1E3A5F]">
                   หน้าเว็บที่มีผู้เข้าชมสูงสุด (Popular Pages)
                 </h3>
               </div>
@@ -480,7 +545,7 @@ export default function AdminStatisticsPage() {
                       <span className="text-[11px] text-slate-400">{page.path}</span>
                     </div>
                     <div className="text-right shrink-0">
-                      <span className="font-bold text-[#0F2942]">
+                      <span className="font-bold text-[#1E3A5F]">
                         {page.views.toLocaleString()}
                       </span>
                       <span className="text-slate-400 text-[10px] block">ครั้ง</span>
@@ -490,10 +555,10 @@ export default function AdminStatisticsPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E5E7EB] shadow-xs">
-              <div className="flex items-center gap-2 pb-3 border-b border-[#E5E7EB] mb-4">
-                <FileText className="w-4 h-4 text-[#0F2942]" />
-                <h3 className="text-sm font-bold text-[#0F2942]">
+            <div className="glass-card-admin rounded-2xl p-5 sm:p-6 border border-[#D1DFF0] shadow-sm">
+              <div className="flex items-center gap-2 pb-3 border-b border-[#D1DFF0] mb-4">
+                <FileText className="w-4 h-4 text-[#1E3A5F]" />
+                <h3 className="text-sm font-bold text-[#1E3A5F]">
                   ข่าวประชาสัมพันธ์ที่มีผู้เข้าชมสูงสุด (Popular News)
                 </h3>
               </div>
@@ -510,7 +575,7 @@ export default function AdminStatisticsPage() {
                       <span className="text-[11px] text-slate-400">{news.date}</span>
                     </div>
                     <div className="text-right shrink-0">
-                      <span className="font-bold text-[#0F2942]">
+                      <span className="font-bold text-[#1E3A5F]">
                         {news.views.toLocaleString()}
                       </span>
                       <span className="text-slate-400 text-[10px] block">ครั้ง</span>
@@ -528,13 +593,13 @@ export default function AdminStatisticsPage() {
         <div className="space-y-6">
           
           {/* Top Banner Guide */}
-          <div className="p-5 bg-gradient-to-r from-blue-50 via-indigo-50 to-white rounded-3xl border border-blue-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-5 glass-card-admin rounded-2xl border border-[#D1DFF0] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-md">
+              <div className="w-10 h-10 rounded-xl bg-[#2F6FED] text-white flex items-center justify-center shrink-0 shadow-sm">
                 <Users className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-sm sm:text-base text-[#0F2942]">
+                <h3 className="font-bold text-sm sm:text-base text-[#1E3A5F]">
                   จัดการข้อมูลนักเรียนรายชั้นเรียนและเพิ่มปีย้อนหลัง
                 </h3>
                 <p className="text-xs text-slate-600 mt-1 max-w-2xl leading-relaxed">
@@ -546,7 +611,7 @@ export default function AdminStatisticsPage() {
             <button
               onClick={() => setShowAddYearModal(true)}
               type="button"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-md transition-all shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#2F6FED] hover:bg-[#255bc4] text-white text-xs font-bold shadow-sm transition-all shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>+ เพิ่มปีการศึกษาใหม่</span>
@@ -554,7 +619,7 @@ export default function AdminStatisticsPage() {
           </div>
 
           {/* Year Switcher Bar */}
-          <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+          <div className="glass-card-admin p-3 rounded-2xl border border-[#D1DFF0] shadow-sm flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-slate-500">เลือกปีการศึกษา:</span>
               <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
@@ -564,7 +629,7 @@ export default function AdminStatisticsPage() {
                     onClick={() => setSelectedStudentYear(yr)}
                     className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
                       selectedStudentYear === yr
-                        ? "bg-[#1D4ED8] text-white shadow-xs"
+                        ? "bg-[#1E3A5F] text-white shadow-xs"
                         : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
@@ -596,7 +661,7 @@ export default function AdminStatisticsPage() {
               <button
                 onClick={handleSaveStudentStats}
                 type="button"
-                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 shadow-xs transition-all"
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold text-white bg-[#2F6FED] hover:bg-[#255bc4] shadow-sm transition-all"
               >
                 <Save className="w-3.5 h-3.5" />
                 <span>บันทึกข้อมูลนักเรียน</span>
@@ -606,7 +671,7 @@ export default function AdminStatisticsPage() {
 
           {/* Active Year KPI Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-            <div className="bg-gradient-to-br from-[#1D4ED8] to-[#1E40AF] text-white p-4 rounded-2xl shadow-sm">
+            <div className="bg-gradient-to-br from-[#1E3A5F] to-[#0F2540] text-white p-4 rounded-2xl shadow-sm">
               <span className="text-xs font-medium text-white/80 block">นักเรียนทั้งหมด</span>
               <div className="text-3xl font-black text-white mt-1">
                 {activeYearData.summary.totalStudents} <span className="text-xs font-normal text-white/90">คน</span>
@@ -616,7 +681,7 @@ export default function AdminStatisticsPage() {
               </span>
             </div>
 
-            <div className="bg-gradient-to-br from-sky-600 to-blue-700 text-white p-4 rounded-2xl shadow-sm">
+            <div className="bg-gradient-to-br from-[#2F6FED] to-[#1E3A5F] text-white p-4 rounded-2xl shadow-sm">
               <span className="text-xs font-medium text-white/80 block">นักเรียนชาย</span>
               <div className="text-3xl font-black text-white mt-1">
                 {activeYearData.summary.totalMale} <span className="text-xs font-normal text-white/90">คน</span>
@@ -652,10 +717,10 @@ export default function AdminStatisticsPage() {
           </div>
 
           {/* Editable Data Table */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+          <div className="glass-card-admin rounded-2xl border border-[#D1DFF0] shadow-sm overflow-hidden">
             <div className="p-4 sm:p-6 bg-slate-50/70 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h3 className="font-bold text-sm sm:text-base text-[#0F2942] flex items-center gap-2">
+                <h3 className="font-bold text-sm sm:text-base text-[#1E3A5F] flex items-center gap-2">
                   <span>ตารางกรอกข้อมูลนักเรียน ปีการศึกษา {selectedStudentYear}</span>
                   <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 font-normal">
                     รายระดับชั้น (อ.2 - ป.6)
@@ -673,13 +738,16 @@ export default function AdminStatisticsPage() {
                   value={activeYearData.updatedDate}
                   onChange={(e) => handleUpdatedDateChange(e.target.value)}
                   placeholder="เช่น 10 มิถุนายน 2569"
-                  className="py-1.5 px-3 text-xs bg-white border border-slate-300 rounded-xl font-medium text-[#0F2942] focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                  className="py-1.5 px-3 text-xs bg-white border border-slate-300 rounded-xl font-medium text-[#1E3A5F] focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                 />
               </div>
             </div>
 
             <div className="overflow-x-auto p-4 sm:p-6">
-              <table className="w-full text-xs sm:text-sm border-collapse">
+              <p className="text-[11px] text-slate-500 sm:hidden mb-2.5 flex items-center gap-1">
+                <span>👉 เลื่อนซ้าย-ขวาเพื่อกรอกจำนวนนักเรียนและห้องเรียนให้ครบทุกคอลัมน์</span>
+              </p>
+              <table className="w-full text-xs sm:text-sm border-collapse min-w-[550px]">
                 <thead>
                   <tr className="bg-slate-100/90 text-slate-700 font-bold border-b border-slate-200">
                     <th className="py-3 px-4 text-left font-bold">ระดับชั้นเรียน</th>
@@ -700,7 +768,7 @@ export default function AdminStatisticsPage() {
                 <tbody className="divide-y divide-slate-100">
                   {activeYearData.grades.map((grade, idx) => (
                     <tr key={idx} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="py-3 px-4 font-bold text-[#0F2942]">
+                      <td className="py-3 px-4 font-bold text-[#1E3A5F]">
                         {grade.grade}
                       </td>
 
@@ -727,7 +795,7 @@ export default function AdminStatisticsPage() {
                       </td>
 
                       {/* Total (auto) */}
-                      <td className="py-2 px-3 text-center font-black text-base text-[#0F2942] bg-slate-50/80">
+                      <td className="py-2 px-3 text-center font-black text-base text-[#1E3A5F] bg-slate-50/80">
                         {grade.total}
                       </td>
 
@@ -746,7 +814,7 @@ export default function AdminStatisticsPage() {
 
                   {/* Summary Total Row */}
                   <tr className="bg-slate-100/90 font-black text-sm border-t-2 border-slate-300">
-                    <td className="py-3 px-4 text-[#0F2942]">
+                    <td className="py-3 px-4 text-[#1E3A5F]">
                       รวมทั้งสิ้น (ปี {selectedStudentYear})
                     </td>
                     <td className="py-3 px-4 text-center text-blue-900 bg-blue-50/60 font-black">
@@ -755,7 +823,7 @@ export default function AdminStatisticsPage() {
                     <td className="py-3 px-4 text-center text-rose-900 bg-rose-50/60 font-black">
                       {activeYearData.summary.totalFemale} คน
                     </td>
-                    <td className="py-3 px-4 text-center text-white bg-[#0F2942] font-black text-base">
+                    <td className="py-3 px-4 text-center text-white bg-[#1E3A5F] font-black text-base">
                       {activeYearData.summary.totalStudents} คน
                     </td>
                     <td className="py-3 px-4 text-center text-emerald-900 bg-emerald-50/60 font-black">
@@ -771,7 +839,7 @@ export default function AdminStatisticsPage() {
               <button
                 onClick={handleSaveStudentStats}
                 type="button"
-                className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow-md transition-all self-start sm:self-auto"
+                className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-[#2F6FED] hover:bg-[#255bc4] text-white font-bold text-xs shadow-sm transition-all self-start sm:self-auto"
               >
                 <Save className="w-4 h-4" />
                 <span>บันทึกข้อมูลสถิตินักเรียน</span>
@@ -783,8 +851,8 @@ export default function AdminStatisticsPage() {
           <div className="space-y-3 pt-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-blue-700" />
-                <h3 className="font-bold text-base text-[#0F2942]">
+                <Sparkles className="w-5 h-5 text-[#2F6FED]" />
+                <h3 className="font-bold text-base text-[#1E3A5F]">
                   ตัวอย่างการแสดงผลกราฟจริงบนเว็บไซต์ (Live Preview)
                 </h3>
               </div>
@@ -802,13 +870,13 @@ export default function AdminStatisticsPage() {
       {/* ================= MODAL: ADD NEW ACADEMIC YEAR ================= */}
       {showAddYearModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl space-y-4 border border-slate-200">
+          <div className="bg-white rounded-2xl p-6 sm:p-7 max-w-md w-full shadow-2xl space-y-4 border border-[#D1DFF0]">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-blue-100 text-blue-800 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-[#2F6FED]/10 text-[#2F6FED] flex items-center justify-center shrink-0">
                 <Plus className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-base text-[#0F2942]">เพิ่มปีการศึกษาใหม่</h3>
+                <h3 className="font-bold text-base text-[#1E3A5F]">เพิ่มปีการศึกษาใหม่</h3>
                 <p className="text-xs text-slate-500">เช่น ปี 2566, 2565 หรือปีย้อนหลังอื่นๆ</p>
               </div>
             </div>
@@ -822,7 +890,7 @@ export default function AdminStatisticsPage() {
                 value={newYearInput}
                 onChange={(e) => setNewYearInput(e.target.value)}
                 placeholder="เช่น 2566"
-                className="w-full py-2.5 px-3 text-sm font-bold text-[#0F2942] bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                className="w-full py-2.5 px-3 text-sm font-bold text-[#1E3A5F] bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                 autoFocus
               />
               <span className="text-[11px] text-slate-400 mt-1 block">
@@ -845,7 +913,7 @@ export default function AdminStatisticsPage() {
               <button
                 type="button"
                 onClick={handleCreateNewYear}
-                className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 transition-all shadow-xs"
+                className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#2F6FED] hover:bg-[#255bc4] transition-all shadow-sm"
               >
                 ยืนยันการเพิ่มปี
               </button>

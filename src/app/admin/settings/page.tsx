@@ -31,7 +31,8 @@ import {
   Lock,
   Key,
   ShieldAlert,
-  EyeOff
+  EyeOff,
+  Loader2
 } from "lucide-react";
 import SchoolLogo from "@/components/common/SchoolLogo";
 import { schoolInfo } from "@/data/schoolInfo";
@@ -47,6 +48,7 @@ type SettingsTab = "hero" | "branding" | "general" | "vision" | "director" | "co
 export default function AdminSettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>("hero");
   const [saved, setSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Admin password change states
   const [currentPasswordInput, setCurrentPasswordInput] = useState("");
@@ -163,6 +165,7 @@ export default function AdminSettingsPage() {
 
   const handleSave = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    setIsSaving(true);
     try {
       // 1. Save to cloud and localStorage via helper
       await saveSchoolSettingsCloud(formData as unknown as SchoolSettingsData);
@@ -208,7 +211,7 @@ export default function AdminSettingsPage() {
         title: "บันทึกการตั้งค่าเรียบร้อยแล้ว!",
         text: "ข้อมูลถูกบันทึกและซิงค์ Cloud Database (Real-time) เรียบร้อยแล้ว",
         confirmButtonText: "ตกลง",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
         timer: 2500,
         timerProgressBar: true,
       });
@@ -219,8 +222,10 @@ export default function AdminSettingsPage() {
         title: "เกิดข้อผิดพลาดในการบันทึก",
         text: "กรุณาลองใหม่อีกครั้ง",
         confirmButtonText: "ตกลง",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
       });
+    } finally {
+      setIsSaving(false);
     }
     setSaved(true);
     setTimeout(() => setSaved(false), 3500);
@@ -276,7 +281,7 @@ export default function AdminSettingsPage() {
         icon: "success",
         title: "อัปโหลดภาพแบนเนอร์สำเร็จ!",
         text: `อัปโหลดภาพส่วนหัว "${file.name}" เรียบร้อยแล้ว (บีบอัดขนาดเหมาะสม อย่าลืมกดบันทึกการตั้งค่า)`,
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
         timer: 2000,
         showConfirmButton: false,
       });
@@ -286,7 +291,7 @@ export default function AdminSettingsPage() {
         icon: "error",
         title: "เกิดข้อผิดพลาดในการโหลดรูปภาพ",
         text: err?.message || "กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
       });
     } finally {
       e.target.value = "";
@@ -325,7 +330,7 @@ export default function AdminSettingsPage() {
         icon: "success",
         title: "อัปโหลดตราสัญลักษณ์สำเร็จ!",
         text: `อัปโหลดตราสัญลักษณ์โรงเรียน "${file.name}" เรียบร้อยแล้ว (อย่าลืมกดบันทึกการตั้งค่า)`,
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
         timer: 2000,
         showConfirmButton: false,
       });
@@ -335,7 +340,7 @@ export default function AdminSettingsPage() {
         icon: "error",
         title: "เกิดข้อผิดพลาดในการโหลดรูปภาพ",
         text: err?.message || "กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
       });
     } finally {
       e.target.value = "";
@@ -356,7 +361,7 @@ export default function AdminSettingsPage() {
         icon: "success",
         title: "อัปโหลดรูปถ่าย ผอ. สำเร็จ!",
         text: `อัปโหลดรูปถ่ายผู้อำนวยการ "${file.name}" เรียบร้อยแล้ว (อย่าลืมกดบันทึกการตั้งค่า)`,
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
         timer: 2000,
         showConfirmButton: false,
       });
@@ -366,7 +371,7 @@ export default function AdminSettingsPage() {
         icon: "error",
         title: "เกิดข้อผิดพลาดในการโหลดรูปภาพ",
         text: err?.message || "กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
       });
     } finally {
       e.target.value = "";
@@ -406,7 +411,7 @@ export default function AdminSettingsPage() {
         title: "ไม่พบข้อมูลรูปถ่ายในส่วนบุคลากร",
         text: "สามารถคลิก 'เลือกไฟล์ภาพจากเครื่อง' เพื่ออัปโหลดรูป ผอ. ได้โดยตรง",
         confirmButtonText: "เข้าใจแล้ว",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
       });
     } catch (e) {
       console.error(e);
@@ -420,7 +425,7 @@ export default function AdminSettingsPage() {
         title: "กรุณาระบุรหัสผ่านเดิม",
         text: "หากจำรหัสผ่านเดิมไม่ได้ ให้กรอกรหัสผ่านเริ่มต้น @31030078",
         confirmButtonText: "ตกลง",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
       });
       return;
     }
@@ -432,7 +437,7 @@ export default function AdminSettingsPage() {
         title: "รหัสผ่านเดิมไม่ถูกต้อง",
         text: "กรุณาตรวจสอบรหัสผ่านเดิมอีกครั้ง (หรือใช้ @31030078)",
         confirmButtonText: "ลองใหม่",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
       });
       return;
     }
@@ -443,7 +448,7 @@ export default function AdminSettingsPage() {
         title: "รหัสผ่านสั้นเกินไป",
         text: "รหัสผ่านใหม่ต้องมีความยาวอย่างน้อย 4 ตัวอักษร",
         confirmButtonText: "ตกลง",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
       });
       return;
     }
@@ -454,7 +459,7 @@ export default function AdminSettingsPage() {
         title: "รหัสผ่านไม่ตรงกัน",
         text: "รหัสผ่านใหม่และช่องยืนยันรหัสผ่านต้องตรงกันทุกตัวอักษร",
         confirmButtonText: "ตกลง",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
       });
       return;
     }
@@ -467,7 +472,7 @@ export default function AdminSettingsPage() {
         title: "เปลี่ยนรหัสผ่านสำเร็จ!",
         html: `รหัสผ่านใหม่ของคุณคือ: <strong class="font-mono text-blue-900 bg-blue-50 px-2 py-0.5 rounded">${newPasswordInput}</strong><br><span class="text-xs text-slate-500">ระบบซิงค์รหัสผ่านใหม่เรียบร้อยแล้ว ใช้เข้าสู่ระบบได้ทันที</span>`,
         confirmButtonText: "เข้าใจแล้ว",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
       });
       setCurrentPasswordInput("");
       setNewPasswordInput("");
@@ -479,7 +484,7 @@ export default function AdminSettingsPage() {
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถบันทึกรหัสผ่านใหม่ได้ กรุณาลองใหม่อีกครั้ง",
         confirmButtonText: "ตกลง",
-        confirmButtonColor: "#0F2942",
+        confirmButtonColor: "#1E3A5F",
       });
     } finally {
       setIsChangingPassword(false);
@@ -500,7 +505,7 @@ export default function AdminSettingsPage() {
   const heroImagePresets = [
     {
       title: "ซุ้มประตูโรงเรียนบ้านหนองหัวหมู (ภาพหลักสถานศึกษา)",
-      url: "/images/school-hero-gate.png",
+      url: "/images/school-hero-gate.webp",
     },
     {
       title: "บรรยากาศการเรียนรู้เชิงรุก (Active Learning)",
@@ -523,21 +528,21 @@ export default function AdminSettingsPage() {
   return (
     <div className="space-y-6 max-w-5xl">
       {/* Top Header with Action Buttons */}
-      <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E5E7EB] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="glass-card-admin rounded-3xl p-6 border border-[#D1DFF0] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-100 text-[#0F2942] text-[11px] font-bold mb-1">
-            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#EAF2FB] border border-[#D1DFF0] text-[#1E3A5F] text-[11px] font-bold mb-1">
+            <Sparkles className="w-3.5 h-3.5 text-[#2F6FED]" />
             <span>School Configuration Center</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#0F2942]">
+          <h1 className="text-xl sm:text-2xl font-bold text-[#1E3A5F]">
             ตั้งค่าระบบและข้อมูลสถานศึกษา
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            จัดการตราสัญลักษณ์ โลโก้ ส่วนหัวหน้าแรก คำขวัญ วิสัยทัศน์ คณะผู้บริหาร และข้อมูลติดต่อ สพป. บุรีรัมย์ เขต 3
+            จัดการตราสัญลักษณ์ โลโก้ ส่วนหัวหน้าแรก คำขวัญ วิสัยทัศน์ คณะผู้บริหาร และข้อมูลติดต่อ สพป. บุรีรัมย์ เขต&nbsp;3
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
           {saved && (
             <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold animate-in fade-in">
               <CheckCircle2 className="w-4 h-4" />
@@ -548,7 +553,7 @@ export default function AdminSettingsPage() {
           <button
             type="button"
             onClick={handleResetDefaults}
-            className="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-semibold transition-colors"
+            className="px-3.5 py-2.5 rounded-xl border border-[#D1DFF0] text-slate-600 hover:bg-[#EAF2FB] text-xs font-semibold transition-colors min-h-[42px] flex items-center justify-center"
             title="คืนค่าข้อมูลตั้งต้น"
           >
             <RefreshCw className="w-3.5 h-3.5" />
@@ -557,16 +562,17 @@ export default function AdminSettingsPage() {
           <button
             type="button"
             onClick={() => handleSave()}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-xs transition-colors min-h-[42px]"
+            disabled={isSaving}
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#2F6FED] hover:bg-[#255bc4] disabled:opacity-50 text-white text-xs font-bold shadow-xs transition-colors min-h-[42px] box-border"
           >
-            <Save className="w-4 h-4 text-amber-400" />
-            <span>บันทึกการตั้งค่าทั้งหมด</span>
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <Save className="w-4 h-4 text-white" />}
+            <span>{isSaving ? "กำลังบันทึก..." : "บันทึกการตั้งค่าทั้งหมด"}</span>
           </button>
         </div>
       </div>
 
       {/* Tabs Bar */}
-      <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200">
+      <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-[#EAF2FB]/80 rounded-2xl border border-[#D1DFF0]">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -576,7 +582,7 @@ export default function AdminSettingsPage() {
               onClick={() => setActiveTab(tab.id as SettingsTab)}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all min-h-[38px] ${
                 isActive
-                  ? "bg-[#0F2942] text-white shadow-xs"
+                  ? "bg-[#1E3A5F] text-white shadow-xs"
                   : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
               }`}
             >
@@ -593,38 +599,48 @@ export default function AdminSettingsPage() {
         {/* ================= TAB 0: HERO BANNER (ส่วนหัวต้อนรับหน้าแรก) ================= */}
         {activeTab === "hero" && (
           <div className="space-y-6">
-            {/* Live Interactive Hero Preview Box */}
-            <div className="bg-white rounded-3xl p-6 border border-blue-200 shadow-sm space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            {/* Live Interactive Hero Preview Window (Window Frame Design with Clear Visual Separation) */}
+            <div className="rounded-3xl border-2 border-[#2F6FED]/30 bg-white/80 backdrop-blur-2xl shadow-xl overflow-hidden space-y-0">
+              {/* Window Header Bar with 3 Control Dots */}
+              <div className="px-5 py-3 bg-[#1E3A5F] text-white flex items-center justify-between border-b border-[#162E4A]">
                 <div className="flex items-center gap-2">
-                  <Eye className="w-5 h-5 text-blue-700" />
-                  <h3 className="text-sm sm:text-base font-bold text-[#0F2942]">
-                    ตัวอย่างการแสดงผลส่วนหัวหน้าแรกจริง (Live Hero Banner Preview)
-                  </h3>
+                  <div className="flex items-center gap-1.5 mr-2">
+                    <span className="w-3 h-3 rounded-full bg-rose-500 inline-block shadow-2xs" />
+                    <span className="w-3 h-3 rounded-full bg-amber-400 inline-block shadow-2xs" />
+                    <span className="w-3 h-3 rounded-full bg-emerald-400 inline-block shadow-2xs" />
+                  </div>
+                  <Eye className="w-4 h-4 text-[#7EB8E0]" />
+                  <span className="text-xs font-bold text-white tracking-wide">
+                    กรอบจำลองกระจกหน้าต่างแสดงผลสด (Live Hero Banner Window Preview)
+                  </span>
                 </div>
-                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  ⚡ พรีวิวแบบเรียลไทม์
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/15 text-white border border-white/20 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>พรีวิวแบบเรียลไทม์</span>
+                  </span>
+                </div>
               </div>
 
-              {/* Exact Simulated Hero Component */}
-              <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-white via-sky-50/40 to-blue-50/50 border border-slate-200/80 shadow-xs p-6 sm:p-8">
+              {/* Window Content Body */}
+              <div className="p-5 sm:p-7 bg-[#EAF2FB]/30">
+                <div className="relative rounded-3xl overflow-hidden bg-white/95 backdrop-blur-md border border-[#D1DFF0] shadow-sm p-6 sm:p-8">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center w-full">
                   {/* Left: Text & Actions */}
                   <div className="lg:col-span-7 space-y-4">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100/70 text-blue-900 border border-blue-200/60 text-xs font-bold">
-                        <Building2 className="w-3.5 h-3.5 text-blue-700" />
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EAF2FB] text-[#1E3A5F] border border-[#D1DFF0] text-xs font-bold">
+                        <Building2 className="w-3.5 h-3.5 text-[#2F6FED]" />
                         <span>{formData.subAffiliation}</span>
                       </span>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-100/70 text-amber-900 border border-amber-200/60 text-[11px] font-bold">
-                        <Sparkles className="w-3 h-3 text-amber-600" />
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#D96B34]/10 text-[#D96B34] border border-[#D96B34]/30 text-[11px] font-bold">
+                        <Sparkles className="w-3 h-3 text-[#D96B34]" />
                         <span>{formData.affiliationBadge}</span>
                       </span>
                     </div>
 
                     <div>
-                      <h2 className="text-2xl sm:text-3xl font-black text-[#0F2942] tracking-tight leading-tight">
+                      <h2 className="text-2xl sm:text-3xl font-black text-[#1E3A5F] tracking-tight leading-tight">
                         {formData.name}
                       </h2>
                       <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
@@ -632,29 +648,29 @@ export default function AdminSettingsPage() {
                       </p>
                     </div>
 
-                    <div className="p-3.5 rounded-2xl bg-white/90 backdrop-blur-xs border border-blue-100 shadow-2xs">
-                      <span className="text-[11px] font-bold text-amber-600 block uppercase">
+                    <div className="p-3.5 rounded-2xl bg-white/90 backdrop-blur-xs border border-[#D1DFF0] shadow-2xs">
+                      <span className="text-[11px] font-bold text-[#D96B34] block uppercase">
                         คำขวัญประจำโรงเรียน
                       </span>
-                      <p className="text-sm sm:text-base font-bold text-[#0F2942] mt-0.5">
+                      <p className="text-sm sm:text-base font-bold text-[#1E3A5F] mt-0.5">
                         &ldquo;{formData.motto}&rdquo;
                       </p>
                     </div>
 
-                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal indent-6 sm:indent-8 text-justify whitespace-pre-wrap">
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal indent-6 sm:indent-8 text-left [overflow-wrap:break-word]">
                       {formData.welcomeMessage}
                     </p>
 
                     <div className="flex flex-wrap items-center gap-2.5 pt-1">
-                      <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F2942] text-white font-bold text-xs">
+                      <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1E3A5F] text-white font-bold text-xs">
                         <span>{formData.heroBtn1Text}</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </span>
-                      <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-[#0F2942] font-bold text-xs border border-slate-200">
-                        <BookOpen className="w-3.5 h-3.5 text-blue-700" />
+                      <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-[#1E3A5F] font-bold text-xs border border-[#D1DFF0]">
+                        <BookOpen className="w-3.5 h-3.5 text-[#2F6FED]" />
                         <span>{formData.heroBtn2Text}</span>
                       </span>
-                      <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 text-xs font-bold">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#D96B34]/10 text-[#D96B34] border border-[#D96B34]/30 text-xs font-bold">
                         <span>{formData.heroBtn3Text}</span>
                       </span>
                     </div>
@@ -671,15 +687,15 @@ export default function AdminSettingsPage() {
                     </div>
 
                     {/* Placed below the photo so it never covers the image */}
-                    <div className="mt-3 flex items-center gap-2.5 p-3 rounded-xl bg-white border border-slate-200 shadow-xs">
-                      <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-800 flex items-center justify-center shrink-0">
+                    <div className="mt-3 flex items-center gap-2.5 p-3 rounded-xl bg-white border border-[#D1DFF0] shadow-xs">
+                      <div className="w-8 h-8 rounded-lg bg-[#EAF2FB] text-[#2F6FED] flex items-center justify-center shrink-0">
                         <GraduationCap className="w-4 h-4" />
                       </div>
                       <div className="leading-tight">
                         <span className="text-[10px] text-slate-400 font-bold block uppercase">
                           {formData.heroBadge1Label || "ระดับการศึกษา"}
                         </span>
-                        <span className="text-xs sm:text-sm font-bold text-[#0F2942]">
+                        <span className="text-xs sm:text-sm font-bold text-[#1E3A5F]">
                           {formData.heroBadge1Value || "อนุบาล 2 – ประถมศึกษาปีที่ 6"}
                         </span>
                       </div>
@@ -688,12 +704,13 @@ export default function AdminSettingsPage() {
                 </div>
               </div>
             </div>
+            </div>
 
             {/* Config Card 1: School Identity & Badges */}
-            <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                <Building2 className="w-5 h-5 text-blue-700" />
-                <h3 className="text-base font-bold text-[#0F2942]">
+            <div className="glass-card-admin rounded-2xl p-6 border border-[#D1DFF0] shadow-sm space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-[#D1DFF0]">
+                <Building2 className="w-5 h-5 text-[#2F6FED]" />
+                <h3 className="text-base font-bold text-[#1E3A5F]">
                   1. ชื่อสถานศึกษาและป้ายสังกัด (School Name & Badges)
                 </h3>
               </div>
@@ -762,10 +779,10 @@ export default function AdminSettingsPage() {
             </div>
 
             {/* Config Card 2: Motto & Welcome Message */}
-            <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                <BookOpen className="w-5 h-5 text-amber-600" />
-                <h3 className="text-base font-bold text-[#0F2942]">
+            <div className="glass-card-admin rounded-2xl p-6 border border-[#D1DFF0] shadow-sm space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-[#D1DFF0]">
+                <BookOpen className="w-5 h-5 text-[#D96B34]" />
+                <h3 className="text-base font-bold text-[#1E3A5F]">
                   2. คำขวัญประจำโรงเรียนและข้อความต้อนรับ
                 </h3>
               </div>
@@ -780,7 +797,7 @@ export default function AdminSettingsPage() {
                     value={formData.motto}
                     onChange={(e) => setFormData({ ...formData, motto: e.target.value })}
                     placeholder="เรียนดี กีฬาเด่น เน้นคุณธรรม นำชุมชน"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-bold text-[#0F2942]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#D1DFF0] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#2F6FED]/20 focus:border-[#2F6FED] font-bold text-[#1E3A5F]"
                   />
                 </div>
 
@@ -792,10 +809,10 @@ export default function AdminSettingsPage() {
                     rows={3}
                     value={formData.welcomeMessage}
                     onChange={(e) => setFormData({ ...formData, welcomeMessage: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 leading-relaxed"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#D1DFF0] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#2F6FED]/20 focus:border-[#2F6FED] leading-relaxed"
                   />
                   <p className="text-[11px] text-slate-500 mt-1 flex flex-wrap items-center gap-1.5">
-                    <span className="font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                    <span className="font-semibold text-[#2F6FED] bg-[#EAF2FB] px-2 py-0.5 rounded border border-[#D1DFF0]">
                       💡 ย่อหน้าอัตโนมัติ:
                     </span>
                     <span>ระบบตั้งค่าย่อหน้าให้อัตโนมัติ (Indent) หากต้องการเคาะเว้นวรรคเพิ่มเอง สามารถกด Spacebar หรือกด Enter ขึ้นย่อหน้าใหม่ได้ทันที</span>
@@ -805,25 +822,25 @@ export default function AdminSettingsPage() {
             </div>
 
             {/* Config Card 3: Action Buttons */}
-            <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                <ArrowRight className="w-5 h-5 text-emerald-600" />
-                <h3 className="text-base font-bold text-[#0F2942]">
+            <div className="glass-card-admin rounded-2xl p-6 border border-[#D1DFF0] shadow-sm space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-[#D1DFF0]">
+                <ArrowRight className="w-5 h-5 text-[#2F6FED]" />
+                <h3 className="text-base font-bold text-[#1E3A5F]">
                   3. ปุ่มนำทางด่วนหน้าแรก 3 ปุ่ม (Hero Action Buttons)
                 </h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Button 1 */}
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-                  <span className="text-xs font-bold text-slate-700 block">ปุ่มที่ 1 (ปุ่มสีกรมท่าเข้ม)</span>
+                <div className="p-4 rounded-xl bg-[#EAF2FB]/40 border border-[#D1DFF0] space-y-3">
+                  <span className="text-xs font-bold text-[#1E3A5F] block">ปุ่มที่ 1 (ปุ่มสีกรมท่าเข้ม)</span>
                   <div>
                     <label className="text-[11px] text-slate-500 block mb-1">ข้อความบนปุ่ม</label>
                     <input
                       type="text"
                       value={formData.heroBtn1Text}
                       onChange={(e) => setFormData({ ...formData, heroBtn1Text: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold"
+                      className="w-full px-3 py-2 rounded-lg border border-[#D1DFF0] bg-white text-xs font-semibold"
                     />
                   </div>
                   <div>
@@ -832,21 +849,21 @@ export default function AdminSettingsPage() {
                       type="text"
                       value={formData.heroBtn1Url}
                       onChange={(e) => setFormData({ ...formData, heroBtn1Url: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-mono"
+                      className="w-full px-3 py-2 rounded-lg border border-[#D1DFF0] bg-white text-xs font-mono"
                     />
                   </div>
                 </div>
 
                 {/* Button 2 */}
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-                  <span className="text-xs font-bold text-slate-700 block">ปุ่มที่ 2 (ปุ่มสีขาว)</span>
+                <div className="p-4 rounded-xl bg-[#EAF2FB]/40 border border-[#D1DFF0] space-y-3">
+                  <span className="text-xs font-bold text-[#1E3A5F] block">ปุ่มที่ 2 (ปุ่มสีขาว)</span>
                   <div>
                     <label className="text-[11px] text-slate-500 block mb-1">ข้อความบนปุ่ม</label>
                     <input
                       type="text"
                       value={formData.heroBtn2Text}
                       onChange={(e) => setFormData({ ...formData, heroBtn2Text: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold"
+                      className="w-full px-3 py-2 rounded-lg border border-[#D1DFF0] bg-white text-xs font-semibold"
                     />
                   </div>
                   <div>
@@ -855,21 +872,21 @@ export default function AdminSettingsPage() {
                       type="text"
                       value={formData.heroBtn2Url}
                       onChange={(e) => setFormData({ ...formData, heroBtn2Url: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-mono"
+                      className="w-full px-3 py-2 rounded-lg border border-[#D1DFF0] bg-white text-xs font-mono"
                     />
                   </div>
                 </div>
 
                 {/* Button 3 */}
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-                  <span className="text-xs font-bold text-slate-700 block">ปุ่มที่ 3 (ปุ่มสีทอง/เขตพื้นที่)</span>
+                <div className="p-4 rounded-xl bg-[#EAF2FB]/40 border border-[#D1DFF0] space-y-3">
+                  <span className="text-xs font-bold text-[#1E3A5F] block">ปุ่มที่ 3 (ปุ่มสีทอง/เขตพื้นที่)</span>
                   <div>
                     <label className="text-[11px] text-slate-500 block mb-1">ข้อความบนปุ่ม</label>
                     <input
                       type="text"
                       value={formData.heroBtn3Text}
                       onChange={(e) => setFormData({ ...formData, heroBtn3Text: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold"
+                      className="w-full px-3 py-2 rounded-lg border border-[#D1DFF0] bg-white text-xs font-semibold"
                     />
                   </div>
                   <div>
@@ -878,7 +895,7 @@ export default function AdminSettingsPage() {
                       type="text"
                       value={formData.heroBtn3Url}
                       onChange={(e) => setFormData({ ...formData, heroBtn3Url: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-mono"
+                      className="w-full px-3 py-2 rounded-lg border border-[#D1DFF0] bg-white text-xs font-mono"
                     />
                   </div>
                 </div>
@@ -886,10 +903,10 @@ export default function AdminSettingsPage() {
             </div>
 
             {/* Config Card 4: Hero Image & 2 Floating Badges */}
-            <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-5">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                <ImageIcon className="w-5 h-5 text-indigo-600" />
-                <h3 className="text-base font-bold text-[#0F2942]">
+            <div className="glass-card-admin rounded-2xl p-6 border border-[#D1DFF0] shadow-sm space-y-5">
+              <div className="flex items-center gap-2 pb-2 border-b border-[#D1DFF0]">
+                <ImageIcon className="w-5 h-5 text-[#2F6FED]" />
+                <h3 className="text-base font-bold text-[#1E3A5F]">
                   4. รูปภาพหน้าปกและป้ายข้อมูลลอย (Hero Visual & Floating Badges)
                 </h3>
               </div>
@@ -954,8 +971,8 @@ export default function AdminSettingsPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
-                      <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-[#0F2942] cursor-pointer shadow-2xs transition-colors">
-                        <Upload className="w-3.5 h-3.5 text-blue-600" />
+                      <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-[#EAF2FB]/50 border border-[#D1DFF0] text-xs font-bold text-[#1E3A5F] cursor-pointer shadow-2xs transition-colors">
+                        <Upload className="w-3.5 h-3.5 text-[#2F6FED]" />
                         <span>เปลี่ยนไฟล์</span>
                         <input
                           type="file"
@@ -988,15 +1005,15 @@ export default function AdminSettingsPage() {
                         placeholder="https://... หรือ /images/school-gate.jpg"
                         value={formData.heroImageUrl}
                         onChange={(e) => setFormData({ ...formData, heroImageUrl: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-[#D1DFF0] text-xs focus:outline-hidden focus:ring-2 focus:ring-[#2F6FED]/20 focus:border-[#2F6FED]"
                       />
                     </div>
                     <div className="sm:col-span-4">
                       <label className="block text-xs font-bold text-slate-700 mb-1">
                         หรืออัปโหลดไฟล์จากเครื่อง
                       </label>
-                      <label className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 cursor-pointer text-xs font-bold text-blue-900 transition-colors min-h-[42px]">
-                        <Upload className="w-4 h-4 text-blue-600" />
+                      <label className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[#D1DFF0] bg-[#EAF2FB] hover:bg-[#D1DFF0]/50 cursor-pointer text-xs font-bold text-[#1E3A5F] transition-colors min-h-[42px]">
+                        <Upload className="w-4 h-4 text-[#2F6FED]" />
                         <span>เลือกไฟล์รูปภาพ</span>
                         <input
                           type="file"
@@ -1011,11 +1028,11 @@ export default function AdminSettingsPage() {
               </div>
 
               {/* Education Level Badge Below Photo Configuration */}
-              <div className="pt-3 border-t border-slate-100">
-                <div className="p-4 rounded-xl bg-blue-50/50 border border-blue-100 space-y-3">
+              <div className="pt-3 border-t border-[#D1DFF0]">
+                <div className="p-4 rounded-xl bg-[#EAF2FB]/50 border border-[#D1DFF0] space-y-3">
                   <div className="flex items-center gap-2">
-                    <GraduationCap className="w-4 h-4 text-blue-700" />
-                    <span className="text-xs font-bold text-blue-950">ป้ายข้อมูลระดับการศึกษา (แสดงใต้รูปภาพ ไม่บังรูป)</span>
+                    <GraduationCap className="w-4 h-4 text-[#2F6FED]" />
+                    <span className="text-xs font-bold text-[#1E3A5F]">ป้ายข้อมูลระดับการศึกษา (แสดงใต้รูปภาพ ไม่บังรูป)</span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
@@ -1024,7 +1041,7 @@ export default function AdminSettingsPage() {
                         type="text"
                         value={formData.heroBadge1Label}
                         onChange={(e) => setFormData({ ...formData, heroBadge1Label: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold"
+                        className="w-full px-3 py-2 rounded-lg border border-[#D1DFF0] bg-white text-xs font-semibold"
                       />
                     </div>
                     <div>
@@ -1033,7 +1050,7 @@ export default function AdminSettingsPage() {
                         type="text"
                         value={formData.heroBadge1Value}
                         onChange={(e) => setFormData({ ...formData, heroBadge1Value: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-bold text-[#0F2942]"
+                        className="w-full px-3 py-2 rounded-lg border border-[#D1DFF0] bg-white text-xs font-bold text-[#1E3A5F]"
                       />
                     </div>
                   </div>
@@ -1045,9 +1062,9 @@ export default function AdminSettingsPage() {
                 <button
                   type="button"
                   onClick={() => handleSave()}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-xs transition-colors min-h-[42px]"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#2F6FED] hover:bg-[#255bc4] text-white text-xs font-bold shadow-xs transition-colors min-h-[42px]"
                 >
-                  <Save className="w-4 h-4 text-amber-400" />
+                  <Save className="w-4 h-4 text-white" />
                   <span>บันทึกการตั้งค่าส่วนหัวต้อนรับ</span>
                 </button>
               </div>
@@ -1059,11 +1076,11 @@ export default function AdminSettingsPage() {
         {activeTab === "branding" && (
           <div className="space-y-6">
             {/* Live Header Simulator Preview Box */}
-            <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="glass-card-admin rounded-2xl p-6 border border-[#D1DFF0] shadow-sm space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-[#D1DFF0]">
                 <div className="flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-blue-700" />
-                  <h3 className="text-sm font-bold text-[#0F2942]">
+                  <Eye className="w-4 h-4 text-[#2F6FED]" />
+                  <h3 className="text-sm font-bold text-[#1E3A5F]">
                     ตัวอย่างการแสดงผลบนแถบ Header หน้าเว็บจริง (Live Website Header Preview)
                   </h3>
                 </div>
@@ -1071,7 +1088,7 @@ export default function AdminSettingsPage() {
               </div>
 
               {/* Simulated Brand Header Bar */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center justify-between gap-4">
+              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#D1DFF0] shadow-xs flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3.5">
                   <SchoolLogo
                     size={52}
@@ -1080,7 +1097,7 @@ export default function AdminSettingsPage() {
                   />
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-base sm:text-lg font-bold text-[#0F2942] tracking-tight">
+                      <span className="text-base sm:text-lg font-bold text-[#1E3A5F] tracking-tight">
                         {formData.name}
                       </span>
                     </div>
@@ -1091,7 +1108,7 @@ export default function AdminSettingsPage() {
                 </div>
 
                 <div className="hidden md:flex items-center gap-2 text-xs">
-                  <span className="px-3 py-1.5 rounded-xl bg-slate-50 text-slate-600 border border-slate-200 font-mono">
+                  <span className="px-3 py-1.5 rounded-xl bg-[#EAF2FB] text-[#1E3A5F] border border-[#D1DFF0] font-mono">
                     👁️ เข้าชม {Number(formData.visitorCountBase).toLocaleString()} ครั้ง
                   </span>
                 </div>
@@ -1099,10 +1116,10 @@ export default function AdminSettingsPage() {
             </div>
 
             {/* Emblem / Logo Selection */}
-            <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-5">
-              <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-                <ImageIcon className="w-4 h-4 text-[#0F2942]" />
-                <h3 className="text-sm font-bold text-[#0F2942]">
+            <div className="glass-card-admin rounded-2xl p-6 border border-[#D1DFF0] shadow-sm space-y-5">
+              <div className="flex items-center gap-2 pb-3 border-b border-[#D1DFF0]">
+                <ImageIcon className="w-4 h-4 text-[#2F6FED]" />
+                <h3 className="text-sm font-bold text-[#1E3A5F]">
                   เลือกรูปแบบตราสัญลักษณ์สถานศึกษา (School Emblem & Logo)
                 </h3>
               </div>
@@ -1113,13 +1130,13 @@ export default function AdminSettingsPage() {
                   onClick={() => setFormData({ ...formData, emblemType: "vector" })}
                   className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col items-center text-center gap-3 ${
                     formData.emblemType === "vector"
-                      ? "border-[#0F2942] bg-blue-50/40 ring-2 ring-[#0F2942]/20 shadow-xs"
-                      : "border-slate-200 hover:border-slate-300 bg-white"
+                      ? "border-[#2F6FED] bg-[#EAF2FB]/50 ring-2 ring-[#2F6FED]/20 shadow-xs"
+                      : "border-[#D1DFF0] hover:border-slate-300 bg-white"
                   }`}
                 >
                   <SchoolLogo size={56} emblemType="vector" />
                   <div>
-                    <span className="text-xs font-bold text-[#0F2942] block">
+                    <span className="text-xs font-bold text-[#1E3A5F] block">
                       ตราประจำโรงเรียน (Vector)
                     </span>
                     <p className="text-[11px] text-slate-400 mt-0.5">
@@ -1127,7 +1144,7 @@ export default function AdminSettingsPage() {
                     </p>
                   </div>
                   {formData.emblemType === "vector" && (
-                    <span className="text-[10px] font-bold text-blue-700 bg-blue-100/80 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <span className="text-[10px] font-bold text-[#2F6FED] bg-[#EAF2FB] px-2 py-0.5 rounded-full flex items-center gap-1 border border-[#D1DFF0]">
                       <Check className="w-3 h-3" /> ใช้งานอยู่
                     </span>
                   )}
@@ -1138,13 +1155,13 @@ export default function AdminSettingsPage() {
                   onClick={() => setFormData({ ...formData, emblemType: "obec" })}
                   className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col items-center text-center gap-3 ${
                     formData.emblemType === "obec"
-                      ? "border-[#0F2942] bg-blue-50/40 ring-2 ring-[#0F2942]/20 shadow-xs"
-                      : "border-slate-200 hover:border-slate-300 bg-white"
+                      ? "border-[#2F6FED] bg-[#EAF2FB]/50 ring-2 ring-[#2F6FED]/20 shadow-xs"
+                      : "border-[#D1DFF0] hover:border-slate-300 bg-white"
                   }`}
                 >
                   <SchoolLogo size={56} emblemType="obec" />
                   <div>
-                    <span className="text-xs font-bold text-[#0F2942] block">
+                    <span className="text-xs font-bold text-[#1E3A5F] block">
                       ตรา สพฐ.
                     </span>
                     <p className="text-[11px] text-slate-400 mt-0.5">
@@ -1152,7 +1169,7 @@ export default function AdminSettingsPage() {
                     </p>
                   </div>
                   {formData.emblemType === "obec" && (
-                    <span className="text-[10px] font-bold text-blue-700 bg-blue-100/80 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <span className="text-[10px] font-bold text-[#2F6FED] bg-[#EAF2FB] px-2 py-0.5 rounded-full flex items-center gap-1 border border-[#D1DFF0]">
                       <Check className="w-3 h-3" /> ใช้งานอยู่
                     </span>
                   )}
@@ -1163,13 +1180,13 @@ export default function AdminSettingsPage() {
                   onClick={() => setFormData({ ...formData, emblemType: "moe" })}
                   className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col items-center text-center gap-3 ${
                     formData.emblemType === "moe"
-                      ? "border-[#0F2942] bg-blue-50/40 ring-2 ring-[#0F2942]/20 shadow-xs"
-                      : "border-slate-200 hover:border-slate-300 bg-white"
+                      ? "border-[#2F6FED] bg-[#EAF2FB]/50 ring-2 ring-[#2F6FED]/20 shadow-xs"
+                      : "border-[#D1DFF0] hover:border-slate-300 bg-white"
                   }`}
                 >
                   <SchoolLogo size={56} emblemType="moe" />
                   <div>
-                    <span className="text-xs font-bold text-[#0F2942] block">
+                    <span className="text-xs font-bold text-[#1E3A5F] block">
                       ตราเสมาธรรมจักร
                     </span>
                     <p className="text-[11px] text-slate-400 mt-0.5">
@@ -1177,7 +1194,7 @@ export default function AdminSettingsPage() {
                     </p>
                   </div>
                   {formData.emblemType === "moe" && (
-                    <span className="text-[10px] font-bold text-blue-700 bg-blue-100/80 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <span className="text-[10px] font-bold text-[#2F6FED] bg-[#EAF2FB] px-2 py-0.5 rounded-full flex items-center gap-1 border border-[#D1DFF0]">
                       <Check className="w-3 h-3" /> ใช้งานอยู่
                     </span>
                   )}
@@ -1188,15 +1205,15 @@ export default function AdminSettingsPage() {
                   onClick={() => setFormData({ ...formData, emblemType: "custom" })}
                   className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col items-center text-center gap-3 ${
                     formData.emblemType === "custom"
-                      ? "border-[#0F2942] bg-blue-50/40 ring-2 ring-[#0F2942]/20 shadow-xs"
-                      : "border-slate-200 hover:border-slate-300 bg-white"
+                      ? "border-[#2F6FED] bg-[#EAF2FB]/50 ring-2 ring-[#2F6FED]/20 shadow-xs"
+                      : "border-[#D1DFF0] hover:border-slate-300 bg-white"
                   }`}
                 >
                   {formData.customLogoUrl ? (
                     <img
                       src={formData.customLogoUrl}
                       alt="Custom Logo"
-                      className="w-14 h-14 rounded-full object-cover border-2 border-amber-400"
+                      className="w-14 h-14 rounded-full object-cover border-2 border-[#D96B34]"
                     />
                   ) : (
                     <div className="w-14 h-14 rounded-full bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400">
@@ -1204,7 +1221,7 @@ export default function AdminSettingsPage() {
                     </div>
                   )}
                   <div>
-                    <span className="text-xs font-bold text-[#0F2942] block">
+                    <span className="text-xs font-bold text-[#1E3A5F] block">
                       อัปโหลดโลโก้เอง
                     </span>
                     <p className="text-[11px] text-slate-400 mt-0.5">
@@ -1212,7 +1229,7 @@ export default function AdminSettingsPage() {
                     </p>
                   </div>
                   {formData.emblemType === "custom" && (
-                    <span className="text-[10px] font-bold text-blue-700 bg-blue-100/80 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <span className="text-[10px] font-bold text-[#2F6FED] bg-[#EAF2FB] px-2 py-0.5 rounded-full flex items-center gap-1 border border-[#D1DFF0]">
                       <Check className="w-3 h-3" /> ใช้งานอยู่
                     </span>
                   )}
@@ -1221,15 +1238,15 @@ export default function AdminSettingsPage() {
 
               {/* Custom Upload Input & File Box */}
               {formData.emblemType === "custom" && (
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
-                  <span className="text-xs font-bold text-slate-700 block">
+                <div className="p-4 bg-[#EAF2FB]/40 rounded-2xl border border-[#D1DFF0] space-y-3">
+                  <span className="text-xs font-bold text-[#1E3A5F] block">
                     อัปโหลดไฟล์ภาพตราสัญลักษณ์ หรือใส่ URL ภาพ
                   </span>
 
                   {formData.customLogoUrl?.startsWith("data:") ? (
-                    <div className="p-3 rounded-xl bg-white border border-blue-200 flex items-center justify-between gap-3 shadow-2xs">
+                    <div className="p-3 rounded-xl bg-white border border-[#D1DFF0] flex items-center justify-between gap-3 shadow-2xs">
                       <div className="flex items-center gap-2.5 overflow-hidden">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-slate-200 shrink-0 bg-slate-50 flex items-center justify-center p-1">
+                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-[#D1DFF0] shrink-0 bg-slate-50 flex items-center justify-center p-1">
                           <img
                             src={formData.customLogoUrl}
                             alt="Logo Preview"
@@ -1237,7 +1254,7 @@ export default function AdminSettingsPage() {
                           />
                         </div>
                         <div className="min-w-0">
-                          <span className="text-xs font-bold text-[#0F2942] block truncate">
+                          <span className="text-xs font-bold text-[#1E3A5F] block truncate">
                             {customLogoFileName || "ไฟล์ตราสัญลักษณ์โรงเรียน"}
                           </span>
                           <span className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
@@ -1247,7 +1264,7 @@ export default function AdminSettingsPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <label className="text-xs font-bold text-blue-700 hover:text-blue-900 cursor-pointer px-2.5 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
+                        <label className="text-xs font-bold text-[#2F6FED] hover:text-[#255bc4] cursor-pointer px-2.5 py-1.5 rounded-lg hover:bg-[#EAF2FB] transition-colors">
                           เปลี่ยนไฟล์
                           <input
                             type="file"
@@ -1270,8 +1287,8 @@ export default function AdminSettingsPage() {
                     </div>
                   ) : (
                     <div className="flex flex-col sm:flex-row items-center gap-3">
-                      <label className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-xs font-bold text-slate-700 cursor-pointer shadow-2xs">
-                        <Upload className="w-3.5 h-3.5" />
+                      <label className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-[#D1DFF0] hover:bg-[#EAF2FB] text-xs font-bold text-[#1E3A5F] cursor-pointer shadow-2xs">
+                        <Upload className="w-3.5 h-3.5 text-[#2F6FED]" />
                         <span>เลือกไฟล์จากเครื่อง...</span>
                         <input
                           type="file"
@@ -1290,7 +1307,7 @@ export default function AdminSettingsPage() {
                         onChange={(e) =>
                           setFormData({ ...formData, customLogoUrl: e.target.value })
                         }
-                        className="flex-1 w-full text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none"
+                        className="flex-1 w-full text-xs px-3 py-2 rounded-xl border border-[#D1DFF0] bg-white focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/20"
                       />
                     </div>
                   )}
@@ -1299,10 +1316,10 @@ export default function AdminSettingsPage() {
             </div>
 
             {/* Color Palette Customizer */}
-            <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-4">
-              <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-                <Palette className="w-4 h-4 text-[#0F2942]" />
-                <h3 className="text-sm font-bold text-[#0F2942]">
+            <div className="glass-card-admin rounded-2xl p-6 border border-[#D1DFF0] shadow-sm space-y-4">
+              <div className="flex items-center gap-2 pb-3 border-b border-[#D1DFF0]">
+                <Palette className="w-4 h-4 text-[#2F6FED]" />
+                <h3 className="text-sm font-bold text-[#1E3A5F]">
                   โทนสีหลักประจำโรงเรียน (Color Theme)
                 </h3>
               </div>
@@ -1319,7 +1336,7 @@ export default function AdminSettingsPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, primaryColor: e.target.value })
                       }
-                      className="w-10 h-10 rounded-xl cursor-pointer border border-slate-200 p-0.5"
+                      className="w-10 h-10 rounded-xl cursor-pointer border border-[#D1DFF0] p-0.5"
                     />
                     <input
                       type="text"
@@ -1327,17 +1344,17 @@ export default function AdminSettingsPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, primaryColor: e.target.value })
                       }
-                      className="flex-1 px-3 py-2 rounded-xl border border-slate-200 font-mono text-xs"
+                      className="flex-1 px-3 py-2 rounded-xl border border-[#D1DFF0] font-mono text-xs"
                     />
                   </div>
                   <span className="text-[11px] text-slate-400 mt-1 block">
-                    ค่ามาตรฐาน: #0F2942 (Deep Navy Blue สพป.)
+                    ค่ามาตรฐาน: #1E3A5F (Primary Navy Blue)
                   </span>
                 </div>
 
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">
-                    สีไฮไลต์ประจำโรงเรียน (Accent Gold Color)
+                    สีไฮไลต์ประจำโรงเรียน (Accent Orange Color)
                   </label>
                   <div className="flex items-center gap-2">
                     <input
@@ -1346,7 +1363,7 @@ export default function AdminSettingsPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, accentColor: e.target.value })
                       }
-                      className="w-10 h-10 rounded-xl cursor-pointer border border-slate-200 p-0.5"
+                      className="w-10 h-10 rounded-xl cursor-pointer border border-[#D1DFF0] p-0.5"
                     />
                     <input
                       type="text"
@@ -1354,11 +1371,11 @@ export default function AdminSettingsPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, accentColor: e.target.value })
                       }
-                      className="flex-1 px-3 py-2 rounded-xl border border-slate-200 font-mono text-xs"
+                      className="flex-1 px-3 py-2 rounded-xl border border-[#D1DFF0] font-mono text-xs"
                     />
                   </div>
                   <span className="text-[11px] text-slate-400 mt-1 block">
-                    ค่ามาตรฐาน: #EAB308 (Royal Gold)
+                    ค่ามาตรฐาน: #D96B34 (School Orange Accent)
                   </span>
                 </div>
               </div>
@@ -1368,10 +1385,10 @@ export default function AdminSettingsPage() {
 
         {/* ================= TAB 2: GENERAL INFO ================= */}
         {activeTab === "general" && (
-          <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-4">
-            <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-              <Building className="w-4 h-4 text-[#0F2942]" />
-              <h3 className="text-sm font-bold text-[#0F2942]">
+          <div className="glass-card-admin rounded-2xl p-6 border border-[#D1DFF0] shadow-sm space-y-4">
+            <div className="flex items-center gap-2 pb-3 border-b border-[#D1DFF0]">
+              <Building className="w-4 h-4 text-[#2F6FED]" />
+              <h3 className="text-sm font-bold text-[#1E3A5F]">
                 ข้อมูลพื้นฐานสถานศึกษาและสังกัดทางการ
               </h3>
             </div>
@@ -1598,9 +1615,9 @@ export default function AdminSettingsPage() {
               <button
                 type="button"
                 onClick={() => handleSave()}
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-xs transition-colors min-h-[42px]"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#2F6FED] hover:bg-[#255bc4] text-white text-xs font-bold shadow-xs transition-colors min-h-[42px]"
               >
-                <Save className="w-4 h-4 text-amber-400" />
+                <Save className="w-4 h-4 text-white" />
                 <span>บันทึกข้อมูลพื้นฐาน</span>
               </button>
             </div>
@@ -1609,10 +1626,10 @@ export default function AdminSettingsPage() {
 
         {/* ================= TAB 3: VISION & MISSION ================= */}
         {activeTab === "vision" && (
-          <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-5">
-            <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-              <BookOpen className="w-4 h-4 text-[#0F2942]" />
-              <h3 className="text-sm font-bold text-[#0F2942]">
+          <div className="glass-card-admin rounded-2xl p-6 border border-[#D1DFF0] shadow-sm space-y-5">
+            <div className="flex items-center gap-2 pb-3 border-b border-[#D1DFF0]">
+              <BookOpen className="w-4 h-4 text-[#2F6FED]" />
+              <h3 className="text-sm font-bold text-[#1E3A5F]">
                 วิสัยทัศน์และพันธกิจของโรงเรียนบ้านหนองหัวหมู
               </h3>
             </div>
@@ -1648,7 +1665,7 @@ export default function AdminSettingsPage() {
                   <button
                     type="button"
                     onClick={handleAddMission}
-                    className="px-4 py-2 rounded-xl bg-[#0F2942] text-white font-bold text-xs hover:bg-[#163C61] transition-colors flex items-center gap-1 shrink-0"
+                    className="px-4 py-2 rounded-xl bg-[#2F6FED] text-white font-bold text-xs hover:bg-[#255bc4] transition-colors flex items-center gap-1 shrink-0"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>เพิ่มข้อ</span>
@@ -1683,10 +1700,10 @@ export default function AdminSettingsPage() {
 
         {/* ================= TAB 4: DIRECTOR PROFILE ================= */}
         {activeTab === "director" && (
-          <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-5">
-            <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-              <User className="w-4 h-4 text-[#0F2942]" />
-              <h3 className="text-sm font-bold text-[#0F2942]">
+          <div className="glass-card-admin rounded-2xl p-6 border border-[#D1DFF0] shadow-sm space-y-5">
+            <div className="flex items-center gap-2 pb-3 border-b border-[#D1DFF0]">
+              <User className="w-4 h-4 text-[#2F6FED]" />
+              <h3 className="text-sm font-bold text-[#1E3A5F]">
                 ข้อมูลผู้อำนวยการโรงเรียนและสาส์นจากผู้บริหาร
               </h3>
             </div>
@@ -1705,7 +1722,7 @@ export default function AdminSettingsPage() {
                   />
                 </div>
                 <div>
-                  <span className="font-bold text-sm text-[#0F2942] block">
+                  <span className="font-bold text-sm text-[#1E3A5F] block">
                     {formData.directorName}
                   </span>
                   <span className="text-slate-500 text-[11px]">
@@ -1714,8 +1731,8 @@ export default function AdminSettingsPage() {
                 </div>
 
                 {/* Upload Button from machine */}
-                <label className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-xs font-bold text-[#0F2942] cursor-pointer shadow-2xs transition-colors min-h-[38px]">
-                  <Upload className="w-3.5 h-3.5 text-blue-600" />
+                <label className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-white border border-[#D1DFF0] hover:bg-[#EAF2FB] text-xs font-bold text-[#1E3A5F] cursor-pointer shadow-2xs transition-colors min-h-[38px]">
+                  <Upload className="w-3.5 h-3.5 text-[#2F6FED]" />
                   <span>เลือกไฟล์ภาพจากเครื่อง</span>
                   <input
                     type="file"
@@ -1729,10 +1746,10 @@ export default function AdminSettingsPage() {
                 <button
                   type="button"
                   onClick={handleSyncWithPersonnel}
-                  className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-[11px] font-bold transition-colors min-h-[36px] cursor-pointer"
+                  className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[#D96B34]/10 hover:bg-[#D96B34]/20 text-[#D96B34] border border-[#D96B34]/30 text-[11px] font-bold transition-colors min-h-[36px] cursor-pointer"
                   title="ซิงค์รูปและชื่อ ผอ. จากฐานข้อมูลบุคลากร"
                 >
-                  <RefreshCw className="w-3.5 h-3.5 text-amber-600" />
+                  <RefreshCw className="w-3.5 h-3.5 text-[#D96B34]" />
                   <span>ซิงค์จากข้อมูลบุคลากร</span>
                 </button>
 
@@ -1863,10 +1880,10 @@ export default function AdminSettingsPage() {
 
         {/* ================= TAB 5: CONTACT & MAPS ================= */}
         {activeTab === "contact" && (
-          <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-4">
+          <div className="glass-card-admin rounded-2xl p-6 border border-[#D1DFF0] shadow-sm space-y-4">
             <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-              <MapPin className="w-4 h-4 text-[#0F2942]" />
-              <h3 className="text-sm font-bold text-[#0F2942]">
+              <MapPin className="w-4 h-4 text-[#1E3A5F]" />
+              <h3 className="text-sm font-bold text-[#1E3A5F]">
                 ที่ตั้งสถานศึกษา ช่องทางติดต่อ และโซเชียลมีเดีย
               </h3>
             </div>
@@ -2091,10 +2108,10 @@ export default function AdminSettingsPage() {
 
         {/* ================= TAB 6: OPERATIONS ================= */}
         {activeTab === "operations" && (
-          <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-4">
+          <div className="glass-card-admin rounded-2xl p-6 border border-[#D1DFF0] shadow-sm space-y-4">
             <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-              <Settings className="w-4 h-4 text-[#0F2942]" />
-              <h3 className="text-sm font-bold text-[#0F2942]">
+              <Settings className="w-4 h-4 text-[#1E3A5F]" />
+              <h3 className="text-sm font-bold text-[#1E3A5F]">
                 ปีการศึกษาที่เปิดใช้งานและค่าเริ่มต้นของระบบ
               </h3>
             </div>
@@ -2152,14 +2169,14 @@ export default function AdminSettingsPage() {
 
         {/* ================= TAB 8: SECURITY & ADMIN PASSWORD ================= */}
         {activeTab === "security" && (
-          <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-xs space-y-6">
+          <div className="glass-card-admin rounded-2xl p-6 border border-[#D1DFF0] shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center font-bold">
-                  <Lock className="w-5 h-5 text-blue-700" />
+                <div className="w-10 h-10 rounded-xl bg-[#2F6FED]/10 text-[#2F6FED] border border-[#2F6FED]/20 flex items-center justify-center font-bold">
+                  <Lock className="w-5 h-5 text-[#2F6FED]" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-[#0F2942]">
+                  <h3 className="text-base font-bold text-[#1E3A5F]">
                     ความปลอดภัยและการเปลี่ยนรหัสผ่านผู้ดูแลระบบ (Admin Password)
                   </h3>
                   <p className="text-xs text-slate-500 mt-0.5">
@@ -2181,7 +2198,7 @@ export default function AdminSettingsPage() {
               </div>
               <ul className="list-disc pl-5 space-y-1 text-slate-700 text-xs">
                 <li>
-                  รหัสผ่านเริ่มต้นของระบบคือ: <strong className="font-mono bg-white px-2 py-0.5 rounded border border-amber-300 text-[#0F2942]">@31030078</strong> (อิงตามรหัส SMIS 8 หลักของโรงเรียน)
+                  รหัสผ่านเริ่มต้นของระบบคือ: <strong className="font-mono bg-white px-2 py-0.5 rounded border border-amber-300 text-[#1E3A5F]">@31030078</strong> (อิงตามรหัส SMIS 8 หลักของโรงเรียน)
                 </li>
                 <li>
                   ท่านสามารถเปลี่ยนเป็นรหัสผ่านใหม่ที่จำง่ายสำหรับคณะครูได้ตลอดเวลา (แนะนำความยาวตั้งแต่ 4 ตัวอักษรขึ้นไป)
@@ -2261,9 +2278,9 @@ export default function AdminSettingsPage() {
                   type="button"
                   disabled={isChangingPassword}
                   onClick={handleChangeAdminPassword}
-                  className="px-5 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-2 min-h-[42px] disabled:opacity-50 cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-[#2F6FED] hover:bg-[#255bc4] text-white text-xs font-bold shadow-sm transition-colors flex items-center gap-2 min-h-[42px] disabled:opacity-50 cursor-pointer"
                 >
-                  <Lock className="w-4 h-4 text-amber-400" />
+                  <Lock className="w-4 h-4 text-white" />
                   <span>{isChangingPassword ? "กำลังบันทึก..." : "บันทึกและเปลี่ยนรหัสผ่านทันที"}</span>
                 </button>
               </div>
@@ -2272,17 +2289,18 @@ export default function AdminSettingsPage() {
         )}
 
         {/* Bottom Save Bar */}
-        <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+        <div className="p-4 glass-card-admin rounded-2xl border border-[#D1DFF0] shadow-sm flex items-center justify-between">
           <span className="text-xs text-slate-500">
             * การบันทึกข้อมูลจะถูกซิงค์ไปยังหน้าเว็บหลักและระบบวิเคราะห์สถิติทันที
           </span>
 
           <button
             type="submit"
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#163C61] text-white text-xs font-bold shadow-xs transition-colors min-h-[42px]"
+            disabled={isSaving}
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#2F6FED] hover:bg-[#255bc4] disabled:opacity-50 text-white text-xs font-bold shadow-sm transition-colors min-h-[42px]"
           >
-            <Save className="w-4 h-4 text-amber-400" />
-            <span>บันทึกการตั้งค่าทั้งหมด</span>
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <Save className="w-4 h-4 text-white" />}
+            <span>{isSaving ? "กำลังบันทึก..." : "บันทึกการตั้งค่าทั้งหมด"}</span>
           </button>
         </div>
       </form>

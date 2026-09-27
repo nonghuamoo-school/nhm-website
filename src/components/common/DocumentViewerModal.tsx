@@ -251,7 +251,7 @@ export default function DocumentViewerModal({
               <div>
                 <h3 className="text-lg font-bold text-white">{doc.title}</h3>
                 <p className="text-xs text-slate-400 mt-1">
-                  {doc.description || "เอกสารทางการ โรงเรียนบ้านหนองหัวหมู สพป. บุรีรัมย์ เขต 3"}
+                  {doc.description || "เอกสารทางการ โรงเรียนบ้านหนองหัวหมู สพป. บุรีรัมย์ เขต\u00A03"}
                 </p>
               </div>
 

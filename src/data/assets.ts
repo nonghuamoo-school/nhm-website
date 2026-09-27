@@ -11,7 +11,7 @@ export const schoolInventoryAssets: InventoryAsset[] = [
     unit: "เครื่อง",
     location: "ห้องปฏิบัติการคอมพิวเตอร์",
     status: "ใช้งานได้ปกติ",
-    note: "จัดสรรจากงบประมาณ สพป. บุรีรัมย์ เขต 3",
+    note: "จัดสรรจากงบประมาณ สพป. บุรีรัมย์ เขต\u00A03",
   },
   {
     id: "asset-002",
@@ -71,7 +71,7 @@ export const schoolInventoryAssets: InventoryAsset[] = [
     unit: "เครื่อง",
     location: "ห้องเก็บพัสดุ",
     status: "ชำรุด/จำหน่าย",
-    note: "ส่งเรื่องขออนุมัติจำหน่ายตามระเบียบพัสดุ สพป. บุรีรัมย์ เขต 3",
+    note: "ส่งเรื่องขออนุมัติจำหน่ายตามระเบียบพัสดุ สพป. บุรีรัมย์ เขต\u00A03",
   },
   {
     id: "asset-007",

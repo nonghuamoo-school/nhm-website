@@ -128,11 +128,13 @@ function newsToRow(item: NewsItem) {
   };
 }
 
-export function useNews() {
-  // Start with EMPTY array — never show mock data before client mounts.
-  // This prevents hydration mismatch between server render and client state.
-  const [newsList, setNewsList] = useState<NewsItem[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
+export function useNews(initialItems?: NewsItem[]) {
+  // Initialize with official authentic school news for instant zero-delay SSR/SSG rendering
+  const [newsList, setNewsList] = useState<NewsItem[]>(() => {
+    if (initialItems && initialItems.length > 0) return initialItems;
+    return sortNewsByDateDesc(schoolNews);
+  });
+  const [isLoaded, setIsLoaded] = useState(true);
   const [isCloudSynced, setIsCloudSynced] = useState(false);
 
   const loadFromStorage = useCallback(() => {
@@ -154,11 +156,12 @@ export function useNews() {
         }
       }
 
-      // No saved list in localStorage — show empty (user hasn't added news yet)
-      setNewsList([]);
+      // Fallback to official authentic school news
+      const fallback = schoolNews.filter((n) => !deletedIds.has(n.id));
+      setNewsList(sortNewsByDateDesc(fallback));
     } catch (err) {
       console.error("Error reading nhm_school_news from localStorage", err);
-      setNewsList([]);
+      setNewsList(sortNewsByDateDesc(schoolNews));
     } finally {
       setIsLoaded(true);
     }
