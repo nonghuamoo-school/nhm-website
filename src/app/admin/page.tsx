@@ -196,7 +196,7 @@ export default function AdminDashboardPage() {
             </div>
             <div className="flex items-center gap-2 text-[11px] text-[#64748B]">
               <CloudSun className="w-4 h-4 text-[#E8772E]" />
-              <span>ต.หนองโบสถ์ อ.หนองกี่ จ.บุรีรัมย์</span>
+              <span>ต.{settings.subDistrict || "ทุ่งกระเต็น"} อ.{settings.district || "หนองกี่"} จ.{settings.province || "บุรีรัมย์"}</span>
             </div>
             <div className="flex items-center gap-1.5 text-[11px] text-[#16A37A] font-semibold pt-1 border-t border-slate-100 w-full justify-between lg:justify-end">
               <span className="w-2 h-2 rounded-full bg-emerald-500" />
