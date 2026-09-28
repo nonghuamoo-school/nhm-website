@@ -36,7 +36,7 @@ import {
 } from "lucide-react";
 import SchoolLogo from "@/components/common/SchoolLogo";
 import { schoolInfo } from "@/data/schoolInfo";
-import { defaultSchoolSettings, saveSchoolSettingsCloud, SchoolSettingsData } from "@/hooks/useSchoolSettings";
+import { defaultSchoolSettings, saveSchoolSettingsCloud, SchoolSettingsData, cleanQuotes } from "@/hooks/useSchoolSettings";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { getGoogleMapsEmbedUrl, getGoogleMapsNavigationUrl } from "@/lib/maps";
 import { compressImageFile } from "@/utils/imageCompressor";
@@ -115,6 +115,7 @@ export default function AdminSettingsPage() {
     directorEmail: defaultSchoolSettings.email,
     colors: defaultSchoolSettings.colors,
     philosophy: defaultSchoolSettings.philosophy,
+    philosophyTranslation: defaultSchoolSettings.philosophyTranslation || "ไม่มีแสงสว่างใดเสมอด้วยปัญญา",
     currentAcademicYear: "2569",
     currentSemester: "ภาคเรียนที่ 1/2569",
     visitorCountBase: "0",
@@ -167,8 +168,13 @@ export default function AdminSettingsPage() {
     if (e) e.preventDefault();
     setIsSaving(true);
     try {
+      const cleanedData = {
+        ...formData,
+        philosophy: cleanQuotes(formData.philosophy),
+        philosophyTranslation: cleanQuotes(formData.philosophyTranslation),
+      };
       // 1. Save to cloud and localStorage via helper
-      await saveSchoolSettingsCloud(formData as unknown as SchoolSettingsData);
+      await saveSchoolSettingsCloud(cleanedData as unknown as SchoolSettingsData);
 
       // 2. Two-way sync: Update director in personnel database as well
       try {
@@ -572,7 +578,7 @@ export default function AdminSettingsPage() {
       </div>
 
       {/* Tabs Bar */}
-      <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-[#EAF2FB]/80 rounded-2xl border border-[#D1DFF0]">
+      <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-[#F4F8FD] rounded-2xl border border-[#E6EEF8]">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -582,8 +588,8 @@ export default function AdminSettingsPage() {
               onClick={() => setActiveTab(tab.id as SettingsTab)}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all min-h-[38px] ${
                 isActive
-                  ? "bg-[#1E3A5F] text-white shadow-xs"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                  ? "bg-gradient-to-r from-[#2F6FED] to-[#4F8CFF] text-white shadow-[0_4px_12px_rgba(47,111,237,0.25)]"
+                  : "text-[#475569] hover:text-[#1E3A5F] hover:bg-white/80"
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -1635,6 +1641,48 @@ export default function AdminSettingsPage() {
             </div>
 
             <div className="space-y-4 text-xs">
+              {/* Philosophy (ปรัชญาของโรงเรียน) */}
+              <div className="bg-[#F8FBFE] p-4 sm:p-5 rounded-2xl border border-[#E6EEF8] space-y-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-[#2F6FED]" />
+                  <h4 className="text-xs font-bold text-[#1E3A5F]">
+                    ปรัชญาของโรงเรียน (Philosophy)
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">
+                      ข้อความปรัชญา *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.philosophy}
+                      onChange={(e) => setFormData({ ...formData, philosophy: e.target.value })}
+                      placeholder="เช่น นตฺถิ ปญฺญา สมา อาภา"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/20 font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">
+                      คำแปล (ไม่บังคับ)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.philosophyTranslation || ""}
+                      onChange={(e) => setFormData({ ...formData, philosophyTranslation: e.target.value })}
+                      placeholder="เช่น ไม่มีแสงสว่างใดเสมอด้วยปัญญา"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/20 font-medium"
+                    />
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-[#64748B]">
+                  * แสดงในแบนเนอร์หน้า Admin และหน้าข้อมูลโรงเรียน (/about) โดยเก็บเป็นข้อความล้วน และระบบจะใส่เครื่องหมายคำพูดให้ตอนแสดงผล
+                </p>
+              </div>
+
               <div>
                 <label className="block font-bold text-slate-700 mb-1">
                   วิสัยทัศน์สถานศึกษา (Vision)

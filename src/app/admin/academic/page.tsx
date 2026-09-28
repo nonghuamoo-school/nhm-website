@@ -578,7 +578,7 @@ export default function AdminAcademicPage() {
           onClick={() => setActiveMainTab("scores")}
           className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
             activeMainTab === "scores"
-              ? "bg-[#1E3A5F] text-white shadow-sm"
+              ? "bg-gradient-to-r from-[#2F6FED] to-[#4F8CFF] text-white shadow-xs"
               : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
           }`}
         >
@@ -590,7 +590,7 @@ export default function AdminAcademicPage() {
           onClick={() => setActiveMainTab("posters")}
           className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
             activeMainTab === "posters"
-              ? "bg-[#1E3A5F] text-white shadow-sm"
+              ? "bg-gradient-to-r from-[#2F6FED] to-[#4F8CFF] text-white shadow-xs"
               : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
           }`}
         >
@@ -617,7 +617,7 @@ export default function AdminAcademicPage() {
                     onClick={() => setActiveExam(tab)}
                     className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
                       activeExam === tab
-                        ? "bg-[#1E3A5F] text-white shadow-sm"
+                        ? "bg-gradient-to-r from-[#2F6FED] to-[#4F8CFF] text-white shadow-xs"
                         : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
                     }`}
                   >
@@ -786,7 +786,7 @@ export default function AdminAcademicPage() {
               </p>
               <table className="w-full text-xs sm:text-sm border-collapse min-w-[560px]">
                 <thead>
-                  <tr className="bg-slate-100/80 text-slate-700 font-bold border-b border-slate-200">
+                  <tr className="bg-[#F4F8FD] text-[#1E3A5F] font-bold border-b border-[#E6EEF8]">
                     <th className="py-3 px-4 text-left font-bold">กลุ่มสาระ / สมรรถนะ</th>
                     <th className="py-3 px-4 text-center text-emerald-900 bg-emerald-50/70 border-x border-emerald-100">
                       <span className="flex items-center justify-center gap-1.5 font-bold">
@@ -940,7 +940,7 @@ export default function AdminAcademicPage() {
                 {/* Header Bar */}
                 <div className="px-6 py-4 bg-slate-50/80 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <span className="px-3 py-1 rounded-full bg-[#1E3A5F] text-white text-xs font-bold shadow-2xs">
+                    <span className="px-3 py-1 rounded-full bg-gradient-to-r from-[#2F6FED] to-[#4F8CFF] text-white text-xs font-bold shadow-xs">
                       ปีการศึกษา {poster.year}
                     </span>
                     <span className="font-bold text-sm text-[#1E3A5F]">

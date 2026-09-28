@@ -124,8 +124,8 @@ export default function AdminNewsListPage() {
       <div className="glass-card-admin rounded-2xl p-4 sm:p-5 border border-[#D1DFF0] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
         {/* News Count Summary */}
         <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-          <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#1E3A5F] text-white border border-[#1E3A5F] shadow-xs">
-            <Megaphone className="w-3.5 h-3.5 text-[#D96B34]" />
+          <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#E8F0FE] text-[#2F6FED] border border-[#C6DCFC] shadow-2xs">
+            <Megaphone className="w-3.5 h-3.5 text-[#2F6FED]" />
             <span>ข่าวประชาสัมพันธ์ทั้งหมด ({filteredNews.length} รายการ)</span>
           </span>
         </div>
@@ -147,7 +147,7 @@ export default function AdminNewsListPage() {
       <div className="glass-card-admin rounded-2xl border border-[#D1DFF0] shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#1E3A5F]/5 border-b border-[#D1DFF0] text-[#1E3A5F] font-semibold uppercase">
+            <thead className="bg-[#F4F8FD] border-b border-[#E6EEF8] text-[#1E3A5F] font-bold uppercase tracking-wider">
               <tr>
                 <th className="py-3.5 px-4 sm:px-6">หัวข้อข่าวและสิ่งที่แนบ</th>
                 <th className="py-3.5 px-4 hidden md:table-cell">หมวดหมู่</th>
@@ -210,7 +210,7 @@ export default function AdminNewsListPage() {
                     </div>
                   </td>
                   <td className="py-3.5 px-4 hidden md:table-cell">
-                    <span className="font-bold px-2 py-0.5 rounded bg-[#1E3A5F]/10 text-[#1E3A5F]">
+                    <span className="font-bold px-2.5 py-0.5 rounded-full text-[11px] bg-blue-50 text-[#2F6FED] border border-blue-100">
                       {news.category}
                     </span>
                   </td>

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Users, UserCheck, School, Sparkles, Filter, Database, CheckCircle2 } from "lucide-react";
+import { Users, School, Sparkles, Baby, BookOpen } from "lucide-react";
 import { getStoredStudentStats, fetchStudentStatsCloud, defaultSchoolStudentStats } from "@/data/studentStats";
 
 export default function StudentAnalyticsWidget() {
@@ -11,7 +11,7 @@ export default function StudentAnalyticsWidget() {
   useEffect(() => {
     setAllStats(getStoredStudentStats());
 
-    // Fetch from Supabase cloud — overwrites localStorage if data found
+    // Fetch from Supabase cloud — updates if remote data found
     fetchStudentStatsCloud().then((cloudData) => {
       if (cloudData) setAllStats(cloudData);
     });
@@ -33,25 +33,36 @@ export default function StudentAnalyticsWidget() {
   const activeYear = allStats[selectedYear] ? selectedYear : availableYears[0] || "2569";
   const stats = allStats[activeYear] || defaultSchoolStudentStats["2569"];
 
-  const maxStudentCount = Math.max(15, ...stats.grades.map((g) => g.total));
   const total = Math.max(1, stats.summary.totalStudents);
   const malePercent = Math.round((stats.summary.totalMale / total) * 100);
   const femalePercent = 100 - malePercent;
   const avgPerRoom = (stats.summary.totalStudents / Math.max(1, stats.summary.totalClassrooms)).toFixed(1);
 
+  // Group by level
+  const kindergartenGrades = stats.grades.filter((g) => g.grade.includes("อนุบาล"));
+  const primaryGrades = stats.grades.filter((g) => g.grade.includes("ประถม"));
+  const kinderTotal = kindergartenGrades.reduce((sum, g) => sum + g.total, 0);
+  const primaryTotal = primaryGrades.reduce((sum, g) => sum + g.total, 0);
+  const kinderPercent = Math.round((kinderTotal / total) * 100);
+  const primaryPercent = 100 - kinderPercent;
+
+  // Find max student grade for the "มากที่สุด" badge
+  const maxGradeItem = stats.grades.reduce((max, g) => (g.total > max.total ? g : max), stats.grades[0] || { grade: "", total: 0 });
+  const maxStudentCount = Math.max(15, ...stats.grades.map((g) => g.total));
+
   // Donut SVG parameters
-  const size = 160;
+  const size = 170;
   const strokeWidth = 16;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const maleStrokeDashoffset = circumference - (malePercent / 100) * circumference;
 
   return (
-    <div className="bg-white rounded-3xl p-5 sm:p-7 border border-slate-200 shadow-sm space-y-6">
+    <div className="bg-white rounded-3xl p-5 sm:p-7 border border-[#E6EEF8] shadow-xs space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#F1F5F9]">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center shrink-0 shadow-md">
+          <div className="w-11 h-11 rounded-2xl bg-[#E8F0FE] text-[#2F6FED] flex items-center justify-center shrink-0 shadow-xs">
             <Users className="w-5 h-5" />
           </div>
           <div>
@@ -59,27 +70,28 @@ export default function StudentAnalyticsWidget() {
               <h3 className="text-base sm:text-lg font-black text-[#1E3A5F]">
                 สถิตินักเรียนและโครงสร้างชั้นเรียน
               </h3>
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#E3F7EE] text-[#16A37A] border border-[#C6EFE0]">
                 รวม {stats.summary.totalStudents} คน
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-[#64748B] mt-0.5">
               ข้อมูลจำนวนนักเรียนจริงรายชั้นเรียน อนุบาล 2 – ประถมศึกษาปีที่ 6 (ปีการศึกษา {activeYear})
             </p>
           </div>
         </div>
 
+        {/* Year Selector */}
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-slate-400">ปีการศึกษา:</span>
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+          <span className="text-xs font-bold text-[#64748B]">ปีการศึกษา:</span>
+          <div className="flex items-center gap-1 bg-[#F4F8FD] p-1 rounded-2xl border border-[#E6EEF8]">
             {availableYears.map((yr) => (
               <button
                 key={yr}
                 onClick={() => setSelectedYear(yr)}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
                   activeYear === yr
-                    ? "bg-[#2F6FED] text-white shadow-xs"
-                    : "text-slate-600 hover:text-slate-900"
+                    ? "bg-gradient-to-r from-[#2F6FED] to-[#4F8CFF] text-white shadow-xs"
+                    : "text-[#64748B] hover:text-[#1E3A5F]"
                 }`}
               >
                 {yr}
@@ -89,113 +101,256 @@ export default function StudentAnalyticsWidget() {
         </div>
       </div>
 
-      {/* 4 Quick Stat Badges */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {/* Total Students matching navy brand */}
-        <div className="bg-gradient-to-br from-[#1E3A5F] to-[#0F2540] text-white rounded-2xl p-4 shadow-sm border border-white/10">
-          <span className="text-xs font-medium text-white/80 block">นักเรียนทั้งหมด</span>
-          <div className="flex items-baseline gap-1 mt-1">
-            <span className="text-2xl sm:text-3xl font-black text-white">{stats.summary.totalStudents}</span>
-            <span className="text-xs text-white/90">คน</span>
+      {/* 4 Light SaaS Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        {/* Card 1: Total */}
+        <div className="bg-white rounded-2xl p-4 border border-[#E6EEF8] shadow-xs hover:border-[#2F6FED]/40 transition-all flex flex-col justify-between">
+          <div className="flex items-start justify-between">
+            <div className="w-10 h-10 rounded-xl bg-[#E8F0FE] text-[#2F6FED] flex items-center justify-center">
+              <Users className="w-5 h-5" />
+            </div>
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-[#2F6FED] border border-blue-100">
+              100% ทั้งหมด
+            </span>
           </div>
-          <span className="text-[10px] text-[#7EB8E0] block mt-1">{stats.summary.totalClassrooms} ห้องเรียน</span>
+          <div className="mt-3">
+            <span className="text-xs font-semibold text-[#64748B] block">นักเรียนทั้งหมด</span>
+            <div className="flex items-baseline gap-1 mt-0.5">
+              <span className="text-2xl sm:text-3xl font-black text-[#1E3A5F]">{stats.summary.totalStudents}</span>
+              <span className="text-xs font-semibold text-[#64748B]">คน</span>
+            </div>
+          </div>
+          <div className="mt-3 pt-2.5 border-t border-[#F1F5F9]">
+            <div className="w-full h-1.5 bg-[#EEF3FA] rounded-full overflow-hidden">
+              <div className="w-full h-full bg-[#2F6FED] rounded-full" />
+            </div>
+            <span className="text-[11px] text-[#64748B] mt-1.5 block">โครงสร้าง {stats.summary.totalClassrooms} ห้องเรียน</span>
+          </div>
         </div>
 
-        {/* Male */}
-        <div className="bg-gradient-to-br from-[#2F6FED] to-[#1E3A5F] text-white rounded-2xl p-4 shadow-sm border border-white/10">
-          <span className="text-xs font-medium text-white/80 block">นักเรียนชาย</span>
-          <div className="flex items-baseline gap-1 mt-1">
-            <span className="text-2xl sm:text-3xl font-black text-white">{stats.summary.totalMale}</span>
-            <span className="text-xs text-white/90">คน ({malePercent}%)</span>
+        {/* Card 2: Kindergarten */}
+        <div className="bg-white rounded-2xl p-4 border border-[#E6EEF8] shadow-xs hover:border-[#7C5CE0]/40 transition-all flex flex-col justify-between">
+          <div className="flex items-start justify-between">
+            <div className="w-10 h-10 rounded-xl bg-[#F1EAFE] text-[#7C5CE0] flex items-center justify-center">
+              <Baby className="w-5 h-5" />
+            </div>
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-[#7C5CE0] border border-purple-100">
+              {kinderPercent}%
+            </span>
           </div>
-          <span className="text-[10px] text-white/70 block mt-1">สัดส่วน {malePercent}%</span>
+          <div className="mt-3">
+            <span className="text-xs font-semibold text-[#64748B] block">ระดับปฐมวัย (อ.2 - อ.3)</span>
+            <div className="flex items-baseline gap-1 mt-0.5">
+              <span className="text-2xl sm:text-3xl font-black text-[#1E3A5F]">{kinderTotal}</span>
+              <span className="text-xs font-semibold text-[#64748B]">คน</span>
+            </div>
+          </div>
+          <div className="mt-3 pt-2.5 border-t border-[#F1F5F9]">
+            <div className="w-full h-1.5 bg-[#EEF3FA] rounded-full overflow-hidden">
+              <div
+                style={{ width: `${kinderPercent}%` }}
+                className="h-full bg-[#7C5CE0] rounded-full transition-all duration-700"
+              />
+            </div>
+            <span className="text-[11px] text-[#64748B] mt-1.5 block">2 ห้องเรียน (อ.2 และ อ.3)</span>
+          </div>
         </div>
 
-        {/* Female */}
-        <div className="bg-gradient-to-br from-[#D96B34] to-[#B35222] text-white rounded-2xl p-4 shadow-sm border border-white/10">
-          <span className="text-xs font-medium text-white/80 block">นักเรียนหญิง</span>
-          <div className="flex items-baseline gap-1 mt-1">
-            <span className="text-2xl sm:text-3xl font-black text-white">{stats.summary.totalFemale}</span>
-            <span className="text-xs text-white/90">คน ({femalePercent}%)</span>
+        {/* Card 3: Primary */}
+        <div className="bg-white rounded-2xl p-4 border border-[#E6EEF8] shadow-xs hover:border-[#16A37A]/40 transition-all flex flex-col justify-between">
+          <div className="flex items-start justify-between">
+            <div className="w-10 h-10 rounded-xl bg-[#E3F7EE] text-[#16A37A] flex items-center justify-center">
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-[#16A37A] border border-emerald-100">
+              {primaryPercent}%
+            </span>
           </div>
-          <span className="text-[10px] text-white/70 block mt-1">สัดส่วน {femalePercent}%</span>
+          <div className="mt-3">
+            <span className="text-xs font-semibold text-[#64748B] block">ประถมศึกษา (ป.1 - ป.6)</span>
+            <div className="flex items-baseline gap-1 mt-0.5">
+              <span className="text-2xl sm:text-3xl font-black text-[#1E3A5F]">{primaryTotal}</span>
+              <span className="text-xs font-semibold text-[#64748B]">คน</span>
+            </div>
+          </div>
+          <div className="mt-3 pt-2.5 border-t border-[#F1F5F9]">
+            <div className="w-full h-1.5 bg-[#EEF3FA] rounded-full overflow-hidden">
+              <div
+                style={{ width: `${primaryPercent}%` }}
+                className="h-full bg-[#16A37A] rounded-full transition-all duration-700"
+              />
+            </div>
+            <span className="text-[11px] text-[#64748B] mt-1.5 block">6 ห้องเรียน (ป.1 ถึง ป.6)</span>
+          </div>
         </div>
 
-        {/* Classrooms */}
-        <div className="bg-gradient-to-br from-[#0F2540] to-[#1E3A5F] text-white rounded-2xl p-4 shadow-sm border border-white/10">
-          <span className="text-xs font-medium text-white/80 block">ห้องเรียนทั้งหมด</span>
-          <div className="flex items-baseline gap-1 mt-1">
-            <span className="text-2xl sm:text-3xl font-black text-white">{stats.summary.totalClassrooms}</span>
-            <span className="text-xs text-white/90">ห้อง</span>
+        {/* Card 4: Avg per room */}
+        <div className="bg-white rounded-2xl p-4 border border-[#E6EEF8] shadow-xs hover:border-[#E8772E]/40 transition-all flex flex-col justify-between">
+          <div className="flex items-start justify-between">
+            <div className="w-10 h-10 rounded-xl bg-[#FFF0E5] text-[#E8772E] flex items-center justify-center">
+              <School className="w-5 h-5" />
+            </div>
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-orange-50 text-[#E8772E] border border-orange-100">
+              {stats.summary.totalClassrooms} ห้อง
+            </span>
           </div>
-          <span className="text-[10px] text-[#7EB8E0] block mt-1">เฉลี่ย {avgPerRoom} คน/ห้อง</span>
+          <div className="mt-3">
+            <span className="text-xs font-semibold text-[#64748B] block">เฉลี่ยต่อห้องเรียน</span>
+            <div className="flex items-baseline gap-1 mt-0.5">
+              <span className="text-2xl sm:text-3xl font-black text-[#1E3A5F]">{avgPerRoom}</span>
+              <span className="text-xs font-semibold text-[#64748B]">คน/ห้อง</span>
+            </div>
+          </div>
+          <div className="mt-3 pt-2.5 border-t border-[#F1F5F9]">
+            <div className="w-full h-1.5 bg-[#EEF3FA] rounded-full overflow-hidden">
+              <div className="w-3/4 h-full bg-[#E8772E] rounded-full" />
+            </div>
+            <span className="text-[11px] text-[#64748B] mt-1.5 block">ชาย {stats.summary.totalMale} • หญิง {stats.summary.totalFemale} คน</span>
+          </div>
         </div>
       </div>
 
-      {/* Main Grid: Left Capsule Bars | Right Donut Chart */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+      {/* Single Combined Gender Bar */}
+      <div className="bg-[#F8FAFD] rounded-2xl p-4 sm:p-5 border border-[#E6EEF8] space-y-2.5">
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-bold text-[#1E3A5F]">สัดส่วนนักเรียนตามเพศ (ชาย {malePercent}% : หญิง {femalePercent}%)</span>
+          <span className="text-[#64748B] font-medium">รวมทั้งสิ้น {stats.summary.totalStudents} คน</span>
+        </div>
+
+        {/* Combined Bar */}
+        <div className="h-3.5 bg-[#EEF3FA] rounded-full overflow-hidden flex shadow-inner">
+          <div
+            style={{ width: `${malePercent}%` }}
+            className="bg-[#2F6FED] h-full transition-all duration-700"
+            title={`ชาย: ${stats.summary.totalMale} คน (${malePercent}%)`}
+          />
+          <div
+            style={{ width: `${femalePercent}%` }}
+            className="bg-[#F59E6C] h-full transition-all duration-700"
+            title={`หญิง: ${stats.summary.totalFemale} คน (${femalePercent}%)`}
+          />
+        </div>
+
+        {/* Legend */}
+        <div className="flex items-center justify-between text-xs pt-0.5">
+          <div className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-[#2F6FED]" />
+            <span className="font-semibold text-[#1E3A5F]">
+              นักเรียนชาย: <strong className="font-black">{stats.summary.totalMale}</strong> คน ({malePercent}%)
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-[#F59E6C]" />
+            <span className="font-semibold text-[#1E3A5F]">
+              นักเรียนหญิง: <strong className="font-black">{stats.summary.totalFemale}</strong> คน ({femalePercent}%)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Grid: Left Grade Bars (8 cols) | Right Donut Chart (4 cols) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         {/* Left: Capsule Bars (8 cols) */}
-        <div className="lg:col-span-8 space-y-3">
-          <div className="flex items-center justify-between text-xs text-slate-500">
+        <div className="lg:col-span-8 bg-white p-5 rounded-2xl border border-[#E6EEF8] flex flex-col justify-between space-y-4">
+          <div className="flex items-center justify-between text-xs text-[#64748B]">
             <span className="font-bold text-[#1E3A5F] flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#2F6FED]" />
+              <Sparkles className="w-4 h-4 text-[#2F6FED]" />
               <span>จำนวนนักเรียนแยกตามระดับชั้น (คน)</span>
             </span>
-            <span className="text-[11px] text-[#6B7FA0]">เฉลี่ย {avgPerRoom} คน / ห้อง</span>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1 text-[11px] text-[#64748B]">
+                <span className="w-2 h-2 rounded-full bg-[#7C5CE0]" /> ปฐมวัย
+              </span>
+              <span className="flex items-center gap-1 text-[11px] text-[#64748B]">
+                <span className="w-2 h-2 rounded-full bg-[#2F6FED]" /> ประถม
+              </span>
+            </div>
           </div>
 
-          <div className="h-48 sm:h-56 pt-6 pb-2 grid grid-cols-8 gap-1 sm:gap-2.5 items-end bg-[#EAF2FB]/50 p-2 sm:p-4 rounded-2xl border border-[#D1DFF0] overflow-hidden">
-            {stats.grades.map((grade) => {
-              const heightPercent = Math.min(100, Math.round((grade.total / maxStudentCount) * 85) + 15);
-              const shortLabel = grade.grade
-                .replace("อนุบาล 2 (4 ขวบ)", "อ.2")
-                .replace("อนุบาล 3 (5 ขวบ)", "อ.3")
-                .replace(/อนุบาล\s*(\d+).*/, "อ.$1")
-                .replace(/ประถมศึกษาปีที่\s*(\d+).*/, "ป.$1");
+          {/* Bar Chart Area with dashed grid lines */}
+          <div className="relative pt-8 pb-3 px-2 sm:px-4 bg-[#F8FAFD] rounded-2xl border border-[#EEF3FA]">
+            {/* Dashed Horizontal Grid Lines */}
+            <div className="absolute inset-0 flex flex-col justify-between pointer-events-none py-6 px-4">
+              <div className="border-b border-dashed border-[#E2E8F0] w-full" />
+              <div className="border-b border-dashed border-[#E2E8F0] w-full" />
+              <div className="border-b border-dashed border-[#E2E8F0] w-full" />
+            </div>
 
-              return (
-                <div
-                  key={grade.grade}
-                  className="flex flex-col items-center h-full justify-end group cursor-pointer"
-                  title={`${grade.grade}: รวม ${grade.total} คน (ชาย ${grade.male}, หญิง ${grade.female})`}
-                >
-                  <span className="text-[10px] sm:text-[11px] font-bold font-mono text-[#1E3A5F] mb-1.5 group-hover:scale-110 transition-all">
-                    {grade.total}
-                  </span>
+            <div className="relative z-10 h-52 sm:h-56 grid grid-cols-8 gap-1 sm:gap-3 items-end">
+              {stats.grades.map((grade, index) => {
+                const heightPercent = Math.min(100, Math.round((grade.total / maxStudentCount) * 82) + 18);
+                const isKindergarten = grade.grade.includes("อนุบาล");
+                const isMax = grade.grade === maxGradeItem.grade;
+                const shortLabel = grade.grade
+                  .replace("อนุบาล 2 (4 ขวบ)", "อ.2")
+                  .replace("อนุบาล 3 (5 ขวบ)", "อ.3")
+                  .replace(/อนุบาล\s*(\d+).*/, "อ.$1")
+                  .replace(/ประถมศึกษาปีที่\s*(\d+).*/, "ป.$1");
 
-                  <div className="w-full max-w-[24px] sm:max-w-[34px] h-full flex items-end justify-center bg-[#D1DFF0]/60 rounded-full p-1 overflow-hidden">
-                    <div
-                      style={{ height: `${heightPercent}%` }}
-                      className="w-full bg-gradient-to-t from-[#1E3A5F] via-[#2F6FED] to-[#7EB8E0] rounded-full group-hover:from-[#2F6FED] group-hover:to-[#D96B34] transition-all duration-500 shadow-sm relative"
-                    >
-                      <div className="absolute top-1 left-0.5 right-0.5 h-1 bg-white/50 rounded-full" />
+                return (
+                  <div
+                    key={grade.grade}
+                    className={`flex flex-col items-center h-full justify-end group cursor-pointer relative ${
+                      index === 1 ? "border-r border-dashed border-[#CBD5E1]/80 pr-1 sm:pr-2" : ""
+                    }`}
+                    title={`${grade.grade}: รวม ${grade.total} คน (ชาย ${grade.male}, หญิง ${grade.female})`}
+                  >
+                    {/* "มากที่สุด" badge */}
+                    {isMax && (
+                      <span className="absolute -top-6 px-1.5 py-0.5 rounded-full bg-gradient-to-r from-[#2F6FED] to-[#4F8CFF] text-[9px] font-bold text-white shadow-xs whitespace-nowrap animate-bounce">
+                        มากที่สุด
+                      </span>
+                    )}
+
+                    <span className="text-[11px] sm:text-xs font-black font-mono text-[#1E3A5F] mb-1.5 group-hover:scale-110 transition-transform">
+                      {grade.total}
+                    </span>
+
+                    {/* Track + Fill */}
+                    <div className="w-full max-w-[24px] sm:max-w-[34px] h-full flex items-end justify-center bg-[#EEF3FA] rounded-full p-1 overflow-hidden">
+                      <div
+                        style={{ height: `${heightPercent}%` }}
+                        className={`w-full rounded-full transition-all duration-500 relative ${
+                          isKindergarten
+                            ? "bg-gradient-to-t from-[#7C5CE0] to-[#C4B5FD] group-hover:to-[#A78BFA]"
+                            : "bg-gradient-to-t from-[#2F6FED] to-[#9CC3F7] group-hover:to-[#60A5FA]"
+                        }`}
+                      >
+                        <div className="absolute top-1 left-0.5 right-0.5 h-1 bg-white/60 rounded-full" />
+                      </div>
                     </div>
-                  </div>
 
-                  <span className="text-[10px] sm:text-xs font-bold text-[#4B6080] mt-2 text-center w-full">
-                    {shortLabel}
-                  </span>
-                </div>
-              );
-            })}
+                    <span className={`text-[10px] sm:text-xs font-bold mt-2 text-center w-full ${
+                      isKindergarten ? "text-[#7C5CE0]" : "text-[#475569]"
+                    }`}>
+                      {shortLabel}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
         {/* Right: Donut Chart for Male/Female ratio (4 cols) */}
-        <div className="lg:col-span-4 bg-[#EAF2FB]/50 p-5 rounded-2xl border border-[#D1DFF0] flex flex-col items-center justify-center space-y-4">
-          <span className="text-xs font-bold text-[#1E3A5F]">สัดส่วนนักเรียนตามเพศ</span>
+        <div className="lg:col-span-4 bg-white p-5 rounded-2xl border border-[#E6EEF8] flex flex-col items-center justify-center space-y-4">
+          <div className="w-full flex items-center justify-between">
+            <span className="text-xs font-bold text-[#1E3A5F]">แผนภูมิวงกลมเพศ</span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#F4F8FD] text-[#64748B]">
+              ปี {activeYear}
+            </span>
+          </div>
 
           {/* SVG Donut */}
-          <div className="relative flex items-center justify-center">
+          <div className="relative flex items-center justify-center my-2">
             <svg width={size} height={size} className="-rotate-90">
               <circle
                 cx={size / 2}
                 cy={size / 2}
                 r={radius}
                 fill="none"
-                stroke="#D96B34"
+                stroke="#F59E6C"
                 strokeWidth={strokeWidth}
-                opacity={0.85}
               />
               <circle
                 cx={size / 2}
@@ -213,20 +368,20 @@ export default function StudentAnalyticsWidget() {
 
             {/* Donut Center Count */}
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-              <span className="text-2xl font-black text-[#1E3A5F] tracking-tight">{stats.summary.totalStudents}</span>
-              <span className="text-[10px] font-bold text-[#6B7FA0] uppercase">นักเรียนทั้งหมด</span>
+              <span className="text-3xl font-black text-[#1E3A5F] tracking-tight">{stats.summary.totalStudents}</span>
+              <span className="text-[11px] font-bold text-[#64748B]">นักเรียนทั้งหมด</span>
             </div>
           </div>
 
           {/* Legend */}
-          <div className="flex items-center gap-4 text-xs">
+          <div className="w-full flex items-center justify-around text-xs pt-2 border-t border-[#F1F5F9]">
             <div className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-full bg-[#2F6FED]" />
-              <span className="text-[#1E3A5F] font-semibold">ชาย: {stats.summary.totalMale} ({malePercent}%)</span>
+              <span className="text-[#1E3A5F] font-semibold">ชาย {stats.summary.totalMale} ({malePercent}%)</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-[#D96B34]" />
-              <span className="text-[#1E3A5F] font-semibold">หญิง: {stats.summary.totalFemale} ({femalePercent}%)</span>
+              <span className="w-3 h-3 rounded-full bg-[#F59E6C]" />
+              <span className="text-[#1E3A5F] font-semibold">หญิง {stats.summary.totalFemale} ({femalePercent}%)</span>
             </div>
           </div>
         </div>

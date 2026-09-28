@@ -273,7 +273,7 @@ export default function AdminStatisticsPage() {
             onClick={() => setActiveTab("visitors")}
             className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl transition-all min-h-[38px] ${
               activeTab === "visitors"
-                ? "bg-[#1E3A5F] text-white shadow-sm"
+                ? "bg-gradient-to-r from-[#2F6FED] to-[#4F8CFF] text-white shadow-xs"
                 : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
             }`}
           >
@@ -284,7 +284,7 @@ export default function AdminStatisticsPage() {
             onClick={() => setActiveTab("students")}
             className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl transition-all min-h-[38px] ${
               activeTab === "students"
-                ? "bg-[#1E3A5F] text-white shadow-sm"
+                ? "bg-gradient-to-r from-[#2F6FED] to-[#4F8CFF] text-white shadow-xs"
                 : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
             }`}
           >
@@ -345,7 +345,7 @@ export default function AdminStatisticsPage() {
                 onClick={() => setTimeRange("7d")}
                 className={`px-3 py-1.5 rounded-lg transition-colors ${
                   timeRange === "7d"
-                    ? "bg-[#1E3A5F] text-white shadow-2xs"
+                    ? "bg-gradient-to-r from-[#2F6FED] to-[#4F8CFF] text-white shadow-2xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
@@ -355,7 +355,7 @@ export default function AdminStatisticsPage() {
                 onClick={() => setTimeRange("30d")}
                 className={`px-3 py-1.5 rounded-lg transition-colors ${
                   timeRange === "30d"
-                    ? "bg-[#1E3A5F] text-white shadow-2xs"
+                    ? "bg-gradient-to-r from-[#2F6FED] to-[#4F8CFF] text-white shadow-2xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
@@ -629,7 +629,7 @@ export default function AdminStatisticsPage() {
                     onClick={() => setSelectedStudentYear(yr)}
                     className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
                       selectedStudentYear === yr
-                        ? "bg-[#1E3A5F] text-white shadow-xs"
+                        ? "bg-gradient-to-r from-[#2F6FED] to-[#4F8CFF] text-white shadow-xs"
                         : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
@@ -749,7 +749,7 @@ export default function AdminStatisticsPage() {
               </p>
               <table className="w-full text-xs sm:text-sm border-collapse min-w-[550px]">
                 <thead>
-                  <tr className="bg-slate-100/90 text-slate-700 font-bold border-b border-slate-200">
+                  <tr className="bg-[#F4F8FD] text-[#1E3A5F] font-bold border-b border-[#E6EEF8]">
                     <th className="py-3 px-4 text-left font-bold">ระดับชั้นเรียน</th>
                     <th className="py-3 px-4 text-center text-blue-900 bg-blue-50/70 border-x border-blue-100">
                       ชาย (คน)
@@ -823,7 +823,7 @@ export default function AdminStatisticsPage() {
                     <td className="py-3 px-4 text-center text-rose-900 bg-rose-50/60 font-black">
                       {activeYearData.summary.totalFemale} คน
                     </td>
-                    <td className="py-3 px-4 text-center text-white bg-[#1E3A5F] font-black text-base">
+                    <td className="py-3 px-4 text-center text-[#1E3A5F] bg-[#E8F0FE] font-black text-base border-t border-[#D1DFF0]">
                       {activeYearData.summary.totalStudents} คน
                     </td>
                     <td className="py-3 px-4 text-center text-emerald-900 bg-emerald-50/60 font-black">

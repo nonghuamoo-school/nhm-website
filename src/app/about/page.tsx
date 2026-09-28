@@ -5,7 +5,7 @@ import { Building, Target, BookOpen, Layers, Award, CheckCircle, Sparkles, Palet
 import InnerPageLayout from "@/components/layout/InnerPageLayout";
 import SchoolGeneralInfoCard from "@/components/home/SchoolGeneralInfoCard";
 import AdministrativeStructureChart from "@/components/about/AdministrativeStructureChart";
-import { useSchoolSettings } from "@/hooks/useSchoolSettings";
+import { useSchoolSettings, cleanQuotes } from "@/hooks/useSchoolSettings";
 
 export default function AboutPage() {
   const { settings } = useSchoolSettings();
@@ -55,8 +55,15 @@ export default function AboutPage() {
                   <Sparkles className="w-4 h-4 text-[#2F6FED]" />
                   <h4 className="text-sm font-bold">ปรัชญาของโรงเรียน (Philosophy)</h4>
                 </div>
-                <div className="p-3.5 sm:p-4 bg-white/80 backdrop-blur-xs rounded-2xl border border-[#D1DFF0] text-[#1E3A5F] font-semibold text-xs sm:text-sm leading-[1.7] text-left [overflow-wrap:break-word]">
-                  &ldquo;{settings.philosophy || "นตฺถิ ปญฺญา สมา อาภา “ไม่มีแสงสว่างใดเสมอด้วยปัญญา”"}&rdquo;
+                <div className="p-3.5 sm:p-4 bg-white/80 backdrop-blur-xs rounded-2xl border border-[#D1DFF0] text-[#1E3A5F] text-xs sm:text-sm leading-[1.7] text-left [overflow-wrap:break-word] space-y-1">
+                  <div className="font-bold text-sm sm:text-base text-[#1E3A5F]">
+                    &ldquo;{cleanQuotes(settings.philosophy || "นตฺถิ ปญฺญา สมา อาภา")}&rdquo;
+                  </div>
+                  {(settings.philosophyTranslation || (!settings.philosophyTranslation && !settings.philosophy)) && (
+                    <div className="text-xs text-slate-500 font-normal">
+                      {cleanQuotes(settings.philosophyTranslation || "ไม่มีแสงสว่างใดเสมอด้วยปัญญา")}
+                    </div>
+                  )}
                 </div>
               </div>
 

@@ -411,7 +411,7 @@ export default function AdminDownloadsPage() {
           onClick={() => setActiveTab("documents")}
           className={`flex items-center gap-2.5 px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
             activeTab === "documents"
-              ? "bg-[#1E3A5F] text-white shadow-md"
+              ? "bg-gradient-to-r from-[#2F6FED] to-[#4F8CFF] text-white shadow-xs"
               : "text-slate-600 hover:text-[#1E3A5F] hover:bg-slate-50"
           }`}
         >
@@ -429,7 +429,7 @@ export default function AdminDownloadsPage() {
           onClick={() => setActiveTab("inventory")}
           className={`flex items-center gap-2.5 px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
             activeTab === "inventory"
-              ? "bg-[#1E3A5F] text-white shadow-md"
+              ? "bg-gradient-to-r from-[#2F6FED] to-[#4F8CFF] text-white shadow-xs"
               : "text-slate-600 hover:text-[#1E3A5F] hover:bg-slate-50"
           }`}
         >
@@ -509,7 +509,7 @@ export default function AdminDownloadsPage() {
             </p>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs min-w-[560px]">
-                <thead className="bg-[#1E3A5F]/5 border-b border-[#D1DFF0] text-[#1E3A5F] font-bold uppercase tracking-wider">
+                <thead className="bg-[#F4F8FD] border-b border-[#E6EEF8] text-[#1E3A5F] font-bold uppercase tracking-wider">
                   <tr>
                     <th className="py-3.5 px-4 sm:px-6">ชื่อเอกสาร</th>
                     <th className="py-3.5 px-4 hidden md:table-cell">หมวดหมู่</th>
@@ -745,7 +745,7 @@ export default function AdminDownloadsPage() {
             </p>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs min-w-[680px]">
-                <thead className="bg-[#1E3A5F]/5 border-b border-[#D1DFF0] text-[#1E3A5F] font-bold uppercase tracking-wider">
+                <thead className="bg-[#F4F8FD] border-b border-[#E6EEF8] text-[#1E3A5F] font-bold uppercase tracking-wider">
                   <tr>
                     <th className="py-3.5 px-3 text-center w-12">ลำดับ</th>
                     <th className="py-3.5 px-3">รหัสครุภัณฑ์</th>

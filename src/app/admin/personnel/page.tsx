@@ -418,7 +418,7 @@ export default function AdminPersonnelPage() {
       <div className="hidden sm:block glass-card-admin rounded-2xl border border-[#D1DFF0] shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#EAF2FB]/70 border-b border-[#D1DFF0] text-[#1E3A5F] font-bold uppercase tracking-wider">
+            <thead className="bg-[#F4F8FD] border-b border-[#E6EEF8] text-[#1E3A5F] font-bold uppercase tracking-wider">
               <tr>
                 <th className="py-3.5 px-3 sm:px-4 w-28 text-center">ลำดับ / สลับที่</th>
                 <th className="py-3.5 px-4 sm:px-6">บุคลากร</th>

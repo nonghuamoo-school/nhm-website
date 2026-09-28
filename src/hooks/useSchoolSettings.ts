@@ -38,6 +38,7 @@ export interface SchoolSettingsData {
   uniqueness: string;
   colors: string;
   philosophy: string;
+  philosophyTranslation?: string;
   welcomeMessage: string;
   heroBtn1Text: string;
   heroBtn1Url: string;
@@ -59,6 +60,14 @@ export interface SchoolSettingsData {
   directorAcademicStanding: string;
   directorImageUrl: string;
   directorMessage: string;
+}
+
+export function cleanQuotes(text?: string): string {
+  if (!text) return "";
+  return text
+    .replace(/^["'“‘\s]+|["'”’\s]+$/g, "")
+    .replace(/["'“”]/g, "")
+    .trim();
 }
 
 export const defaultSchoolSettings: SchoolSettingsData = {
@@ -90,7 +99,8 @@ export const defaultSchoolSettings: SchoolSettingsData = {
   historyText:
     "โรงเรียนบ้านหนองหัวหมู ก่อตั้งขึ้นเมื่อวันที่ 1 พฤษภาคม พ.ศ. 2517 ตั้งอยู่เลขที่ 144 หมู่ที่ 7 บ้านโคกสะอาด ตำบลทุ่งกระเต็น อำเภอหนองกี่ จังหวัดบุรีรัมย์ สังกัดสำนักงานเขตพื้นที่การศึกษาประถมศึกษาบุรีรัมย์ เขต\u00A03 จัดการศึกษาขั้นพื้นฐานตั้งแต่ระดับอนุบาล 2 ถึงประถมศึกษาปีที่ 6 มุ่งเน้นการจัดการเรียนรู้เชิงรุก (Active Learning) ปลูกฝังคุณธรรม จริยธรรม สอดแทรกทักษะชีวิตตามหลักปรัชญาของเศรษฐกิจพอเพียง",
   motto: "เรียนดี กีฬาเด่น เน้นคุณธรรม นำชุมชน",
-  philosophy: "นตฺถิ ปญฺญา สมา อาภา \"ไม่มีแสงสว่างใดเสมอด้วยปัญญา\"",
+  philosophy: "นตฺถิ ปญฺญา สมา อาภา",
+  philosophyTranslation: "ไม่มีแสงสว่างใดเสมอด้วยปัญญา",
   colors: "สีแสด – สีขาว",
   vision: schoolInfo.vision,
   mission: [...schoolInfo.mission],
@@ -137,6 +147,13 @@ export function useSchoolSettings() {
           if (parsed.facebook === "โรงเรียนบ้านหนองหัวหมู" || !parsed.facebook) {
             parsed.facebook = "https://www.facebook.com/profile.php?id=100071517975903";
           }
+          if (!parsed.philosophyTranslation && parsed.philosophy && (parsed.philosophy.includes('"') || parsed.philosophy.includes('“'))) {
+            const match = parsed.philosophy.match(/^(.*?)(?:["'“‘](.*?)["'”’])?$/);
+            if (match) {
+              parsed.philosophy = cleanQuotes(match[1]);
+              if (match[2]) parsed.philosophyTranslation = cleanQuotes(match[2]);
+            }
+          }
           setSettings((prev) => ({ ...prev, ...parsed }));
         }
       } catch (err) {
@@ -157,7 +174,14 @@ export function useSchoolSettings() {
         .single()
         .then(({ data, error }) => {
           if (!error && data && data.value && typeof data.value === "object") {
-            const cloudSettings = data.value as Partial<SchoolSettingsData>;
+            const cloudSettings = { ...(data.value as Partial<SchoolSettingsData>) };
+            if (!cloudSettings.philosophyTranslation && cloudSettings.philosophy && (cloudSettings.philosophy.includes('"') || cloudSettings.philosophy.includes('“'))) {
+              const match = cloudSettings.philosophy.match(/^(.*?)(?:["'“‘](.*?)["'”’])?$/);
+              if (match) {
+                cloudSettings.philosophy = cleanQuotes(match[1]);
+                if (match[2]) cloudSettings.philosophyTranslation = cleanQuotes(match[2]);
+              }
+            }
             setSettings((prev) => ({ ...prev, ...cloudSettings }));
             if (typeof window !== "undefined") {
               localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...defaultSchoolSettings, ...cloudSettings }));

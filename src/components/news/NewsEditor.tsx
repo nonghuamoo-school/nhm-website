@@ -1142,7 +1142,7 @@ export default function NewsEditor({
                   onClick={() => setPreviewTab("article")}
                   className={`px-2.5 py-1 rounded-lg transition-colors ${
                     previewTab === "article"
-                      ? "bg-[#1E3A5F] text-white shadow-2xs"
+                      ? "bg-gradient-to-r from-[#2F6FED] to-[#4F8CFF] text-white shadow-2xs"
                       : "text-slate-500 hover:text-slate-800"
                   }`}
                 >
@@ -1153,7 +1153,7 @@ export default function NewsEditor({
                   onClick={() => setPreviewTab("card")}
                   className={`px-2.5 py-1 rounded-lg transition-colors ${
                     previewTab === "card"
-                      ? "bg-[#1E3A5F] text-white shadow-2xs"
+                      ? "bg-gradient-to-r from-[#2F6FED] to-[#4F8CFF] text-white shadow-2xs"
                       : "text-slate-500 hover:text-slate-800"
                   }`}
                 >
@@ -1164,7 +1164,7 @@ export default function NewsEditor({
                   onClick={() => setPreviewTab("seo")}
                   className={`px-2.5 py-1 rounded-lg transition-colors ${
                     previewTab === "seo"
-                      ? "bg-[#1E3A5F] text-white shadow-2xs"
+                      ? "bg-gradient-to-r from-[#2F6FED] to-[#4F8CFF] text-white shadow-2xs"
                       : "text-slate-500 hover:text-slate-800"
                   }`}
                 >
