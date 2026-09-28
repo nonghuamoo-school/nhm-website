@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Eye, Calendar } from "lucide-react";
+import Link from "next/link";
+import { Eye, Calendar, ShieldCheck } from "lucide-react";
 import { schoolInfo } from "@/data/schoolInfo";
 import { visitorService } from "@/services/visitorService";
 
@@ -92,6 +93,18 @@ export default function TopBar() {
               {fontSizeIndex === 0 ? "ปกติ" : fontSizeIndex === 1 ? "+1" : "+2"}
             </span>
           </button>
+
+          <span className="text-slate-700">|</span>
+
+          <Link
+            href="/admin"
+            className="flex items-center gap-1.5 px-2 py-0.5 rounded hover:bg-[#1E3A5F] text-slate-300 hover:text-white transition-colors"
+            title="เข้าสู่ระบบจัดการสถานศึกษา (Admin)"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-[#7EB8E0]" />
+            <span className="font-semibold hidden sm:inline">เข้าสู่ระบบ Admin</span>
+            <span className="font-semibold sm:hidden">Admin</span>
+          </Link>
         </div>
       </div>
     </div>

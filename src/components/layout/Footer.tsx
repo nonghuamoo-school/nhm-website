@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Phone, Mail, MapPin, Globe } from "lucide-react";
+import { Phone, Mail, MapPin, Globe, ShieldCheck } from "lucide-react";
 import SchoolLogo from "@/components/common/SchoolLogo";
 import { schoolInfo } from "@/data/schoolInfo";
 
@@ -85,6 +85,16 @@ export default function Footer() {
               <li>
                 <Link href="/calendar" className="hover:text-white hover:underline transition-colors text-slate-200">
                   ปฏิทินกิจกรรม
+                </Link>
+              </li>
+              <li className="pt-2 border-t border-white/10 mt-2">
+                <Link
+                  href="/admin"
+                  className="inline-flex items-center gap-1.5 text-[#7EB8E0] hover:text-white hover:underline transition-colors font-semibold"
+                  title="เข้าสู่ระบบ Admin สำหรับครูและบุคลากร"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#D96B34]" />
+                  <span>เข้าสู่ระบบ Admin</span>
                 </Link>
               </li>
             </ul>
@@ -222,21 +232,21 @@ export default function Footer() {
               <span className="hidden md:inline text-slate-300">({schoolInfo.nameEn}).</span>{" "}
               <span className="whitespace-nowrap font-normal text-slate-300">สงวนลิขสิทธิ์ทุกประการ</span>
             </div>
-            <p className="text-[11px] text-slate-300 mt-1">
-              พัฒนาระบบโดย &quot;นายธนาธิป คุณวงศ์&quot; คุณครูโรงเรียนบ้านหนองหัวหมู
+            <p className="text-[11px] text-slate-300 mt-1 flex flex-wrap items-center gap-2">
+              <span>พัฒนาระบบโดย &quot;นายธนาธิป คุณวงศ์&quot; คุณครูโรงเรียนบ้านหนองหัวหมู</span>
+              <span className="text-slate-500 hidden sm:inline">•</span>
+              <Link
+                href="/admin"
+                className="text-slate-400 hover:text-white transition-colors underline-offset-2 hover:underline"
+              >
+                เข้าสู่ระบบ Admin
+              </Link>
             </p>
           </div>
-          <div className="flex items-center gap-4 text-slate-400">
+          <div className="flex items-center gap-4 text-slate-400 pr-12 sm:pr-0">
             <span className="text-center sm:text-right leading-relaxed whitespace-nowrap text-slate-300">
               {schoolInfo.subAffiliation}
             </span>
-            <Link
-              href="/admin"
-              className="text-[10px] text-slate-400 hover:text-white transition-colors whitespace-nowrap"
-              title="สำหรับผู้ดูแลระบบ"
-            >
-              เข้าระบบจัดการ
-            </Link>
           </div>
         </div>
       </div>
