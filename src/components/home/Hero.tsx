@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, BookOpen, GraduationCap, Award, Sparkles, Building2, ChevronRight } from "lucide-react";
+import { ArrowRight, BookOpen, GraduationCap, Building2 } from "lucide-react";
 import { useSchoolSettings } from "@/hooks/useSchoolSettings";
 import { schoolPersonnel } from "@/data/personnel";
 import OptimizedNewsImage from "@/components/common/OptimizedNewsImage";
@@ -13,10 +13,6 @@ export default function Hero() {
   const directorName = settings.directorName || director?.name || "นายอดุลย์ วิกุล";
   const directorImage = director?.imageUrl || settings.directorImageUrl || "/images/school-emblem-doc.png";
   const directorTitle = "ผู้อำนวยการโรงเรียนบ้านหนองหัวหมู";
-  const directorAcademic =
-    settings.directorAcademicStanding && settings.directorAcademicStanding !== "[รอข้อมูลจริง]"
-      ? settings.directorAcademicStanding
-      : (director?.academicDegree || "วิทยฐานะ ชำนาญการพิเศษ");
 
   return (
     <section className="relative rounded-3xl overflow-hidden bg-white/75 backdrop-blur-md border border-[#D1DFF0] shadow-xs">
@@ -52,53 +48,33 @@ export default function Hero() {
               </p>
             </div>
 
-            {/* 3. [ตำแหน่งใหม่] การ์ดผู้อำนวยการ (Director Profile Card) */}
-            <Link
-              href="/personnel"
-              className="group block w-full p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-[#F0F5FF]/95 via-white/95 to-[#F4F8FD]/95 backdrop-blur-xs border border-[#2F6FED]/30 hover:border-[#2F6FED]/70 shadow-2xs hover:shadow-xs transition-all duration-300"
-              title="คลิกเพื่อดูทำเนียบครูและบุคลากรทางการศึกษา"
-            >
-              <div className="flex items-center gap-3.5 sm:gap-4">
-                {/* Circular Photo (68-70px on desktop, ~56px on mobile) */}
-                <div className="relative w-14 h-14 sm:w-[70px] sm:h-[70px] rounded-full overflow-hidden shrink-0 border-2 border-[#2F6FED]/40 shadow-sm bg-slate-100 ring-2 ring-white">
-                  <OptimizedNewsImage
-                    src={directorImage}
-                    alt={directorName}
-                    fill
-                    sizes="(max-width: 640px) 56px, 70px"
-                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
-                  />
+            {/* School Hero Gate Photo with Education Level Badge */}
+            <div className="space-y-2.5">
+              <div className="rounded-2xl overflow-hidden border border-[#D1DFF0] bg-white aspect-[16/9] shadow-md relative">
+                <OptimizedNewsImage
+                  src={settings.heroImageUrl}
+                  alt={settings.name}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 55vw"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="flex items-center gap-3 p-2.5 sm:p-3 rounded-xl bg-white/90 border border-[#D1DFF0] shadow-2xs">
+                <div className="w-8 h-8 rounded-lg bg-[#EBF2FF] text-[#2F6FED] flex items-center justify-center shrink-0 border border-[#2F6FED]/20">
+                  <GraduationCap className="w-4 h-4" />
                 </div>
-
-                {/* Information Details */}
-                <div className="min-w-0 flex-1 flex flex-col justify-center gap-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#2F6FED]/15 text-[#2F6FED] font-bold text-[11px] sm:text-xs leading-none border border-[#2F6FED]/25 whitespace-nowrap">
-                      ผู้บริหารสถานศึกษา
-                    </span>
-                    {directorAcademic && (
-                      <span className="hidden md:inline-flex text-[11px] text-[#6B7FA0] font-medium leading-none">
-                        • {directorAcademic.includes("วิทยฐานะ") ? directorAcademic : `วิทยฐานะ ${directorAcademic.replace("ผู้อำนวยการ", "").trim() || directorAcademic}`}
-                      </span>
-                    )}
-                  </div>
-
-                  <h3 className="font-extrabold text-base sm:text-lg text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors leading-tight truncate">
-                    {directorName}
-                  </h3>
-
-                  <p className="text-xs sm:text-sm text-[#4B6080] font-medium leading-tight truncate">
-                    {directorTitle}
-                  </p>
-                </div>
-
-                {/* Right Interactive Pill Action (Balanced CTA) */}
-                <div className="shrink-0 flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-white text-[#2F6FED] group-hover:bg-[#2F6FED] group-hover:text-white border border-[#2F6FED]/25 shadow-2xs group-hover:shadow-xs transition-all duration-200">
-                  <span className="hidden sm:inline text-xs font-bold whitespace-nowrap">ดูประวัติ</span>
-                  <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                <div className="leading-tight">
+                  <span className="text-[10px] text-[#6B7FA0] font-bold block uppercase">
+                    {settings.heroBadge1Label || "ระดับการศึกษา"}
+                  </span>
+                  <span className="text-xs sm:text-sm font-bold text-[#1E3A5F]">
+                    {settings.heroBadge1Value || "อนุบาล 2 – ประถมศึกษาปีที่ 6"}
+                  </span>
                 </div>
               </div>
-            </Link>
+            </div>
 
             {/* School Motto Highlight Card: Glassmorphism */}
             <div className="p-3.5 sm:p-4 rounded-2xl bg-white/80 backdrop-blur-xs border border-[#D1DFF0] shadow-2xs">
@@ -137,33 +113,48 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Right Column: Hero Image (5 cols on lg screens, below left column on mobile) */}
-          <div className="flex lg:col-span-5 flex-col mt-4 lg:mt-0">
-            <div className="rounded-2xl overflow-hidden border border-[#D1DFF0] bg-white aspect-[16/11] shadow-md relative">
-              <OptimizedNewsImage
-                src={settings.heroImageUrl}
-                alt={settings.name}
-                fill
-                priority
-                sizes="(min-width: 1024px) 45vw, 100vw"
-                className="w-full h-full object-cover"
-              />
-            </div>
+          {/* Right Column: Director Profile Card (5 cols on lg screens) */}
+          <div className="flex lg:col-span-5 flex-col justify-center">
+            <Link
+              href="/personnel"
+              className="group block w-full bg-gradient-to-b from-[#F0F5FF]/95 via-white/95 to-[#F4F8FD]/95 backdrop-blur-md rounded-3xl border border-[#2F6FED]/30 hover:border-[#2F6FED] shadow-xs hover:shadow-md transition-all duration-300 p-6 sm:p-8 text-center relative overflow-hidden"
+              title="คลิกเพื่อดูทำเนียบครูและบุคลากรทางการศึกษา"
+            >
+              {/* Decorative ambient background glows */}
+              <div className="absolute -top-16 -right-16 w-36 h-36 bg-[#2F6FED]/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute -bottom-16 -left-16 w-36 h-36 bg-[#D96B34]/10 rounded-full blur-2xl pointer-events-none" />
 
-            {/* Placed below the image */}
-            <div className="mt-3 flex items-center gap-3 p-3 rounded-2xl bg-white/90 backdrop-blur-xs border border-[#D1DFF0] shadow-xs">
-              <div className="w-9 h-9 rounded-xl bg-[#EBF2FF] text-[#2F6FED] flex items-center justify-center shrink-0 border border-[#2F6FED]/20">
-                <GraduationCap className="w-5 h-5" />
+              <div className="relative z-10 flex flex-col items-center">
+                {/* Director Avatar Photo: Large 104px (sm:112px), dignified */}
+                <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-3 border-[#2F6FED]/40 shadow-md bg-slate-100 ring-4 ring-white shrink-0 mb-4 group-hover:scale-105 transition-transform duration-300">
+                  <OptimizedNewsImage
+                    src={directorImage}
+                    alt={directorName}
+                    fill
+                    priority
+                    sizes="112px"
+                    className="w-full h-full object-cover object-top"
+                  />
+                </div>
+
+                {/* Badge: ผู้บริหารสถานศึกษา */}
+                <div className="mb-2.5">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#2F6FED]/15 text-[#2F6FED] font-bold text-xs border border-[#2F6FED]/25 whitespace-nowrap">
+                    ผู้บริหารสถานศึกษา
+                  </span>
+                </div>
+
+                {/* Name: Big, bold, completely unclipped Thai vowels */}
+                <h3 className="font-extrabold text-xl sm:text-2xl text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors leading-relaxed mb-1">
+                  {directorName}
+                </h3>
+
+                {/* Position: Clean Thai typography with proper line height */}
+                <p className="text-xs sm:text-sm text-[#4B6080] font-medium leading-relaxed">
+                  {directorTitle}
+                </p>
               </div>
-              <div className="leading-tight">
-                <span className="text-[10px] text-[#6B7FA0] font-bold block uppercase">
-                  {settings.heroBadge1Label || "ระดับการศึกษา"}
-                </span>
-                <span className="text-xs sm:text-sm font-bold text-[#1E3A5F]">
-                  {settings.heroBadge1Value || "อนุบาล 2 – ประถมศึกษาปีที่ 6"}
-                </span>
-              </div>
-            </div>
+            </Link>
           </div>
 
         </div>
