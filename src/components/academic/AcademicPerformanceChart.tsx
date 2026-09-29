@@ -18,7 +18,8 @@ import {
   ChevronDown,
   ChevronUp,
   Table as TableIcon,
-  Layers
+  Layers,
+  Download
 } from "lucide-react";
 import {
   getStoredAcademicScores,
@@ -31,7 +32,7 @@ import {
 
 interface AcademicPerformanceChartProps {
   showAdminLink?: boolean;
-  initialExam?: "O-NET" | "RT" | "NT";
+  initialExam?: "O-NET" | "NT" | "RT";
   initialYear?: string;
 }
 
@@ -40,7 +41,7 @@ export default function AcademicPerformanceChart({
   initialExam,
   initialYear,
 }: AcademicPerformanceChartProps) {
-  const [activeTab, setActiveTab] = useState<"O-NET" | "RT" | "NT">(initialExam || "O-NET");
+  const [activeTab, setActiveTab] = useState<"O-NET" | "NT" | "RT">(initialExam || "O-NET");
   const [datasets, setDatasets] = useState<AllAcademicScores>(defaultAcademicScores);
   const [selectedYear, setSelectedYear] = useState<string>(initialYear || "");
   const [hoveredSubject, setHoveredSubject] = useState<AcademicScoreItem | null>(null);
@@ -93,16 +94,24 @@ export default function AcademicPerformanceChart({
   const currentDataset: ExamDataset = examMap[currentYear] || {
     id: activeTab,
     title: `ค่าเฉลี่ยคะแนน ${activeTab}`,
-    grade: activeTab === "O-NET" ? "ชั้นประถมศึกษาปีที่ 6" : activeTab === "RT" ? "ชั้นประถมศึกษาปีที่ 1" : "ชั้นประถมศึกษาปีที่ 3",
+    grade: activeTab === "O-NET" ? "ชั้นประถมศึกษาปีที่ 6" : activeTab === "NT" ? "ชั้นประถมศึกษาปีที่ 3" : "ชั้นประถมศึกษาปีที่ 1",
     year: currentYear,
     source: "สทศ.",
     subjects: [],
   };
 
+  const subjects = currentDataset.subjects || [];
+
+  // Key Achievements Calculations
+  const bestSubject = subjects.length > 0 
+    ? [...subjects].sort((a, b) => (b.school - b.national) - (a.school - a.national))[0]
+    : null;
+  const subjectsAboveNational = subjects.filter((s) => s.school >= s.national).length;
+
   // SVG Chart Geometry Constants
   const svgWidth = 840;
   const svgHeight = 360;
-  const chartTop = 40;
+  const chartTop = 45;
   const chartBottom = 300;
   const chartLeft = 55;
   const chartRight = 810;
@@ -113,7 +122,6 @@ export default function AcademicPerformanceChart({
   const maxY = 100;
   const yTicks = [100, 80, 60, 40, 20, 0];
 
-  const subjects = currentDataset.subjects || [];
   const groupCount = Math.max(1, subjects.length);
   const groupWidth = plotWidth / groupCount;
   const barWidth = Math.min(22, (groupWidth - 40) / 3);
@@ -142,6 +150,76 @@ export default function AcademicPerformanceChart({
       }
     }
     setActiveMobileCardIndex(index);
+  };
+
+  // Export Chart to High-Resolution PNG
+  const handleExportChart = () => {
+    const svgEl = document.getElementById("academic-svg-chart");
+    if (!svgEl) return;
+
+    try {
+      const serializer = new XMLSerializer();
+      let source = serializer.serializeToString(svgEl);
+
+      if (!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
+        source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+      }
+      if (!source.match(/^<svg[^>]+xmlns:xlink="http\:\/\/www\.w3\.org\/1999\/xlink"/)) {
+        source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+      }
+
+      const svgBlob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(svgBlob);
+      const img = new Image();
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const scale = 2; // 2x sharpness
+        canvas.width = svgWidth * scale;
+        canvas.height = (svgHeight + 75) * scale;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        // White background
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Header text on image
+        ctx.fillStyle = "#1E3A5F";
+        ctx.font = `bold ${16 * scale}px sans-serif`;
+        ctx.fillText(
+          `${currentDataset.title} (${currentDataset.grade}) - โรงเรียนบ้านหนองหัวหมู`,
+          25 * scale,
+          30 * scale
+        );
+
+        ctx.fillStyle = "#64748B";
+        ctx.font = `${11 * scale}px sans-serif`;
+        ctx.fillText(
+          `เปรียบเทียบผลคะแนนเฉลี่ย 3 ระดับมาตรฐาน (สทศ. / สพฐ. ปีการศึกษา ${currentYear})`,
+          25 * scale,
+          50 * scale
+        );
+
+        // Draw chart SVG
+        ctx.drawImage(img, 0, 60 * scale, svgWidth * scale, svgHeight * scale);
+
+        // Download trigger
+        const pngUrl = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.download = `คะแนน_${currentDataset.id}_ปี_${currentYear}_โรงเรียนบ้านหนองหัวหมู.png`;
+        link.href = pngUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      };
+
+      img.src = url;
+    } catch (err) {
+      console.error("Export chart error:", err);
+      window.print();
+    }
   };
 
   return (
@@ -198,7 +276,7 @@ export default function AcademicPerformanceChart({
             })}
           </div>
 
-          {/* Academic Year Switcher (Standardized to Brand Blue, No Amber/Yellow) */}
+          {/* Academic Year Switcher */}
           {availableYears.length > 1 && (
             <div className="flex items-center gap-1 bg-black/25 backdrop-blur-md p-1 rounded-xl border border-white/15 shadow-inner">
               <span className="text-[11px] text-blue-200 font-semibold px-2 flex items-center gap-1">
@@ -226,32 +304,63 @@ export default function AcademicPerformanceChart({
         </div>
       </div>
 
-      {/* ================= 2. 3-LEVEL THEME LEGEND BAR ================= */}
-      <div className="px-5 sm:px-8 py-3 bg-gradient-to-b from-[#EBF2FC] to-white/90 border-b border-[#D1DFF0] flex flex-wrap items-center justify-between gap-3 text-xs">
-        {/* 3 Level Legends with Coordinated Theme Palette */}
+      {/* ================= 2. KEY ACHIEVEMENTS & EXPORT BAR ================= */}
+      {subjects.length > 0 && (
+        <div className="px-5 sm:px-8 py-3 bg-gradient-to-r from-[#EBF2FF] via-white to-[#F0FDF4] border-b border-[#D1DFF0] flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
+            {bestSubject && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white text-[#1E3A5F] border border-[#2F6FED]/30 text-xs font-bold shadow-2xs">
+                <Award className="w-4 h-4 text-[#D96B34]" />
+                <span>วิชาเด่น: <strong className="text-[#2F6FED]">{bestSubject.name}</strong></span>
+                <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md font-mono text-[11px] font-black border border-emerald-200">
+                  ▲ +{(bestSubject.school - bestSubject.national).toFixed(2)} เหนือเกณฑ์ประเทศ
+                </span>
+              </span>
+            )}
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white text-[#1E3A5F] border border-[#D1DFF0] text-xs font-bold shadow-2xs">
+              <TrendingUp className="w-4 h-4 text-emerald-600" />
+              <span>สูงกว่าระดับประเทศ <strong>{subjectsAboveNational}</strong> จาก {subjects.length} วิชา</span>
+            </span>
+          </div>
+
+          {/* Export PNG Chart Button */}
+          <button
+            onClick={handleExportChart}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white hover:bg-slate-50 text-[#1E3A5F] border border-[#D1DFF0] hover:border-[#2F6FED] text-xs font-bold shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+            title="บันทึกกราฟเป็นภาพ PNG สำหรับใส่รายงาน SAR หรือแชร์ลง Facebook"
+          >
+            <Download className="w-3.5 h-3.5 text-[#2F6FED]" />
+            <span>บันทึกภาพกราฟ (PNG)</span>
+          </button>
+        </div>
+      )}
+
+      {/* ================= 3. 3-LEVEL THEME LEGEND BAR ================= */}
+      <div className="px-5 sm:px-8 py-2.5 bg-slate-50/80 border-b border-[#D1DFF0] flex flex-wrap items-center justify-between gap-3 text-xs">
+        {/* 3 Level Legends with High-Contrast Categorical Palette */}
         <div className="flex flex-wrap items-center gap-4 sm:gap-6 font-bold">
-          {/* Level 1: โรงเรียนบ้านหนองหัวหมู (Deep Navy) */}
+          {/* Level 1: โรงเรียนบ้านหนองหัวหมู (Deep Navy Hero Bar) */}
           <div className="flex items-center gap-2">
-            <span className="w-4 h-4 rounded-md bg-gradient-to-t from-[#162E4E] to-[#2B5282] shadow-xs border border-[#1E3A5F] flex items-center justify-center">
+            <span className="w-4 h-4 rounded-md bg-gradient-to-t from-[#162E4E] to-[#2B5282] shadow-xs border-2 border-[#1E3A5F] flex items-center justify-center">
               <School className="w-2.5 h-2.5 text-white" />
             </span>
-            <span className="text-[#1E3A5F]">1. โรงเรียนบ้านหนองหัวหมู</span>
+            <span className="text-[#1E3A5F] font-black">1. โรงเรียนบ้านหนองหัวหมู (เป้าหมายหลัก)</span>
           </div>
 
-          {/* Level 2: สพป. บุรีรัมย์ เขต 3 (Royal Blue) */}
+          {/* Level 2: สพป. บุรีรัมย์ เขต 3 (Vibrant Royal Blue) */}
           <div className="flex items-center gap-2">
-            <span className="w-4 h-4 rounded-md bg-gradient-to-t from-[#255BC4] to-[#4B8BF5] shadow-xs border border-[#2F6FED] flex items-center justify-center">
+            <span className="w-4 h-4 rounded-md bg-gradient-to-t from-[#2563EB] to-[#60A5FA] shadow-xs border border-[#2563EB] flex items-center justify-center">
               <Building2 className="w-2.5 h-2.5 text-white" />
             </span>
-            <span className="text-[#255BC4] whitespace-nowrap">2. สพป. บุรีรัมย์ เขต&nbsp;3</span>
+            <span className="text-[#2563EB] font-bold whitespace-nowrap">2. สพป. บุรีรัมย์ เขต&nbsp;3</span>
           </div>
 
-          {/* Level 3: ประเทศ (Bright Sky Blue) */}
+          {/* Level 3: ประเทศ (Neutral Slate-Blue Benchmark) */}
           <div className="flex items-center gap-2">
-            <span className="w-4 h-4 rounded-md bg-gradient-to-t from-[#6BA6E8] to-[#A0CBF8] shadow-xs border border-[#7FB3F5] flex items-center justify-center">
+            <span className="w-4 h-4 rounded-md bg-gradient-to-t from-[#94A3B8] to-[#CBD5E1] shadow-xs border border-[#94A3B8] flex items-center justify-center">
               <Globe2 className="w-2.5 h-2.5 text-white" />
             </span>
-            <span className="text-[#3B7AC4]">3. ระดับประเทศ</span>
+            <span className="text-[#64748B] font-medium">3. ระดับประเทศ (เกณฑ์อ้างอิง)</span>
           </div>
         </div>
 
@@ -262,8 +371,47 @@ export default function AcademicPerformanceChart({
         </div>
       </div>
 
-      {/* ================= 3. ULTRA-MODERN CRISP SVG CHART ================= */}
+      {/* ================= 4. ULTRA-MODERN CRISP SVG CHART ================= */}
       <div className="p-4 sm:p-8 relative">
+        
+        {/* Dynamic Interactive HUD Tooltip Banner */}
+        {hoveredSubject ? (
+          <div className="mb-3 p-3 rounded-2xl bg-[#1E3A5F] text-white flex flex-wrap items-center justify-between gap-3 shadow-md animate-in fade-in duration-200">
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-[#7EB8E0] animate-pulse" />
+              <span className="font-extrabold text-sm sm:text-base">วิชา: {hoveredSubject.name}</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-3.5 text-xs sm:text-sm">
+              <span className="text-blue-100">
+                🏫 โรงเรียน: <strong className="text-white font-mono text-base font-black">{hoveredSubject.school.toFixed(2)}</strong>
+              </span>
+              <span className="text-blue-200">
+                🏛️ เขตพื้นที่: <strong className="text-white font-mono">{hoveredSubject.area.toFixed(2)}</strong>
+              </span>
+              <span className="text-slate-300">
+                🌐 ประเทศ: <strong className="text-white font-mono">{hoveredSubject.national.toFixed(2)}</strong>
+              </span>
+              <span className={`px-2.5 py-1 rounded-lg font-black text-xs font-mono shadow-xs ${
+                hoveredSubject.school >= hoveredSubject.national
+                  ? "bg-emerald-500/25 text-emerald-300 border border-emerald-400/40"
+                  : "bg-rose-500/25 text-rose-300 border border-rose-400/40"
+              }`}>
+                {hoveredSubject.school >= hoveredSubject.national
+                  ? `▲ สูงกว่าประเทศ +${(hoveredSubject.school - hoveredSubject.national).toFixed(2)}`
+                  : `▼ ต่ำกว่าประเทศ ${(hoveredSubject.school - hoveredSubject.national).toFixed(2)}`}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="mb-3 py-1.5 px-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-slate-500 text-xs flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <Info className="w-3.5 h-3.5 text-[#2F6FED]" />
+              <span>ชี้หรือแตะที่แท่งกราฟเพื่อดูคะแนนเปรียบเทียบทั้ง 3 ระดับแบบละเอียด</span>
+            </span>
+            <span className="text-[11px] text-slate-400 hidden sm:inline">เกณฑ์ข้อมูล สทศ. / สพฐ.</span>
+          </div>
+        )}
+
         {/* Mobile scroll hint */}
         <div className="sm:hidden flex items-center justify-between py-1 px-3.5 bg-[#EAF2FB] border border-[#D1DFF0] rounded-full text-[11px] text-[#1E3A5F] font-bold mb-3 shadow-2xs">
           <span>เลื่อนซ้าย-ขวาเพื่อดูกราฟเต็ม</span>
@@ -274,26 +422,27 @@ export default function AcademicPerformanceChart({
           <div className="w-full overflow-x-auto pb-2 scroll-smooth">
             <div className="min-w-[620px] sm:min-w-[680px]">
               <svg
+                id="academic-svg-chart"
                 viewBox={`0 0 ${svgWidth} ${svgHeight}`}
                 className="w-full h-auto overflow-visible select-none"
               >
                 <defs>
-                  {/* School Gradient: Deep Navy Theme */}
+                  {/* School Gradient: Deep Navy Hero Palette with Sapphire Highlight */}
                   <linearGradient id="schoolGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#2B5282" />
-                    <stop offset="100%" stopColor="#1E3A5F" />
+                    <stop offset="0%" stopColor="#2A5A9E" />
+                    <stop offset="100%" stopColor="#132644" />
                   </linearGradient>
 
-                  {/* Area Gradient: Medium Royal Blue */}
+                  {/* Area Gradient: Vibrant Royal Blue */}
                   <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#4B8BF5" />
-                    <stop offset="100%" stopColor="#255BC4" />
+                    <stop offset="0%" stopColor="#60A5FA" />
+                    <stop offset="100%" stopColor="#2563EB" />
                   </linearGradient>
 
-                  {/* National Gradient: Bright Sky / Soft Blue */}
+                  {/* National Gradient: Neutral Slate-Blue Benchmark */}
                   <linearGradient id="nationalGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#A0CBF8" />
-                    <stop offset="100%" stopColor="#6BA6E8" />
+                    <stop offset="0%" stopColor="#CBD5E1" />
+                    <stop offset="100%" stopColor="#94A3B8" />
                   </linearGradient>
 
                   {/* Drop shadow for bars */}
@@ -302,7 +451,7 @@ export default function AcademicPerformanceChart({
                   </filter>
                 </defs>
 
-                {/* Y-Axis Grid Lines & Tick Labels (Clean subtle gray gridlines) */}
+                {/* Y-Axis Grid Lines & Tick Labels */}
                 {yTicks.map((tick) => {
                   const y = getYPos(tick);
                   return (
@@ -347,43 +496,7 @@ export default function AcademicPerformanceChart({
                   const diffVsNat = item.school - item.national;
                   const isPositive = diffVsNat >= 0;
 
-                  // Smart non-colliding label Y coordinates
-                  let lblSchoolY = schoolY - 7;
-                  let lblAreaY = areaY - 7;
-                  let lblNatY = nationalY - 7;
-
-                  // If School and Area are close in Y (< 13px)
-                  if (Math.abs(lblSchoolY - lblAreaY) < 13) {
-                    if (lblSchoolY <= lblAreaY) {
-                      lblSchoolY -= 6;
-                      lblAreaY += 4;
-                    } else {
-                      lblSchoolY += 4;
-                      lblAreaY -= 6;
-                    }
-                  }
-                  // If Area and National are close in Y (< 13px)
-                  if (Math.abs(lblAreaY - lblNatY) < 13) {
-                    if (lblAreaY <= lblNatY) {
-                      lblAreaY -= 6;
-                      lblNatY += 4;
-                    } else {
-                      lblAreaY += 4;
-                      lblNatY -= 6;
-                    }
-                  }
-                  // If School and National are close in Y (< 13px)
-                  if (Math.abs(lblSchoolY - lblNatY) < 13) {
-                    if (lblSchoolY <= lblNatY) {
-                      lblSchoolY -= 5;
-                      lblNatY += 5;
-                    } else {
-                      lblSchoolY += 5;
-                      lblNatY -= 5;
-                    }
-                  }
-
-                  const highestBarTop = Math.min(schoolY, areaY, nationalY, lblSchoolY, lblAreaY, lblNatY);
+                  const highestBarTop = Math.min(schoolY, areaY, nationalY);
 
                   return (
                     <g
@@ -391,6 +504,7 @@ export default function AcademicPerformanceChart({
                       className="cursor-pointer transition-all group"
                       onMouseEnter={() => setHoveredSubject(item)}
                       onMouseLeave={() => setHoveredSubject(null)}
+                      onClick={() => setHoveredSubject(item)}
                     >
                       {/* Hover column background highlight */}
                       {isHovered && (
@@ -405,7 +519,7 @@ export default function AcademicPerformanceChart({
                         />
                       )}
 
-                      {/* Bar 1: โรงเรียน (Deep Navy Gradient) */}
+                      {/* Bar 1: โรงเรียน (Deep Navy Hero Bar) */}
                       <g filter="url(#barShadow)">
                         <rect
                           x={groupStartX}
@@ -414,19 +528,22 @@ export default function AcademicPerformanceChart({
                           height={Math.max(2, schoolH)}
                           rx="6"
                           fill="url(#schoolGrad)"
+                          stroke="#1E3A5F"
+                          strokeWidth="1.5"
                           className="transition-all duration-300 group-hover:brightness-110"
                         />
+                        {/* Prominent School Score on Top of Hero Bar */}
                         <text
                           x={groupStartX + barWidth / 2}
-                          y={lblSchoolY}
+                          y={schoolY - 8}
                           textAnchor="middle"
-                          className="font-mono text-[10.5px] font-black fill-[#1E3A5F]"
+                          className="font-mono text-[11px] font-black fill-[#132644] drop-shadow-xs"
                         >
                           {item.school.toFixed(2)}
                         </text>
                       </g>
 
-                      {/* Bar 2: เขตพื้นที่ (Medium Royal Blue) */}
+                      {/* Bar 2: เขตพื้นที่ (Vibrant Royal Blue) */}
                       <g filter="url(#barShadow)">
                         <rect
                           x={groupStartX + barWidth + barGap}
@@ -437,17 +554,20 @@ export default function AcademicPerformanceChart({
                           fill="url(#areaGrad)"
                           className="transition-all duration-300 group-hover:brightness-110"
                         />
+                        {/* Area score visible on hover or default */}
                         <text
                           x={groupStartX + barWidth + barGap + barWidth / 2}
-                          y={lblAreaY}
+                          y={areaY - 7}
                           textAnchor="middle"
-                          className="font-mono text-[10px] font-bold fill-[#255BC4]"
+                          className={`font-mono text-[9.5px] font-bold fill-[#2563EB] transition-opacity duration-200 ${
+                            isHovered ? "opacity-100" : "opacity-75 sm:opacity-85"
+                          }`}
                         >
                           {item.area.toFixed(2)}
                         </text>
                       </g>
 
-                      {/* Bar 3: ประเทศ (Bright Sky Blue) */}
+                      {/* Bar 3: ประเทศ (Neutral Slate Benchmark) */}
                       <g filter="url(#barShadow)">
                         <rect
                           x={groupStartX + 2 * (barWidth + barGap)}
@@ -458,37 +578,41 @@ export default function AcademicPerformanceChart({
                           fill="url(#nationalGrad)"
                           className="transition-all duration-300 group-hover:brightness-110"
                         />
+                        {/* National score visible on hover or default */}
                         <text
                           x={groupStartX + 2 * (barWidth + barGap) + barWidth / 2}
-                          y={lblNatY}
+                          y={nationalY - 7}
                           textAnchor="middle"
-                          className="font-mono text-[9.5px] font-bold fill-[#3B7AC4]"
+                          className={`font-mono text-[9.5px] font-bold fill-[#64748B] transition-opacity duration-200 ${
+                            isHovered ? "opacity-100" : "opacity-75 sm:opacity-85"
+                          }`}
                         >
                           {item.national.toFixed(2)}
                         </text>
                       </g>
 
-                      {/* Semantic Difference Tag above group (Keep Green/Red for clear status) */}
-                      <g transform={`translate(${groupCenterX}, ${highestBarTop - 18})`}>
+                      {/* Directional Difference Tag with Arrow Icon (Item 2) */}
+                      <g transform={`translate(${groupCenterX}, ${highestBarTop - 24})`}>
                         <rect
-                          x="-27"
-                          y="-9"
-                          width="54"
-                          height="18"
-                          rx="6"
+                          x="-34"
+                          y="-10"
+                          width="68"
+                          height="20"
+                          rx="7"
                           fill={isPositive ? "#DCFCE7" : "#FEE2E2"}
                           stroke={isPositive ? "#86EFAC" : "#FCA5A5"}
-                          strokeWidth="1"
+                          strokeWidth="1.2"
+                          filter="url(#barShadow)"
                         />
                         <text
                           x="0"
-                          y="3"
+                          y="4"
                           textAnchor="middle"
-                          className={`font-mono text-[8.5px] font-black ${
-                            isPositive ? "fill-emerald-700" : "fill-rose-700"
+                          className={`font-mono text-[9px] font-black tracking-tight ${
+                            isPositive ? "fill-emerald-800" : "fill-rose-800"
                           }`}
                         >
-                          {isPositive ? `+${diffVsNat.toFixed(2)}` : diffVsNat.toFixed(2)}
+                          {isPositive ? `▲ +${diffVsNat.toFixed(2)}` : `▼ ${diffVsNat.toFixed(2)}`}
                         </text>
                       </g>
 
@@ -517,10 +641,10 @@ export default function AcademicPerformanceChart({
         </div>
       </div>
 
-      {/* ================= 4. MOBILE-FRIENDLY CAROUSEL & COMPARATIVE DATA ================= */}
+      {/* ================= 5. MOBILE-FRIENDLY CAROUSEL & COMPARATIVE DATA ================= */}
       <div className="p-4 sm:p-8 pt-0">
         
-        {/* Mobile View Option: 3-Card Snap Carousel (Easy Thumb-Swiping, No Cramped Table) */}
+        {/* Mobile View: 3-Card Snap Carousel */}
         <div className="sm:hidden mb-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold text-[#1E3A5F] flex items-center gap-1.5">
@@ -564,7 +688,7 @@ export default function AcademicPerformanceChart({
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-sm font-black text-[#1E3A5F]">{s.school.toFixed(2)}</span>
                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${isPos ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"}`}>
-                          {isPos ? `+${diff.toFixed(2)}` : diff.toFixed(2)}
+                          {isPos ? `▲ +${diff.toFixed(2)}` : `▼ ${diff.toFixed(2)}`}
                         </span>
                       </div>
                     </div>
@@ -574,10 +698,10 @@ export default function AcademicPerformanceChart({
             </div>
 
             {/* Card 2: สพป. บุรีรัมย์ เขต 3 */}
-            <div className="snap-center shrink-0 w-[86vw] rounded-2xl bg-white border-2 border-[#2F6FED] p-4 shadow-sm">
+            <div className="snap-center shrink-0 w-[86vw] rounded-2xl bg-white border-2 border-[#2563EB] p-4 shadow-sm">
               <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <span className="w-7 h-7 rounded-xl bg-[#2F6FED] text-white flex items-center justify-center shadow-xs">
+                  <span className="w-7 h-7 rounded-xl bg-[#2563EB] text-white flex items-center justify-center shadow-xs">
                     <Building2 className="w-4 h-4 text-white" />
                   </span>
                   <div>
@@ -585,7 +709,7 @@ export default function AcademicPerformanceChart({
                     <span className="text-[10.5px] text-slate-500 font-semibold">ค่าเฉลี่ยเขตพื้นที่การศึกษา</span>
                   </div>
                 </div>
-                <span className="px-2 py-0.5 rounded-full bg-[#2F6FED] text-white text-[10px] font-bold">
+                <span className="px-2 py-0.5 rounded-full bg-[#2563EB] text-white text-[10px] font-bold">
                   ระดับเขต
                 </span>
               </div>
@@ -593,17 +717,17 @@ export default function AcademicPerformanceChart({
                 {subjects.map((s) => (
                   <div key={s.name} className="py-2 flex items-center justify-between">
                     <span className="font-medium text-slate-700">{s.name}</span>
-                    <span className="font-mono text-sm font-bold text-[#255BC4]">{s.area.toFixed(2)}</span>
+                    <span className="font-mono text-sm font-bold text-[#2563EB]">{s.area.toFixed(2)}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Card 3: ระดับประเทศ */}
-            <div className="snap-center shrink-0 w-[86vw] rounded-2xl bg-white border border-[#D1DFF0] p-4 shadow-sm">
+            <div className="snap-center shrink-0 w-[86vw] rounded-2xl bg-white border border-[#CBD5E1] p-4 shadow-sm">
               <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <span className="w-7 h-7 rounded-xl bg-[#7FB3F5] text-white flex items-center justify-center shadow-xs">
+                  <span className="w-7 h-7 rounded-xl bg-[#94A3B8] text-white flex items-center justify-center shadow-xs">
                     <Globe2 className="w-4 h-4 text-white" />
                   </span>
                   <div>
@@ -611,15 +735,15 @@ export default function AcademicPerformanceChart({
                     <span className="text-[10.5px] text-slate-500 font-semibold">เกณฑ์มาตรฐาน สทศ. ทั่วประเทศ</span>
                   </div>
                 </div>
-                <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold border border-slate-200">
-                  ระดับประเทศ
+                <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">
+                  เกณฑ์ประเทศ
                 </span>
               </div>
               <div className="divide-y divide-slate-100 text-xs pt-2">
                 {subjects.map((s) => (
                   <div key={s.name} className="py-2 flex items-center justify-between">
                     <span className="font-medium text-slate-700">{s.name}</span>
-                    <span className="font-mono text-sm font-bold text-[#3B7AC4]">{s.national.toFixed(2)}</span>
+                    <span className="font-mono text-sm font-medium text-[#64748B]">{s.national.toFixed(2)}</span>
                   </div>
                 ))}
               </div>
@@ -655,7 +779,7 @@ export default function AcademicPerformanceChart({
           </button>
         </div>
 
-        {/* Detailed Table (Visible on Desktop, Collapsible on Mobile) */}
+        {/* Detailed Table (Item 4: Summary Table with High-Contrast Row Highlights) */}
         <div className={`${showFullTableMobile ? "block" : "hidden sm:block"}`}>
           <div className="relative group">
             <div className="bg-slate-50/80 rounded-2xl border border-[#D1DFF0] overflow-hidden shadow-2xs">
@@ -674,40 +798,43 @@ export default function AcademicPerformanceChart({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#D1DFF0]/60">
-                    {/* Row 1: โรงเรียนบ้านหนองหัวหมู (Deep Navy Highlight) */}
-                    <tr className="bg-[#EAF2FB]/50 hover:bg-[#EAF2FB]/80 transition-colors font-bold text-[#1E3A5F]">
-                      <td className="py-3 px-4 flex items-center gap-2 whitespace-nowrap min-w-[210px] sticky left-0 bg-[#F2F7FD] z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)]">
+                    {/* Row 1: โรงเรียนบ้านหนองหัวหมู (Highlighted Hero Row) */}
+                    <tr className="bg-[#EAF2FB]/80 hover:bg-[#EAF2FB] transition-colors font-bold text-[#1E3A5F] border-l-4 border-l-[#1E3A5F]">
+                      <td className="py-3.5 px-4 flex items-center gap-2 whitespace-nowrap min-w-[210px] sticky left-0 bg-[#F2F7FD] z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)]">
                         <span className="w-2.5 h-2.5 rounded-full bg-[#1E3A5F] shrink-0" />
-                        <span>1. โรงเรียนบ้านหนองหัวหมู</span>
+                        <span className="font-black">1. โรงเรียนบ้านหนองหัวหมู</span>
+                        <span className="ml-1 px-1.5 py-0.5 rounded bg-[#1E3A5F] text-white text-[9.5px] font-bold">
+                          โรงเรียน
+                        </span>
                       </td>
                       {subjects.map((s) => (
-                        <td key={s.name} className="py-3 px-3 text-center font-mono text-[#1E3A5F] text-sm font-black whitespace-nowrap">
+                        <td key={s.name} className="py-3 px-3 text-center font-mono text-[#132644] text-sm font-black whitespace-nowrap">
                           {s.school.toFixed(2)}
                         </td>
                       ))}
                     </tr>
 
-                    {/* Row 2: สพป. บุรีรัมย์ เขต 3 (Royal Blue) */}
+                    {/* Row 2: สพป. บุรีรัมย์ เขต 3 (Vibrant Royal Blue) */}
                     <tr className="hover:bg-blue-50/30 transition-colors text-slate-800">
                       <td className="py-2.5 px-4 flex items-center gap-2 font-medium whitespace-nowrap min-w-[210px] sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)]">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#2F6FED] shrink-0" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#2563EB] shrink-0" />
                         <span>2. สพป. บุรีรัมย์ เขต&nbsp;3</span>
                       </td>
                       {subjects.map((s) => (
-                        <td key={s.name} className="py-2.5 px-3 text-center font-mono text-[#255BC4] font-semibold whitespace-nowrap">
+                        <td key={s.name} className="py-2.5 px-3 text-center font-mono text-[#2563EB] font-bold whitespace-nowrap">
                           {s.area.toFixed(2)}
                         </td>
                       ))}
                     </tr>
 
-                    {/* Row 3: ระดับประเทศ (Bright Sky Blue) */}
+                    {/* Row 3: ระดับประเทศ (Neutral Slate Benchmark) */}
                     <tr className="hover:bg-slate-50 transition-colors text-slate-800">
                       <td className="py-2.5 px-4 flex items-center gap-2 font-medium whitespace-nowrap min-w-[210px] sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)]">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#7FB3F5] shrink-0" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#94A3B8] shrink-0" />
                         <span>3. ระดับประเทศ</span>
                       </td>
                       {subjects.map((s) => (
-                        <td key={s.name} className="py-2.5 px-3 text-center font-mono text-[#3B7AC4] font-semibold whitespace-nowrap">
+                        <td key={s.name} className="py-2.5 px-3 text-center font-mono text-[#64748B] font-medium whitespace-nowrap">
                           {s.national.toFixed(2)}
                         </td>
                       ))}
@@ -715,8 +842,8 @@ export default function AcademicPerformanceChart({
 
                     {/* Row 4: เปรียบเทียบ ส่วนต่าง (โรงเรียน vs ประเทศ) */}
                     <tr className="bg-white text-[11px] font-bold border-t-2 border-[#D1DFF0]">
-                      <td className="py-2.5 px-4 text-slate-500 whitespace-nowrap min-w-[210px] sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)]">
-                        ส่วนต่าง (โรงเรียน vs ประเทศ)
+                      <td className="py-2.5 px-4 text-slate-600 font-bold whitespace-nowrap min-w-[210px] sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)]">
+                        ส่วนต่าง (เทียบระดับประเทศ)
                       </td>
                       {subjects.map((s) => {
                         const diff = s.school - s.national;
@@ -724,14 +851,13 @@ export default function AcademicPerformanceChart({
                         return (
                           <td key={s.name} className="py-2.5 px-3 text-center font-mono whitespace-nowrap">
                             <span
-                              className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md ${
+                              className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md font-black text-xs ${
                                 isPos
-                                  ? "bg-emerald-100 text-emerald-800"
-                                  : "bg-rose-100 text-rose-800"
+                                  ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                                  : "bg-rose-100 text-rose-800 border border-rose-300"
                               }`}
                             >
-                              <TrendingUp className="w-2.5 h-2.5" />
-                              {isPos ? `+${diff.toFixed(2)}` : diff.toFixed(2)}
+                              {isPos ? `▲ +${diff.toFixed(2)}` : `▼ ${diff.toFixed(2)}`}
                             </span>
                           </td>
                         );
