@@ -4,14 +4,26 @@ import React from "react";
 import Link from "next/link";
 import { ArrowRight, BookOpen, GraduationCap, Building2, ChevronRight } from "lucide-react";
 import { useSchoolSettings } from "@/hooks/useSchoolSettings";
-import { schoolPersonnel } from "@/data/personnel";
+import { usePersonnel } from "@/hooks/usePersonnel";
 import OptimizedNewsImage from "@/components/common/OptimizedNewsImage";
 
 export default function Hero() {
   const { settings } = useSchoolSettings();
-  const director = schoolPersonnel[0];
-  const directorName = settings.directorName || director?.name || "นายอดุลย์ วิกุล";
-  const directorImage = director?.imageUrl || settings.directorImageUrl || "/images/school-emblem-doc.png";
+  const { personnelList } = usePersonnel();
+
+  const director =
+    personnelList.find(
+      (p) =>
+        p.id === "p-01" ||
+        p.position?.includes("ผู้อำนวยการ") ||
+        p.roles?.some((r) => r.includes("ผู้อำนวยการ"))
+    ) || personnelList[0];
+
+  const directorName = director?.name || settings.directorName || "นายอดุลย์ วิกุล";
+  const directorImage =
+    director?.imageUrl ||
+    settings.directorImageUrl ||
+    "/images/director-adul.jpg";
   const directorTitle = "ผู้อำนวยการโรงเรียนบ้านหนองหัวหมู";
 
   return (
@@ -92,7 +104,7 @@ export default function Hero() {
                     fill
                     priority
                     sizes="(max-width: 640px) 140px, 160px"
-                    className="w-full h-full object-cover object-top"
+                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
 
