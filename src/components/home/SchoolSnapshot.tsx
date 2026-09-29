@@ -40,7 +40,7 @@ export default function SchoolSnapshot() {
           ข้อมูลสถานศึกษาโดยสรุป (School Snapshot)
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          สถิติข้อมูลพื้นฐานโรงเรียนบ้านหนองหัวหมู สพป. บุรีรัมย์ เขต&nbsp;3
+          สถิติข้อมูลพื้นฐาน<span className="whitespace-nowrap">โรงเรียนบ้านหนองหัวหมู</span> สพป. บุรีรัมย์ เขต&nbsp;3
         </p>
       </div>
 
