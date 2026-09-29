@@ -255,11 +255,11 @@ const CLOUD_KEY_POSTERS = "onet_posters";
 function normalizeAcademicScores(parsed: any): AllAcademicScores {
   const result: AllAcademicScores = {
     "O-NET": {},
-    "RT": {},
     "NT": {},
+    "RT": {},
   };
 
-  const examKeys = ["O-NET", "RT", "NT"] as const;
+  const examKeys = ["O-NET", "NT", "RT"] as const;
 
   for (const key of examKeys) {
     const val = parsed?.[key];

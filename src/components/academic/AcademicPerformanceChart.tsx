@@ -166,7 +166,7 @@ export default function AcademicPerformanceChart({
 
           <h3 className="text-lg sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
             <BarChart3 className="w-6 h-6 text-[#7EB8E0]" />
-            {currentDataset.title} ({currentDataset.grade})
+            <span>{currentDataset.title}</span>
           </h3>
           <p className="text-xs sm:text-sm text-blue-100/90 mt-0.5">
             เปรียบเทียบผลคะแนนเฉลี่ย: <strong className="text-white underline decoration-[#2F6FED] decoration-2 underline-offset-2">โรงเรียน</strong> vs <strong className="text-blue-200">เขตพื้นที่</strong> vs <strong className="text-[#A0CBF8]">ประเทศ</strong>
@@ -175,9 +175,9 @@ export default function AcademicPerformanceChart({
 
         {/* Tab Switcher & Year Selector */}
         <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-2 self-start md:self-auto">
-          {/* Exam Type Segmented Pill */}
+          {/* Exam Type Segmented Pill: O-NET (ป.6) -> NT (ป.3) -> RT (ป.1) */}
           <div className="flex items-center gap-1 bg-black/25 backdrop-blur-md p-1.5 rounded-2xl border border-white/15 shadow-inner">
-            {(["O-NET", "RT", "NT"] as const).map((tab) => {
+            {(["O-NET", "NT", "RT"] as const).map((tab) => {
               const isActive = activeTab === tab;
               return (
                 <button
@@ -192,7 +192,7 @@ export default function AcademicPerformanceChart({
                       : "text-blue-100 hover:text-white hover:bg-white/10"
                   }`}
                 >
-                  {tab === "O-NET" ? "O-NET (ป.6)" : tab === "RT" ? "RT (ป.1)" : "NT (ป.3)"}
+                  {tab === "O-NET" ? "O-NET (ป.6)" : tab === "NT" ? "NT (ป.3)" : "RT (ป.1)"}
                 </button>
               );
             })}

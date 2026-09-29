@@ -611,7 +611,7 @@ export default function AdminAcademicPage() {
             {/* Exam Types Selector */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
               <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl">
-                {(["O-NET", "RT", "NT"] as const).map((tab) => (
+                {(["O-NET", "NT", "RT"] as const).map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveExam(tab)}
@@ -621,7 +621,7 @@ export default function AdminAcademicPage() {
                         : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
                     }`}
                   >
-                    {tab === "O-NET" ? "O-NET (ป.6)" : tab === "RT" ? "RT (ป.1)" : "NT (ป.3)"}
+                    {tab === "O-NET" ? "O-NET (ป.6)" : tab === "NT" ? "NT (ป.3)" : "RT (ป.1)"}
                   </button>
                 ))}
               </div>
