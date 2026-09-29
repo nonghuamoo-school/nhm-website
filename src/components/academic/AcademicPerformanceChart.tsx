@@ -154,25 +154,25 @@ export default function AcademicPerformanceChart({
   return (
     <div className="bg-white/90 backdrop-blur-md rounded-3xl border border-[#D1DFF0] shadow-sm overflow-hidden transition-all">
       
-      {/* ================= 1. HARMONIOUS THEME HEADER BANNER (Pastel Blue) ================= */}
-      <div className="bg-gradient-to-r from-[#EBF4FE] via-[#F4F9FF] to-[#EBF4FE] text-[#1E3A5F] p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#D1E5FC] relative overflow-hidden">
-        {/* Glow decoration */}
+      {/* ================= 1. PASTEL BLUE THEME HEADER BANNER ================= */}
+      <div className="bg-gradient-to-r from-[#EAF3FD] via-[#F2F7FF] to-[#E5F0FC] text-[#1E3A5F] p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#BFD7F5] relative overflow-hidden">
+        {/* Soft pastel ambient glows */}
         <div className="absolute -top-16 -right-16 w-56 h-56 bg-[#2F6FED]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-16 left-1/4 w-40 h-40 bg-[#FB923C]/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute -bottom-16 left-1/4 w-40 h-40 bg-[#D96B34]/10 rounded-full blur-2xl pointer-events-none" />
 
         <div className="relative z-10">
           <div className="flex flex-wrap items-center gap-2 mb-1.5">
-            <span className="px-2.5 py-0.5 rounded-full bg-white/90 text-[#2F6FED] border border-[#BFDBFE] text-[11px] font-bold flex items-center gap-1 shadow-2xs">
-              <Sparkles className="w-3 h-3 text-[#2F6FED]" />
+            <span className="px-2.5 py-0.5 rounded-full bg-white/90 text-[#2563EB] border border-[#BFD7F5] text-[11px] font-bold flex items-center gap-1 shadow-2xs">
+              <Sparkles className="w-3 h-3 text-[#2563EB]" />
               เปรียบเทียบ 3 ระดับมาตรฐาน
             </span>
-            <span className="text-xs text-[#1E3A5F] font-bold bg-white/90 px-2.5 py-0.5 rounded-full border border-[#BFDBFE] shadow-2xs">
+            <span className="text-xs text-[#4B6080] font-bold bg-white/80 px-2.5 py-0.5 rounded-full border border-[#D1DFF0] shadow-2xs">
               สทศ. • ปีการศึกษา {currentYear}
             </span>
           </div>
 
           <h3 className="text-lg sm:text-2xl font-black text-[#1E3A5F] tracking-tight flex items-center gap-2">
-            <BarChart3 className="w-6 h-6 text-[#2F6FED]" />
+            <BarChart3 className="w-6 h-6 text-[#2563EB]" />
             <span>{currentDataset.title}</span>
           </h3>
           <p className="text-xs sm:text-sm text-[#4B6080] mt-0.5">
@@ -183,7 +183,7 @@ export default function AcademicPerformanceChart({
         {/* Tab Switcher & Year Selector */}
         <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-2 self-start md:self-auto">
           {/* Exam Type Segmented Pill: O-NET (ป.6) -> NT (ป.3) -> RT (ป.1) */}
-          <div className="flex items-center gap-1 bg-white/90 backdrop-blur-md p-1.5 rounded-2xl border border-[#D1E5FC] shadow-2xs">
+          <div className="flex items-center gap-1 bg-white/90 backdrop-blur-md p-1.5 rounded-2xl border border-[#BFD7F5] shadow-xs">
             {(["O-NET", "NT", "RT"] as const).map((tab) => {
               const isActive = activeTab === tab;
               return (
@@ -195,8 +195,8 @@ export default function AcademicPerformanceChart({
                   }}
                   className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all min-h-[36px] cursor-pointer ${
                     isActive
-                      ? "bg-[#2F6FED] text-white shadow-xs scale-100"
-                      : "text-[#4B6080] hover:text-[#1E3A5F] hover:bg-slate-100"
+                      ? "bg-[#2F6FED] text-white shadow-sm scale-100"
+                      : "text-[#4B6080] hover:text-[#1E3A5F] hover:bg-slate-100/70"
                   }`}
                 >
                   {tab === "O-NET" ? "O-NET (ป.6)" : tab === "NT" ? "NT (ป.3)" : "RT (ป.1)"}
@@ -207,9 +207,9 @@ export default function AcademicPerformanceChart({
 
           {/* Academic Year Switcher */}
           {availableYears.length > 1 && (
-            <div className="flex items-center gap-1 bg-white/90 backdrop-blur-md p-1 rounded-xl border border-[#D1E5FC] shadow-2xs">
+            <div className="flex items-center gap-1 bg-white/90 backdrop-blur-md p-1 rounded-xl border border-[#BFD7F5] shadow-xs">
               <span className="text-[11px] text-[#4B6080] font-semibold px-2 flex items-center gap-1">
-                <Calendar className="w-3 h-3 text-[#2F6FED]" />
+                <Calendar className="w-3 h-3 text-[#2563EB]" />
                 ปี:
               </span>
               {availableYears.map((yr) => (
@@ -221,8 +221,8 @@ export default function AcademicPerformanceChart({
                   }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     currentYear === yr
-                      ? "bg-[#EA580C] text-white shadow-xs ring-2 ring-[#EA580C]/25"
-                      : "bg-white/60 hover:bg-slate-100 text-[#4B6080] hover:text-[#1E3A5F] border border-slate-200/60"
+                      ? "bg-[#EA580C] text-white shadow-xs ring-2 ring-[#EA580C]/20"
+                      : "bg-transparent hover:bg-slate-100 text-[#4B6080] hover:text-[#1E3A5F]"
                   }`}
                 >
                   {yr}
@@ -256,11 +256,11 @@ export default function AcademicPerformanceChart({
 
       {/* ================= 3. 3-LEVEL THEME LEGEND BAR ================= */}
       <div className="px-5 sm:px-8 py-2.5 bg-slate-50/80 border-b border-[#D1DFF0] flex flex-wrap items-center justify-between gap-3 text-xs">
-        {/* 3 Level Legends with Vibrant School Orange and Country Royal Blue */}
+        {/* 3 Level Legends with Highlighted School & Country, Muted District */}
         <div className="flex flex-wrap items-center gap-4 sm:gap-6 font-bold">
-          {/* Level 1: โรงเรียนบ้านหนองหัวหมู (Vibrant School Orange) */}
+          {/* Level 1: โรงเรียนบ้านหนองหัวหมู (Vibrant Orange Hero - สีส้มสดใส) */}
           <div className="flex items-center gap-2">
-            <span className="w-4 h-4 rounded-md bg-gradient-to-t from-[#EA580C] to-[#FB923C] shadow-xs border-2 border-[#EA580C] flex items-center justify-center">
+            <span className="w-4 h-4 rounded-md bg-gradient-to-t from-[#EA580C] to-[#FB923C] shadow-xs border-2 border-[#C2410C] flex items-center justify-center">
               <School className="w-2.5 h-2.5 text-white" />
             </span>
             <span className="text-[#EA580C] font-black">1. โรงเรียนบ้านหนองหัวหมู (เป้าหมายหลัก)</span>
@@ -301,13 +301,13 @@ export default function AcademicPerformanceChart({
               <span className="font-extrabold text-sm sm:text-base">วิชา: {hoveredSubject.name}</span>
             </div>
             <div className="flex flex-wrap items-center gap-3.5 text-xs sm:text-sm">
-              <span className="text-blue-100">
-                🏫 โรงเรียน: <strong className="text-white font-mono text-base font-black">{hoveredSubject.school.toFixed(2)}</strong>
-              </span>
-              <span className="text-blue-200">
-                🏛️ เขตพื้นที่: <strong className="text-white font-mono">{hoveredSubject.area.toFixed(2)}</strong>
+              <span className="text-orange-200">
+                🏫 โรงเรียน: <strong className="text-orange-400 font-mono text-base font-black">{hoveredSubject.school.toFixed(2)}</strong>
               </span>
               <span className="text-slate-300">
+                🏛️ เขตพื้นที่: <strong className="text-white font-mono">{hoveredSubject.area.toFixed(2)}</strong>
+              </span>
+              <span className="text-blue-200">
                 🌐 ประเทศ: <strong className="text-white font-mono">{hoveredSubject.national.toFixed(2)}</strong>
               </span>
               <span className={`px-2.5 py-1 rounded-lg font-black text-xs font-mono shadow-xs ${
@@ -346,7 +346,7 @@ export default function AcademicPerformanceChart({
                 className="w-full h-auto overflow-visible select-none"
               >
                 <defs>
-                  {/* School Gradient: Vibrant School Orange */}
+                  {/* School Gradient: Vibrant Orange Hero Palette */}
                   <linearGradient id="schoolGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#FB923C" />
                     <stop offset="100%" stopColor="#EA580C" />
@@ -438,7 +438,7 @@ export default function AcademicPerformanceChart({
                         />
                       )}
 
-                      {/* Bar 1: โรงเรียน (Vibrant School Orange - เด่นหลัก) */}
+                      {/* Bar 1: โรงเรียน (Vibrant Orange Hero Bar - สีส้มเด่นชัด) */}
                       <g filter="url(#barShadow)">
                         <rect
                           x={groupStartX}
@@ -451,7 +451,7 @@ export default function AcademicPerformanceChart({
                           strokeWidth="1.5"
                           className="transition-all duration-300 group-hover:brightness-110"
                         />
-                        {/* Prominent School Score on Top of Hero Bar */}
+                        {/* Prominent School Score on Top of Hero Bar (Orange) */}
                         <text
                           x={groupStartX + barWidth / 2}
                           y={schoolY - 8}
@@ -583,15 +583,15 @@ export default function AcademicPerformanceChart({
             className="flex overflow-x-auto gap-3 snap-x snap-mandatory pb-2 scroll-smooth no-scrollbar"
             style={{ scrollSnapType: "x mandatory" }}
           >
-            {/* Card 1: โรงเรียนบ้านหนองหัวหมู (Vibrant School Orange) */}
+            {/* Card 1: โรงเรียนบ้านหนองหัวหมู (Vibrant Orange Hero) */}
             <div className="snap-center shrink-0 w-[86vw] rounded-2xl bg-[#FFF7ED] border-2 border-[#EA580C] p-4 shadow-sm">
-              <div className="flex items-center justify-between pb-2.5 border-b border-orange-200/60">
+              <div className="flex items-center justify-between pb-2.5 border-b border-orange-200">
                 <div className="flex items-center gap-2">
                   <span className="w-7 h-7 rounded-xl bg-[#EA580C] text-white flex items-center justify-center shadow-xs">
                     <School className="w-4 h-4 text-white" />
                   </span>
                   <div>
-                    <h4 className="text-sm font-black text-[#C2410C]">1. โรงเรียนบ้านหนองหัวหมู</h4>
+                    <h4 className="text-sm font-black text-[#9A3412]">1. โรงเรียนบ้านหนองหัวหมู</h4>
                     <span className="text-[10.5px] text-[#EA580C] font-bold">ผลคะแนนเฉลี่ยทางการ</span>
                   </div>
                 </div>
@@ -599,13 +599,13 @@ export default function AcademicPerformanceChart({
                   ระดับโรงเรียน
                 </span>
               </div>
-              <div className="divide-y divide-orange-200/50 text-xs pt-2">
+              <div className="divide-y divide-orange-100 text-xs pt-2">
                 {subjects.map((s) => {
                   const diff = s.school - s.national;
                   const isPos = diff >= 0;
                   return (
                     <div key={s.name} className="py-2 flex items-center justify-between">
-                      <span className="font-bold text-[#7C2D12]">{s.name}</span>
+                      <span className="font-bold text-[#9A3412]">{s.name}</span>
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-sm font-black text-[#EA580C]">{s.school.toFixed(2)}</span>
                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${isPos ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"}`}>
@@ -720,10 +720,10 @@ export default function AcademicPerformanceChart({
                   </thead>
                   <tbody className="divide-y divide-[#D1DFF0]/60">
                     {/* Row 1: โรงเรียนบ้านหนองหัวหมู (Highlighted Orange Hero Row) */}
-                    <tr className="bg-[#FFF7ED]/80 hover:bg-[#FFF7ED] transition-colors font-bold text-[#EA580C] border-l-4 border-l-[#EA580C]">
-                      <td className="py-3.5 px-4 flex items-center gap-2 whitespace-nowrap min-w-[210px] sticky left-0 bg-[#FFF7ED] z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)]">
+                    <tr className="bg-[#FFF7ED]/80 hover:bg-[#FFF7ED] transition-colors font-bold text-[#9A3412] border-l-4 border-l-[#EA580C]">
+                      <td className="py-3.5 px-4 flex items-center gap-2 whitespace-nowrap min-w-[210px] sticky left-0 bg-[#FFF3E5] z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)]">
                         <span className="w-2.5 h-2.5 rounded-full bg-[#EA580C] shrink-0" />
-                        <span className="font-black text-[#C2410C]">1. โรงเรียนบ้านหนองหัวหมู</span>
+                        <span className="font-black text-[#9A3412]">1. โรงเรียนบ้านหนองหัวหมู</span>
                         <span className="ml-1 px-1.5 py-0.5 rounded bg-[#EA580C] text-white text-[9.5px] font-bold">
                           โรงเรียน
                         </span>
