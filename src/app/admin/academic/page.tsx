@@ -788,21 +788,21 @@ export default function AdminAcademicPage() {
                 <thead>
                   <tr className="bg-[#F4F8FD] text-[#1E3A5F] font-bold border-b border-[#E6EEF8]">
                     <th className="py-3 px-4 text-left font-bold">กลุ่มสาระ / สมรรถนะ</th>
-                    <th className="py-3 px-4 text-center text-emerald-900 bg-emerald-50/70 border-x border-emerald-100">
+                    <th className="py-3 px-4 text-center text-[#C2410C] bg-[#FFF7ED] border-x border-orange-200">
                       <span className="flex items-center justify-center gap-1.5 font-bold">
-                        <span className="w-3 h-3 rounded-xs bg-emerald-600" />
+                        <span className="w-3 h-3 rounded-xs bg-[#EA580C]" />
                         1. โรงเรียน (หนองหัวหมู)
                       </span>
                     </th>
-                    <th className="py-3 px-4 text-center text-[#1E3A5F] bg-[#EBF2FF]/70 border-r border-[#D1DFF0]">
+                    <th className="py-3 px-4 text-center text-slate-600 bg-slate-50/80 border-r border-slate-200">
                       <span className="flex items-center justify-center gap-1.5 font-bold whitespace-nowrap">
-                        <span className="w-3 h-3 rounded-xs bg-[#2F6FED]" />
+                        <span className="w-3 h-3 rounded-xs bg-[#94A3B8]" />
                         2. เขตพื้นที่ (บุรีรัมย์ เขต&nbsp;3)
                       </span>
                     </th>
-                    <th className="py-3 px-4 text-center text-blue-900 bg-blue-50/70">
+                    <th className="py-3 px-4 text-center text-[#1D4ED8] bg-blue-50/70">
                       <span className="flex items-center justify-center gap-1.5 font-bold">
-                        <span className="w-3 h-3 rounded-xs bg-blue-600" />
+                        <span className="w-3 h-3 rounded-xs bg-[#1D4ED8]" />
                         3. ระดับประเทศ
                       </span>
                     </th>
@@ -814,39 +814,39 @@ export default function AdminAcademicPage() {
                     return (
                       <tr
                         key={item.name}
-                        className={isTotal ? "bg-blue-50/50 font-bold" : "hover:bg-slate-50/60"}
+                        className={isTotal ? "bg-orange-50/30 font-bold" : "hover:bg-slate-50/60"}
                       >
                         <td className="py-3 px-4 font-semibold text-[#1E3A5F]">
                           {item.name} {isTotal && "(เฉลี่ยรวม)"}
                         </td>
 
-                        {/* 1. โรงเรียน */}
-                        <td className="py-2.5 px-3 text-center bg-emerald-50/20 border-x border-emerald-100/60">
+                        {/* 1. โรงเรียน (Vibrant Orange) */}
+                        <td className="py-2.5 px-3 text-center bg-orange-50/20 border-x border-orange-100/60">
                           <ScoreInput
                             key={`${activeExam}-${activeYear}-${item.name}-school`}
                             value={item.school}
                             onChange={(val) => handleScoreChange(idx, "school", val)}
-                            className="w-28 py-1.5 px-2 text-center font-bold text-emerald-900 bg-white border border-emerald-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-hidden shadow-2xs font-mono"
+                            className="w-28 py-1.5 px-2 text-center font-bold text-[#9A3412] bg-white border border-orange-300 rounded-xl focus:ring-2 focus:ring-[#EA580C] focus:outline-hidden shadow-2xs font-mono"
                           />
                         </td>
 
-                        {/* 2. เขตพื้นที่ */}
-                        <td className="py-2.5 px-3 text-center bg-amber-50/20 border-r border-amber-100/60">
+                        {/* 2. เขตพื้นที่ (Muted Slate) */}
+                        <td className="py-2.5 px-3 text-center bg-slate-50/30 border-r border-slate-200/60">
                           <ScoreInput
                             key={`${activeExam}-${activeYear}-${item.name}-area`}
                             value={item.area}
                             onChange={(val) => handleScoreChange(idx, "area", val)}
-                            className="w-28 py-1.5 px-2 text-center font-medium text-amber-900 bg-white border border-amber-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-hidden shadow-2xs font-mono"
+                            className="w-28 py-1.5 px-2 text-center font-medium text-slate-700 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-400 focus:outline-hidden shadow-2xs font-mono"
                           />
                         </td>
 
-                        {/* 3. ประเทศ */}
+                        {/* 3. ประเทศ (Royal Blue) */}
                         <td className="py-2.5 px-3 text-center bg-blue-50/20">
                           <ScoreInput
                             key={`${activeExam}-${activeYear}-${item.name}-national`}
                             value={item.national}
                             onChange={(val) => handleScoreChange(idx, "national", val)}
-                            className="w-28 py-1.5 px-2 text-center font-medium text-blue-900 bg-white border border-blue-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-hidden shadow-2xs font-mono"
+                            className="w-28 py-1.5 px-2 text-center font-bold text-[#1D4ED8] bg-white border border-blue-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-hidden shadow-2xs font-mono"
                           />
                         </td>
                       </tr>
