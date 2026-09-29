@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, BookOpen, GraduationCap, Building2 } from "lucide-react";
+import { ArrowRight, BookOpen, GraduationCap, Building2, ChevronRight } from "lucide-react";
 import { useSchoolSettings } from "@/hooks/useSchoolSettings";
 import { schoolPersonnel } from "@/data/personnel";
 import OptimizedNewsImage from "@/components/common/OptimizedNewsImage";
@@ -20,53 +20,26 @@ export default function Hero() {
       <div className="absolute -top-24 -left-24 w-80 h-80 bg-[#2F6FED]/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-[#D96B34]/10 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 p-5 sm:p-7 lg:p-8 space-y-5">
-        
-        {/* Top Header: Institutional Badges + School Title & Subtitle */}
-        <div className="space-y-2">
-          {/* Institutional Badge */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EBF2FF] text-[#1E3A5F] border border-[#2F6FED]/30 text-[11px] sm:text-xs font-bold shadow-2xs whitespace-nowrap">
-              <Building2 className="w-3.5 h-3.5 text-[#2F6FED] shrink-0" />
-              <span className="hidden sm:inline">{settings.subAffiliation}</span>
-              <span className="sm:hidden">สพป. บุรีรัมย์ เขต&nbsp;3</span>
-            </span>
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-white/90 text-[#4B6080] border border-[#D1DFF0] text-[11px] sm:text-xs font-semibold shadow-2xs whitespace-nowrap">
-              <span>{settings.affiliationBadge}</span>
-            </span>
-          </div>
-
-          {/* School Title & Subtitle */}
-          <div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#1E3A5F] tracking-tight leading-tight">
-              {settings.name}
-            </h1>
-            <p className="text-xs sm:text-sm font-semibold text-[#4B6080] mt-0.5">
-              {settings.nameEn}
-            </p>
-          </div>
-        </div>
-
-        {/* Middle Showcase Grid: School Gate Photo (Left) & Director Profile Card (Right) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-stretch">
+      <div className="relative z-10 p-5 sm:p-8 lg:p-10 flex items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center w-full">
           
-          {/* Left: School Gate Photo & Education Level Badge (7 cols on lg) */}
-          <div className="lg:col-span-7 flex flex-col justify-between space-y-2.5">
-            <div className="rounded-2xl overflow-hidden border border-[#D1DFF0] bg-white shadow-sm relative h-[210px] sm:h-[260px] lg:h-[280px]">
+          {/* Left Column: School Gate Photo & Education Level Badge (5 cols on lg screens) */}
+          <div className="flex lg:col-span-5 flex-col order-2 lg:order-1">
+            <div className="rounded-2xl overflow-hidden border border-[#D1DFF0] bg-white aspect-[16/11] shadow-md relative">
               <OptimizedNewsImage
                 src={settings.heroImageUrl}
                 alt={settings.name}
                 fill
                 priority
-                sizes="(max-width: 1024px) 100vw, 55vw"
+                sizes="(min-width: 1024px) 45vw, 100vw"
                 className="w-full h-full object-cover"
               />
             </div>
 
-            {/* Education Level Badge */}
-            <div className="flex items-center gap-3 p-2.5 sm:p-3 rounded-xl bg-white/90 border border-[#D1DFF0] shadow-2xs">
-              <div className="w-8 h-8 rounded-lg bg-[#EBF2FF] text-[#2F6FED] flex items-center justify-center shrink-0 border border-[#2F6FED]/20">
-                <GraduationCap className="w-4 h-4" />
+            {/* Education Level Badge below the image */}
+            <div className="mt-3 flex items-center gap-3 p-3 rounded-2xl bg-white/90 backdrop-blur-xs border border-[#D1DFF0] shadow-xs">
+              <div className="w-9 h-9 rounded-xl bg-[#EBF2FF] text-[#2F6FED] flex items-center justify-center shrink-0 border border-[#2F6FED]/20">
+                <GraduationCap className="w-5 h-5" />
               </div>
               <div className="leading-tight">
                 <span className="text-[10px] text-[#6B7FA0] font-bold block uppercase">
@@ -79,74 +52,93 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Right: Executive Director Profile Card (5 cols on lg) */}
-          <div className="lg:col-span-5 flex flex-col">
+          {/* Right Column: School Welcome & Identity & Director Card (7 cols on lg screens) */}
+          <div className="lg:col-span-7 space-y-3.5 sm:space-y-4 order-1 lg:order-2">
+            
+            {/* Institutional Badge */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EBF2FF] text-[#1E3A5F] border border-[#2F6FED]/30 text-[11px] sm:text-xs font-bold shadow-2xs whitespace-nowrap">
+                <Building2 className="w-3.5 h-3.5 text-[#2F6FED] shrink-0" />
+                <span className="hidden sm:inline">{settings.subAffiliation}</span>
+                <span className="sm:hidden">สพป. บุรีรัมย์ เขต&nbsp;3</span>
+              </span>
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-white/90 text-[#4B6080] border border-[#D1DFF0] text-[11px] sm:text-xs font-semibold shadow-2xs whitespace-nowrap">
+                <span>{settings.affiliationBadge}</span>
+              </span>
+            </div>
+
+            {/* School Title & Subtitle */}
+            <div>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#1E3A5F] tracking-tight leading-tight whitespace-normal sm:whitespace-nowrap">
+                {settings.name}
+              </h1>
+              <p className="text-xs sm:text-sm font-semibold text-[#4B6080] mt-1 whitespace-nowrap">
+                {settings.nameEn}
+              </p>
+            </div>
+
+            {/* Director Profile Card (Slim Horizontal Card matching reference image) */}
             <Link
               href="/personnel"
-              className="group flex flex-col items-center justify-center text-center w-full h-full bg-gradient-to-b from-[#F0F5FF]/95 via-white/95 to-[#F4F8FD]/95 backdrop-blur-md rounded-2xl border border-[#2F6FED]/30 hover:border-[#2F6FED] shadow-2xs hover:shadow-md transition-all duration-300 p-5 sm:p-6 relative overflow-hidden"
+              className="group block w-full p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-[#F0F5FF]/95 via-white/95 to-[#F4F8FD]/95 backdrop-blur-xs border border-[#2F6FED]/30 hover:border-[#2F6FED]/70 shadow-2xs hover:shadow-xs transition-all duration-300"
               title="คลิกเพื่อดูทำเนียบครูและบุคลากรทางการศึกษา"
             >
-              {/* Decorative ambient background glows */}
-              <div className="absolute -top-12 -right-12 w-28 h-28 bg-[#2F6FED]/10 rounded-full blur-xl pointer-events-none" />
-              <div className="absolute -bottom-12 -left-12 w-28 h-28 bg-[#D96B34]/10 rounded-full blur-xl pointer-events-none" />
-
-              <div className="relative z-10 flex flex-col items-center my-auto">
-                {/* Director Avatar: 84px on mobile (80-90px), 100px on tablet, 120px on desktop (110-130px) */}
-                <div className="relative w-[84px] h-[84px] sm:w-[100px] sm:h-[100px] lg:w-[120px] lg:h-[120px] rounded-full overflow-hidden border-2 border-[#2F6FED]/40 shadow-md bg-slate-100 ring-4 ring-white shrink-0 mb-3">
+              <div className="flex items-center gap-3.5 sm:gap-4">
+                {/* Circular Portrait: 64-68px clean & crisp */}
+                <div className="relative w-16 h-16 sm:w-[68px] sm:h-[68px] rounded-full overflow-hidden shrink-0 border-2 border-[#2F6FED]/40 shadow-sm bg-slate-100 ring-2 ring-white">
                   <OptimizedNewsImage
                     src={directorImage}
                     alt={directorName}
                     fill
-                    priority
-                    sizes="(min-width: 1024px) 120px, (min-width: 640px) 100px, 84px"
+                    sizes="(max-width: 640px) 64px, 68px"
                     className="w-full h-full object-cover object-top"
                   />
                 </div>
 
-                {/* Badge: ผู้บริหารสถานศึกษา */}
-                <div className="mb-2">
-                  <span className="inline-flex items-center px-3 py-0.5 rounded-full bg-[#2F6FED]/15 text-[#2F6FED] font-bold text-xs border border-[#2F6FED]/25 whitespace-nowrap">
-                    ผู้บริหารสถานศึกษา
-                  </span>
+                {/* Information Details */}
+                <div className="min-w-0 flex-1 flex flex-col justify-center">
+                  <div className="mb-1">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#2F6FED]/15 text-[#2F6FED] font-bold text-[11px] sm:text-xs border border-[#2F6FED]/25 whitespace-nowrap">
+                      ผู้บริหารสถานศึกษา
+                    </span>
+                  </div>
+
+                  <h3 className="font-extrabold text-base sm:text-lg text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors leading-relaxed">
+                    {directorName}
+                  </h3>
+
+                  <p className="text-xs sm:text-sm text-[#4B6080] font-medium leading-relaxed">
+                    {directorTitle}
+                  </p>
                 </div>
 
-                {/* Name: Bold with unclipped Thai vowels */}
-                <h3 className="font-extrabold text-lg sm:text-xl lg:text-2xl text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors leading-relaxed mb-0.5">
-                  {directorName}
-                </h3>
-
-                {/* Position: Clean typography */}
-                <p className="text-xs sm:text-sm text-[#4B6080] font-medium leading-relaxed">
-                  {directorTitle}
-                </p>
+                {/* Right Interactive Arrow */}
+                <div className="shrink-0 p-2 rounded-xl text-[#2F6FED] group-hover:bg-[#2F6FED] group-hover:text-white transition-all duration-200">
+                  <ChevronRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+                </div>
               </div>
             </Link>
-          </div>
 
-        </div>
-
-        {/* Bottom Section: School Motto & Welcome Paragraph & Action Buttons */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center pt-1">
-          {/* School Motto Highlight Card */}
-          <div className="lg:col-span-5 p-3.5 sm:p-4 rounded-2xl bg-white/80 backdrop-blur-xs border border-[#D1DFF0] shadow-2xs">
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-3 bg-[#D96B34] rounded-full inline-block" />
-              <span className="text-[10px] sm:text-[11px] font-bold text-[#D96B34] uppercase tracking-wide">
-                คำขวัญประจำโรงเรียน
-              </span>
+            {/* School Motto Highlight Card: Glassmorphism */}
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-white/80 backdrop-blur-xs border border-[#D1DFF0] shadow-2xs">
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-3 bg-[#D96B34] rounded-full inline-block" />
+                <span className="text-[10px] sm:text-[11px] font-bold text-[#D96B34] uppercase tracking-wide">
+                  คำขวัญประจำโรงเรียน
+                </span>
+              </div>
+              <p className="text-sm sm:text-base font-bold text-[#1E3A5F] mt-1 pl-2.5">
+                &ldquo;{settings.motto}&rdquo;
+              </p>
             </div>
-            <p className="text-sm sm:text-base font-bold text-[#1E3A5F] mt-1 pl-2.5">
-              &ldquo;{settings.motto}&rdquo;
-            </p>
-          </div>
 
-          {/* Welcome Message + Action Buttons */}
-          <div className="lg:col-span-7 space-y-3">
+            {/* Welcome paragraph */}
             <p className="text-xs sm:text-sm text-[#334155] leading-[1.8] font-normal indent-6 sm:indent-8 text-left [overflow-wrap:break-word]">
               {settings.welcomeMessage}
             </p>
 
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3">
+            {/* Action Buttons: Responsive Grid on Mobile */}
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3 pt-1">
               <Link
                 href={settings.heroBtn1Url}
                 className="col-span-1 inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl bg-[#2F6FED] hover:bg-[#1f5bcc] text-white font-bold text-xs sm:text-sm shadow-xs hover:shadow-md transition-all min-h-[44px]"
@@ -163,8 +155,8 @@ export default function Hero() {
               </Link>
             </div>
           </div>
-        </div>
 
+        </div>
       </div>
     </section>
   );
