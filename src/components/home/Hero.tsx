@@ -13,6 +13,10 @@ export default function Hero() {
   const directorName = settings.directorName || director?.name || "นายอดุลย์ วิกุล";
   const directorImage = director?.imageUrl || settings.directorImageUrl || "/images/school-emblem-doc.png";
   const directorTitle = "ผู้อำนวยการโรงเรียนบ้านหนองหัวหมู";
+  const directorAcademic =
+    settings.directorAcademicStanding && settings.directorAcademicStanding !== "[รอข้อมูลจริง]"
+      ? settings.directorAcademicStanding
+      : (director?.academicDegree || "วิทยฐานะ ชำนาญการพิเศษ");
 
   return (
     <section className="relative rounded-3xl overflow-hidden bg-white/75 backdrop-blur-md border border-[#D1DFF0] shadow-xs">
@@ -51,39 +55,47 @@ export default function Hero() {
             {/* 3. [ตำแหน่งใหม่] การ์ดผู้อำนวยการ (Director Profile Card) */}
             <Link
               href="/personnel"
-              className="group block w-full p-2.5 sm:p-3 rounded-2xl bg-gradient-to-r from-[#EBF2FF]/90 via-[#F3F7FD]/80 to-white/90 backdrop-blur-xs border border-[#2F6FED]/30 hover:border-[#2F6FED] shadow-2xs hover:shadow-xs transition-all duration-200"
-              title="คลิกเพื่อดูทำเนียบครูและบุคลากร"
+              className="group block w-full p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-[#F0F5FF]/95 via-white/95 to-[#F4F8FD]/95 backdrop-blur-xs border border-[#2F6FED]/30 hover:border-[#2F6FED]/70 shadow-2xs hover:shadow-xs transition-all duration-300"
+              title="คลิกเพื่อดูทำเนียบครูและบุคลากรทางการศึกษา"
             >
-              <div className="flex items-center gap-3 sm:gap-3.5">
-                {/* Circular Photo (56-60px on desktop, ~48px on mobile) */}
-                <div className="relative w-12 h-12 sm:w-[58px] sm:h-[58px] rounded-full overflow-hidden shrink-0 border-2 border-[#2F6FED]/40 shadow-xs bg-slate-100 ring-2 ring-white">
+              <div className="flex items-center gap-3.5 sm:gap-4">
+                {/* Circular Photo (68-70px on desktop, ~56px on mobile) */}
+                <div className="relative w-14 h-14 sm:w-[70px] sm:h-[70px] rounded-full overflow-hidden shrink-0 border-2 border-[#2F6FED]/40 shadow-sm bg-slate-100 ring-2 ring-white">
                   <OptimizedNewsImage
                     src={directorImage}
                     alt={directorName}
                     fill
-                    sizes="(max-width: 640px) 48px, 60px"
+                    sizes="(max-width: 640px) 56px, 70px"
                     className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
 
                 {/* Information Details */}
-                <div className="min-w-0 flex-1 flex flex-col justify-center gap-0.5">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-[#2F6FED]/15 text-[#2F6FED] font-bold text-[10px] sm:text-[11px] leading-tight border border-[#2F6FED]/25 whitespace-nowrap">
+                <div className="min-w-0 flex-1 flex flex-col justify-center gap-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#2F6FED]/15 text-[#2F6FED] font-bold text-[11px] sm:text-xs leading-none border border-[#2F6FED]/25 whitespace-nowrap">
                       ผู้บริหารสถานศึกษา
                     </span>
+                    {directorAcademic && (
+                      <span className="hidden md:inline-flex text-[11px] text-[#6B7FA0] font-medium leading-none">
+                        • {directorAcademic.includes("วิทยฐานะ") ? directorAcademic : `วิทยฐานะ ${directorAcademic.replace("ผู้อำนวยการ", "").trim() || directorAcademic}`}
+                      </span>
+                    )}
                   </div>
-                  <h3 className="font-bold text-sm sm:text-base text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors leading-tight truncate">
+
+                  <h3 className="font-extrabold text-base sm:text-lg text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors leading-tight truncate">
                     {directorName}
                   </h3>
-                  <p className="text-[11px] sm:text-xs text-[#4B6080] font-medium leading-tight truncate">
+
+                  <p className="text-xs sm:text-sm text-[#4B6080] font-medium leading-tight truncate">
                     {directorTitle}
                   </p>
                 </div>
 
-                {/* Right Arrow (Far right) */}
-                <div className="shrink-0 pl-1 text-[#2F6FED] group-hover:translate-x-1 transition-transform duration-200">
-                  <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                {/* Right Interactive Pill Action (Balanced CTA) */}
+                <div className="shrink-0 flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-white text-[#2F6FED] group-hover:bg-[#2F6FED] group-hover:text-white border border-[#2F6FED]/25 shadow-2xs group-hover:shadow-xs transition-all duration-200">
+                  <span className="hidden sm:inline text-xs font-bold whitespace-nowrap">ดูประวัติ</span>
+                  <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform shrink-0" />
                 </div>
               </div>
             </Link>
