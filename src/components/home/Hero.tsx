@@ -77,20 +77,21 @@ export default function Hero() {
               </p>
             </div>
 
-            {/* Director Profile Card (Slim Horizontal Card matching reference image) */}
+            {/* Director Profile Card (Prominent Executive Card matching personnel page) */}
             <Link
               href="/personnel"
-              className="group block w-full p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-[#F0F5FF]/95 via-white/95 to-[#F4F8FD]/95 backdrop-blur-xs border border-[#2F6FED]/30 hover:border-[#2F6FED]/70 shadow-2xs hover:shadow-xs transition-all duration-300"
+              className="group block w-full p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-[#F0F5FF]/95 via-white/95 to-[#F4F8FD]/95 backdrop-blur-xs border border-[#2F6FED]/30 hover:border-[#2F6FED]/70 shadow-2xs hover:shadow-xs transition-all duration-300"
               title="คลิกเพื่อดูทำเนียบครูและบุคลากรทางการศึกษา"
             >
-              <div className="flex items-center gap-3.5 sm:gap-4">
-                {/* Circular Portrait: 64-68px clean & crisp */}
-                <div className="relative w-16 h-16 sm:w-[68px] sm:h-[68px] rounded-full overflow-hidden shrink-0 border-2 border-[#2F6FED]/40 shadow-sm bg-slate-100 ring-2 ring-white">
+              <div className="flex items-center gap-3.5 sm:gap-5">
+                {/* Rectangular Executive Portrait matching /personnel */}
+                <div className="relative w-20 h-[104px] sm:w-[92px] sm:h-[120px] lg:w-[104px] lg:h-[132px] rounded-2xl overflow-hidden shrink-0 border-2 border-[#D96B34] ring-2 ring-[#D96B34]/25 shadow-md bg-slate-100 group-hover:scale-[1.02] transition-transform duration-300">
                   <OptimizedNewsImage
                     src={directorImage}
                     alt={directorName}
                     fill
-                    sizes="(max-width: 640px) 64px, 68px"
+                    priority
+                    sizes="(max-width: 768px) 250px, 300px"
                     className="w-full h-full object-cover object-top"
                   />
                 </div>
@@ -98,23 +99,23 @@ export default function Hero() {
                 {/* Information Details */}
                 <div className="min-w-0 flex-1 flex flex-col justify-center">
                   <div className="mb-1">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#2F6FED]/15 text-[#2F6FED] font-bold text-[11px] sm:text-xs border border-[#2F6FED]/25 whitespace-nowrap">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#2F6FED]/12 text-[#2F6FED] font-bold text-[10px] sm:text-xs border border-[#2F6FED]/25 whitespace-nowrap">
                       ผู้บริหารสถานศึกษา
                     </span>
                   </div>
 
-                  <h3 className="font-extrabold text-base sm:text-lg text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors leading-relaxed">
+                  <h3 className="font-extrabold text-base sm:text-lg text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors leading-snug">
                     {directorName}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-[#4B6080] font-medium leading-relaxed">
+                  <p className="text-[11px] sm:text-xs md:text-sm text-[#4B6080] font-medium leading-relaxed whitespace-nowrap mt-0.5">
                     {directorTitle}
                   </p>
                 </div>
 
                 {/* Right Interactive Arrow */}
-                <div className="shrink-0 p-2 rounded-xl text-[#2F6FED] group-hover:bg-[#2F6FED] group-hover:text-white transition-all duration-200">
-                  <ChevronRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+                <div className="shrink-0 p-1.5 sm:p-2 rounded-xl text-[#2F6FED] group-hover:bg-[#2F6FED] group-hover:text-white transition-all duration-200">
+                  <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </div>
             </Link>
