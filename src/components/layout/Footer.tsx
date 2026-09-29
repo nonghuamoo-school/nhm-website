@@ -87,16 +87,6 @@ export default function Footer() {
                   ปฏิทินกิจกรรม
                 </Link>
               </li>
-              <li className="pt-2 border-t border-white/10 mt-2">
-                <Link
-                  href="/admin"
-                  className="inline-flex items-center gap-1.5 text-[#7EB8E0] hover:text-white hover:underline transition-colors font-semibold"
-                  title="เข้าสู่ระบบ Admin สำหรับครูและบุคลากร"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#D96B34]" />
-                  <span>เข้าสู่ระบบ Admin</span>
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -222,31 +212,37 @@ export default function Footer() {
       </div>
 
       {/* Bottom Bar: Copyright & Attribution */}
-      <div className="bg-[#0F2540] py-4 px-4 border-t border-white/10 text-xs text-slate-300">
-        <div className="max-w-[1400px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2.5 text-center sm:text-left px-0 xl:px-2">
-          <div className="leading-relaxed">
-            <div>
+      {/* Bottom Bar: Copyright, Attribution & Single Dedicated Admin Entry */}
+      <div className="bg-[#0F2540] py-5 px-4 border-t border-white/10 text-xs text-slate-300">
+        <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+          {/* Left: School Copyright & Developer Credit */}
+          <div className="space-y-1 flex flex-col items-center md:items-start">
+            <p className="text-slate-200">
               <span className="font-semibold text-white">
                 &copy; {new Date().getFullYear()} {schoolInfo.name}
               </span>{" "}
-              <span className="hidden md:inline text-slate-300">({schoolInfo.nameEn}).</span>{" "}
-              <span className="whitespace-nowrap font-normal text-slate-300">สงวนลิขสิทธิ์ทุกประการ</span>
-            </div>
-            <p className="text-[11px] text-slate-300 mt-1 flex flex-wrap items-center gap-2">
-              <span>พัฒนาระบบโดย &quot;นายธนาธิป คุณวงศ์&quot; คุณครูโรงเรียนบ้านหนองหัวหมู</span>
-              <span className="text-slate-500 hidden sm:inline">•</span>
-              <Link
-                href="/admin"
-                className="text-slate-400 hover:text-white transition-colors underline-offset-2 hover:underline"
-              >
-                เข้าสู่ระบบ Admin
-              </Link>
+              <span className="hidden sm:inline text-slate-400">({schoolInfo.nameEn}).</span>{" "}
+              <span className="text-slate-400 font-normal">สงวนลิขสิทธิ์ทุกประการ</span>
+            </p>
+            <p className="text-[11px] text-slate-400">
+              พัฒนาระบบโดย <span className="text-slate-200">&quot;นายธนาธิป คุณวงศ์&quot;</span> คุณครูโรงเรียนบ้านหนองหัวหมู
             </p>
           </div>
-          <div className="flex items-center gap-4 text-slate-400 pr-12 sm:pr-0">
-            <span className="text-center sm:text-right leading-relaxed whitespace-nowrap text-slate-300">
+
+          {/* Right: Sub-affiliation & Single Admin Entry */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-4 text-xs">
+            <span className="text-slate-400 font-medium">
               {schoolInfo.subAffiliation}
             </span>
+            <span className="hidden sm:inline text-slate-600">|</span>
+            <Link
+              href="/admin"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/15 text-slate-300 hover:text-white transition-all text-[11px] font-medium border border-white/10 shadow-2xs hover:border-white/25 active:scale-95"
+              title="สำหรับผู้บริหาร ครู และบุคลากรทางการศึกษา"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-[#D96B34]" />
+              <span>เข้าสู่ระบบ Admin</span>
+            </Link>
           </div>
         </div>
       </div>

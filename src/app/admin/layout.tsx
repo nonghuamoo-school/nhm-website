@@ -23,6 +23,7 @@ import {
 import SchoolLogo from "@/components/common/SchoolLogo";
 import { schoolInfo } from "@/data/schoolInfo";
 import { AdminAuthGuard, useAdminAuth } from "@/components/admin/AdminAuthGuard";
+import BackToTop from "@/components/common/BackToTop";
 
 const adminNav = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -208,6 +209,7 @@ export default function AdminLayout({
           <main className="flex-1 w-full max-w-full overflow-x-hidden min-w-0 p-4 sm:p-6 lg:p-8 space-y-6 box-border">
             {children}
           </main>
+          <BackToTop />
         </div>
       </div>
     </AdminAuthGuard>

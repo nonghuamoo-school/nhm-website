@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, Menu, X, Building2, ExternalLink, ChevronRight, ShieldCheck } from "lucide-react";
+import { Search, Menu, X, Building2, ExternalLink, ChevronRight } from "lucide-react";
 import SchoolLogo from "@/components/common/SchoolLogo";
 import TopBar from "./TopBar";
 import { useSchoolSettings } from "@/hooks/useSchoolSettings";
@@ -146,21 +146,6 @@ export default function Header() {
                   <ChevronRight className="w-4 h-4 opacity-50" />
                 </Link>
               ))}
-
-              {/* Quick Admin access in mobile drawer */}
-              <div className="pt-2 border-t border-[#D1DFF0] mt-2">
-                <Link
-                  href="/admin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold bg-[#E8F0FE] text-[#2F6FED] hover:bg-[#D1DFF0] transition-colors min-h-[44px]"
-                >
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4" />
-                    <span>เข้าสู่ระบบจัดการสถานศึกษา (Admin)</span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 opacity-70" />
-                </Link>
-              </div>
             </div>
           </div>
         )}
