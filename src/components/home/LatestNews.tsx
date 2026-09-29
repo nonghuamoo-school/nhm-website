@@ -39,8 +39,9 @@ export default function LatestNews() {
             <span className="w-1.5 h-5 bg-[#D96B34] rounded-full inline-block" />
             <span>ข่าวประชาสัมพันธ์ล่าสุด</span>
           </h2>
-          <p className="text-xs sm:text-sm text-[#4B6080] mt-0.5 pl-3.5 text-balance">
-            ติดตามข่าวสาร จดหมายข่าว และกิจกรรมสำคัญของ<span className="whitespace-nowrap">โรงเรียนบ้านหนองหัวหมู</span>
+          <p className="text-xs sm:text-sm text-[#4B6080] mt-0.5 pl-3.5">
+            <span className="block sm:inline">ติดตามข่าวสาร จดหมายข่าว และกิจกรรมสำคัญ</span>
+            <span className="block sm:inline sm:ml-1">ของโรงเรียนบ้านหนองหัวหมู</span>
           </p>
         </div>
 
