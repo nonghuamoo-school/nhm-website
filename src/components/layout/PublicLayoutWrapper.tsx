@@ -8,8 +8,10 @@ import BackToTop from "@/components/common/BackToTop";
 
 export default function PublicLayoutWrapper({
   children,
+  initialVisitorCount,
 }: {
   children: React.ReactNode;
+  initialVisitorCount?: number;
 }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
@@ -36,7 +38,7 @@ export default function PublicLayoutWrapper({
 
   return (
     <div className="min-h-full flex flex-col bg-gradient-to-b from-[#EAF2FB] via-[#F4F8FD] to-white text-[#0F1F30]">
-      <Header />
+      <Header initialVisitorCount={initialVisitorCount} />
       <main className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-6 sm:py-8 pb-16 sm:pb-8 space-y-8 sm:space-y-10">
         {children}
       </main>

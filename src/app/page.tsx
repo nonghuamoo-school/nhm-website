@@ -3,6 +3,9 @@ import LatestNews from "@/components/home/LatestNews";
 import SchoolAnalyticsDashboard from "@/components/home/SchoolAnalyticsDashboard";
 import Contact from "@/components/home/Contact";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function Home() {
   return (
     <div className="space-y-12 sm:space-y-16">

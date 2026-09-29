@@ -9,8 +9,8 @@ const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Preserved historical cumulative baseline: strictly maintained at >= 1,310 visits
-const HISTORICAL_BASE_COUNT = 1310;
+// Preserved historical cumulative baseline: strictly maintained at >= 1,380 visits
+const HISTORICAL_BASE_COUNT = 1380;
 const DEDUPLICATION_COOKIE_NAME = "nhm_v_session";
 const SESSION_WINDOW_SECONDS = 900; // 15 minutes unique visitor session window
 

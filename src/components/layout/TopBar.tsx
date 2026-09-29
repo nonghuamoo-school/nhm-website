@@ -5,8 +5,13 @@ import { Eye, Calendar } from "lucide-react";
 import { schoolInfo } from "@/data/schoolInfo";
 import { visitorService } from "@/services/visitorService";
 
-export default function TopBar() {
-  const [visitorCount, setVisitorCount] = useState<number>(() => visitorService.getCurrentCount());
+export default function TopBar({ initialVisitorCount }: { initialVisitorCount?: number }) {
+  const [visitorCount, setVisitorCount] = useState<number>(() => {
+    if (typeof initialVisitorCount === "number" && initialVisitorCount > 0) {
+      return initialVisitorCount;
+    }
+    return visitorService.getCurrentCount();
+  });
   const [currentDate, setCurrentDate] = useState<string>("");
   const [fontSizeIndex, setFontSizeIndex] = useState<number>(0);
 
@@ -64,7 +69,7 @@ export default function TopBar() {
             <Eye className="w-3.5 h-3.5 text-[#7EB8E0] shrink-0" />
             <span className="hidden md:inline">ผู้เข้าชม</span>
             <strong className="text-white font-bold font-mono">
-              {(visitorCount ?? 1310).toLocaleString()}
+              {(visitorCount ?? initialVisitorCount ?? 1380).toLocaleString()}
             </strong>
             <span className="hidden md:inline">ครั้ง</span>
           </div>

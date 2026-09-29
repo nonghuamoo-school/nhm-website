@@ -21,7 +21,7 @@ const navLinks = [
   { name: "ติดต่อ", href: "/contact" },
 ];
 
-export default function Header() {
+export default function Header({ initialVisitorCount }: { initialVisitorCount?: number }) {
   const pathname = usePathname();
   const { settings } = useSchoolSettings();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -53,7 +53,7 @@ export default function Header() {
       />
 
       {/* LEVEL 1: Utility Bar */}
-      <TopBar />
+      <TopBar initialVisitorCount={initialVisitorCount} />
 
       {/* LEVEL 2: Brand Header */}
       <div className="bg-white/95 backdrop-blur-sm border-b border-[#D1DFF0] sticky top-0 z-40 shadow-sm relative overflow-hidden nhm-watermark">

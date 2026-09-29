@@ -19,8 +19,8 @@ export interface StoredVisitorMetrics {
 
 const STORAGE_KEY = "nhm_visitor_metrics";
 
-// Baseline count: strictly preserved at historical cumulative baseline >= 1,310 visits
-const GLOBAL_MINIMUM_BASE = 1310;
+// Baseline count: strictly preserved at historical cumulative baseline >= 1,380 visits
+const GLOBAL_MINIMUM_BASE = 1380;
 
 function getTodayDateString(): string {
   try {

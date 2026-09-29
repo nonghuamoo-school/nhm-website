@@ -4,10 +4,15 @@ import React from "react";
 import Link from "next/link";
 import { ArrowRight, BookOpen, GraduationCap, Award, Sparkles, Building2, ChevronRight } from "lucide-react";
 import { useSchoolSettings } from "@/hooks/useSchoolSettings";
+import { schoolPersonnel } from "@/data/personnel";
 import OptimizedNewsImage from "@/components/common/OptimizedNewsImage";
 
 export default function Hero() {
   const { settings } = useSchoolSettings();
+  const director = schoolPersonnel[0];
+  const directorName = settings.directorName || director?.name || "นายอดุลย์ วิกุล";
+  const directorImage = director?.imageUrl || settings.directorImageUrl || "/images/school-emblem-doc.png";
+  const directorTitle = "ผู้อำนวยการโรงเรียนบ้านหนองหัวหมู";
 
   return (
     <section className="relative rounded-3xl overflow-hidden bg-white/75 backdrop-blur-md border border-[#D1DFF0] shadow-xs">
@@ -43,34 +48,45 @@ export default function Hero() {
               </p>
             </div>
 
-            {/* Mobile-Only Prominent Hero Image */}
-            <div className="lg:hidden space-y-2">
-              <div className="rounded-2xl overflow-hidden border border-[#D1DFF0] bg-white aspect-[16/9] shadow-md relative">
-                <OptimizedNewsImage
-                  src={settings.heroImageUrl}
-                  alt={settings.name}
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 100vw, 500px"
-                  className="w-full h-full object-cover"
-                />
-              </div>
+            {/* 3. [ตำแหน่งใหม่] การ์ดผู้อำนวยการ (Director Profile Card) */}
+            <Link
+              href="/personnel"
+              className="group block w-full p-2.5 sm:p-3 rounded-2xl bg-gradient-to-r from-[#EBF2FF]/90 via-[#F3F7FD]/80 to-white/90 backdrop-blur-xs border border-[#2F6FED]/30 hover:border-[#2F6FED] shadow-2xs hover:shadow-xs transition-all duration-200"
+              title="คลิกเพื่อดูทำเนียบครูและบุคลากร"
+            >
+              <div className="flex items-center gap-3 sm:gap-3.5">
+                {/* Circular Photo (56-60px on desktop, ~48px on mobile) */}
+                <div className="relative w-12 h-12 sm:w-[58px] sm:h-[58px] rounded-full overflow-hidden shrink-0 border-2 border-[#2F6FED]/40 shadow-xs bg-slate-100 ring-2 ring-white">
+                  <OptimizedNewsImage
+                    src={directorImage}
+                    alt={directorName}
+                    fill
+                    sizes="(max-width: 640px) 48px, 60px"
+                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
 
-              {/* Education Level Badge below mobile image */}
-              <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/90 border border-[#D1DFF0] shadow-2xs">
-                <div className="w-8 h-8 rounded-lg bg-[#EBF2FF] text-[#2F6FED] flex items-center justify-center shrink-0 border border-[#2F6FED]/20">
-                  <GraduationCap className="w-4 h-4" />
+                {/* Information Details */}
+                <div className="min-w-0 flex-1 flex flex-col justify-center gap-0.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-[#2F6FED]/15 text-[#2F6FED] font-bold text-[10px] sm:text-[11px] leading-tight border border-[#2F6FED]/25 whitespace-nowrap">
+                      ผู้บริหารสถานศึกษา
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-sm sm:text-base text-[#1E3A5F] group-hover:text-[#2F6FED] transition-colors leading-tight truncate">
+                    {directorName}
+                  </h3>
+                  <p className="text-[11px] sm:text-xs text-[#4B6080] font-medium leading-tight truncate">
+                    {directorTitle}
+                  </p>
                 </div>
-                <div className="leading-tight">
-                  <span className="text-[10px] text-[#6B7FA0] font-bold block uppercase">
-                    {settings.heroBadge1Label || "ระดับการศึกษา"}
-                  </span>
-                  <span className="text-xs font-bold text-[#1E3A5F]">
-                    {settings.heroBadge1Value || "อนุบาล 2 – ประถมศึกษาปีที่ 6"}
-                  </span>
+
+                {/* Right Arrow (Far right) */}
+                <div className="shrink-0 pl-1 text-[#2F6FED] group-hover:translate-x-1 transition-transform duration-200">
+                  <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
               </div>
-            </div>
+            </Link>
 
             {/* School Motto Highlight Card: Glassmorphism */}
             <div className="p-3.5 sm:p-4 rounded-2xl bg-white/80 backdrop-blur-xs border border-[#D1DFF0] shadow-2xs">
@@ -109,20 +125,20 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Right Column: Desktop-Only Hero Image (5 cols on lg screens) */}
-          <div className="hidden lg:flex lg:col-span-5 flex-col">
+          {/* Right Column: Hero Image (5 cols on lg screens, below left column on mobile) */}
+          <div className="flex lg:col-span-5 flex-col mt-4 lg:mt-0">
             <div className="rounded-2xl overflow-hidden border border-[#D1DFF0] bg-white aspect-[16/11] shadow-md relative">
               <OptimizedNewsImage
                 src={settings.heroImageUrl}
                 alt={settings.name}
                 fill
                 priority
-                sizes="(min-width: 1024px) 45vw, 500px"
+                sizes="(min-width: 1024px) 45vw, 100vw"
                 className="w-full h-full object-cover"
               />
             </div>
 
-            {/* Placed below the image on desktop */}
+            {/* Placed below the image */}
             <div className="mt-3 flex items-center gap-3 p-3 rounded-2xl bg-white/90 backdrop-blur-xs border border-[#D1DFF0] shadow-xs">
               <div className="w-9 h-9 rounded-xl bg-[#EBF2FF] text-[#2F6FED] flex items-center justify-center shrink-0 border border-[#2F6FED]/20">
                 <GraduationCap className="w-5 h-5" />

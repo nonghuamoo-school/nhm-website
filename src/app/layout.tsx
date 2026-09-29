@@ -3,6 +3,7 @@ import { Sarabun } from "next/font/google";
 import "./globals.css";
 import PublicLayoutWrapper from "@/components/layout/PublicLayoutWrapper";
 import { schoolInfo } from "@/data/schoolInfo";
+import { getLiveVisitorCountServer } from "@/services/serverVisitorHelper";
 
 const sarabun = Sarabun({
   weight: ["300", "400", "500", "600", "700"],
@@ -65,15 +66,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const initialVisitorCount = await getLiveVisitorCountServer();
+
   return (
     <html lang="th" className={`${sarabun.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        <PublicLayoutWrapper>{children}</PublicLayoutWrapper>
+        <PublicLayoutWrapper initialVisitorCount={initialVisitorCount}>{children}</PublicLayoutWrapper>
       </body>
     </html>
   );
