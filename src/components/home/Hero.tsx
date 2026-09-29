@@ -21,11 +21,11 @@ export default function Hero() {
       <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-[#D96B34]/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 p-5 sm:p-8 lg:p-10 flex items-center">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-stretch w-full">
           
-          {/* Left Column: School Gate Photo & Education Level Badge (5 cols on lg screens) */}
-          <div className="flex lg:col-span-5 flex-col order-2 lg:order-1">
-            <div className="rounded-2xl overflow-hidden border border-[#D1DFF0] bg-white aspect-[16/11] shadow-md relative">
+          {/* Left Column: School Gate Photo & Education Level Badge (5 cols on lg screens, stretches to match right column) */}
+          <div className="flex lg:col-span-5 flex-col h-full justify-between order-2 lg:order-1">
+            <div className="rounded-2xl overflow-hidden border border-[#D1DFF0] bg-white shadow-md relative flex-1 min-h-[240px] sm:min-h-[280px] lg:min-h-[350px]">
               <OptimizedNewsImage
                 src={settings.heroImageUrl}
                 alt={settings.name}
@@ -37,7 +37,7 @@ export default function Hero() {
             </div>
 
             {/* Education Level Badge below the image */}
-            <div className="mt-3 flex items-center gap-3 p-3 rounded-2xl bg-white/90 backdrop-blur-xs border border-[#D1DFF0] shadow-xs">
+            <div className="mt-3 flex items-center gap-3 p-3 rounded-2xl bg-white/90 backdrop-blur-xs border border-[#D1DFF0] shadow-xs shrink-0">
               <div className="w-9 h-9 rounded-xl bg-[#EBF2FF] text-[#2F6FED] flex items-center justify-center shrink-0 border border-[#2F6FED]/20">
                 <GraduationCap className="w-5 h-5" />
               </div>
@@ -53,7 +53,7 @@ export default function Hero() {
           </div>
 
           {/* Right Column: School Welcome & Identity & Director Card (7 cols on lg screens) */}
-          <div className="lg:col-span-7 space-y-3.5 sm:space-y-4 order-1 lg:order-2">
+          <div className="lg:col-span-7 flex flex-col justify-between space-y-3.5 sm:space-y-4 order-1 lg:order-2">
             
             {/* Institutional Badge */}
             <div className="flex flex-wrap items-center gap-2">
@@ -67,9 +67,9 @@ export default function Hero() {
               </span>
             </div>
 
-            {/* School Title & Subtitle */}
+            {/* School Title & Subtitle: Single line without wrapping on mobile */}
             <div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#1E3A5F] tracking-tight leading-tight whitespace-normal sm:whitespace-nowrap">
+              <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-[#1E3A5F] tracking-tight leading-tight whitespace-nowrap">
                 {settings.name}
               </h1>
               <p className="text-xs sm:text-sm font-semibold text-[#4B6080] mt-1 whitespace-nowrap">
