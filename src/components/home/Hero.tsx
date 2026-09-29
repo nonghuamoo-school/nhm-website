@@ -21,11 +21,11 @@ export default function Hero() {
       <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-[#D96B34]/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 p-5 sm:p-8 lg:p-10 flex items-center">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-stretch w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center w-full">
           
-          {/* Left Column: School Gate Photo & Education Level Badge (5 cols on lg screens, stretches to match right column) */}
-          <div className="flex lg:col-span-5 flex-col h-full justify-between order-2 lg:order-1">
-            <div className="rounded-2xl overflow-hidden border border-[#D1DFF0] bg-white shadow-md relative flex-1 min-h-[240px] sm:min-h-[280px] lg:min-h-[350px]">
+          {/* Left Column: School Gate Photo & Education Level Badge (5 cols on lg screens) */}
+          <div className="flex lg:col-span-5 flex-col order-2 lg:order-1">
+            <div className="rounded-2xl overflow-hidden border border-[#D1DFF0] bg-white aspect-[16/11] shadow-md relative">
               <OptimizedNewsImage
                 src={settings.heroImageUrl}
                 alt={settings.name}
@@ -37,7 +37,7 @@ export default function Hero() {
             </div>
 
             {/* Education Level Badge below the image */}
-            <div className="mt-3 flex items-center gap-3 p-3 rounded-2xl bg-white/90 backdrop-blur-xs border border-[#D1DFF0] shadow-xs shrink-0">
+            <div className="mt-3 flex items-center gap-3 p-3 rounded-2xl bg-white/90 backdrop-blur-xs border border-[#D1DFF0] shadow-xs">
               <div className="w-9 h-9 rounded-xl bg-[#EBF2FF] text-[#2F6FED] flex items-center justify-center shrink-0 border border-[#2F6FED]/20">
                 <GraduationCap className="w-5 h-5" />
               </div>
@@ -53,7 +53,7 @@ export default function Hero() {
           </div>
 
           {/* Right Column: School Welcome & Identity & Director Card (7 cols on lg screens) */}
-          <div className="lg:col-span-7 flex flex-col justify-between space-y-3.5 sm:space-y-4 order-1 lg:order-2">
+          <div className="lg:col-span-7 space-y-3.5 sm:space-y-4 order-1 lg:order-2">
             
             {/* Institutional Badge */}
             <div className="flex flex-wrap items-center gap-2">
@@ -77,29 +77,29 @@ export default function Hero() {
               </p>
             </div>
 
-            {/* Director Profile Card (Prominent Executive Card matching personnel page) */}
+            {/* Director Profile Card (Slim Horizontal Card with Executive Frame from /personnel) */}
             <Link
               href="/personnel"
-              className="group block w-full p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-[#F0F5FF]/95 via-white/95 to-[#F4F8FD]/95 backdrop-blur-xs border border-[#2F6FED]/30 hover:border-[#2F6FED]/70 shadow-2xs hover:shadow-xs transition-all duration-300"
+              className="group block w-full p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-[#F0F5FF]/95 via-white/95 to-[#F4F8FD]/95 backdrop-blur-xs border border-[#2F6FED]/30 hover:border-[#2F6FED]/70 shadow-2xs hover:shadow-xs transition-all duration-300"
               title="คลิกเพื่อดูทำเนียบครูและบุคลากรทางการศึกษา"
             >
-              <div className="flex items-center gap-3.5 sm:gap-5">
-                {/* Rectangular Executive Portrait matching /personnel */}
-                <div className="relative w-20 h-[104px] sm:w-[92px] sm:h-[120px] lg:w-[104px] lg:h-[132px] rounded-2xl overflow-hidden shrink-0 border-2 border-[#D96B34] ring-2 ring-[#D96B34]/25 shadow-md bg-slate-100 group-hover:scale-[1.02] transition-transform duration-300">
+              <div className="flex items-center gap-3.5 sm:gap-4">
+                {/* Executive Portrait Frame matching /personnel */}
+                <div className="relative w-16 h-20 sm:w-[72px] sm:h-[88px] rounded-2xl overflow-hidden shrink-0 border-2 border-[#D96B34] ring-2 ring-[#D96B34]/20 shadow-xs bg-slate-100">
                   <OptimizedNewsImage
                     src={directorImage}
                     alt={directorName}
                     fill
                     priority
-                    sizes="(max-width: 768px) 250px, 300px"
+                    sizes="(max-width: 640px) 140px, 160px"
                     className="w-full h-full object-cover object-top"
                   />
                 </div>
 
                 {/* Information Details */}
                 <div className="min-w-0 flex-1 flex flex-col justify-center">
-                  <div className="mb-1">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#2F6FED]/12 text-[#2F6FED] font-bold text-[10px] sm:text-xs border border-[#2F6FED]/25 whitespace-nowrap">
+                  <div className="mb-0.5 sm:mb-1">
+                    <span className="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full bg-[#2F6FED]/12 text-[#2F6FED] font-bold text-[10.5px] sm:text-xs border border-[#2F6FED]/25 whitespace-nowrap">
                       ผู้บริหารสถานศึกษา
                     </span>
                   </div>
